@@ -36,9 +36,6 @@ using namespace cv;
 using namespace dnn;
 using namespace std;
 
-float confThreshold;
-std::vector<std::string> classes;
-
 void postprocess(Mat& frame, const std::vector<Mat>& out, Net& net);
 
 void drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame);
@@ -49,7 +46,20 @@ std::vector<String> getOutputsNames(const Net& net);
 
 int getPlayerColor(int, void*, Mat& playerImage);
 
+void createNewField();
+
+void showField();
+
 void test(Mat& image);
+
+void changeField(int x, int y, int newValue);
+
+float confThreshold;
+std::vector<std::string> classes;
+
+const int width = 10;
+const int height = 3;
+std::array<std::array<int, width>, height> field;
 
 int main(int argc, char** argv)
 {
@@ -60,6 +70,9 @@ int main(int argc, char** argv)
 		parser.printMessage();
 		return 0;
 	}
+
+	// Init Gamefield
+	createNewField();
 
 	confThreshold = parser.get<float>("thr");
 	float scale = parser.get<float>("scale");
@@ -282,6 +295,52 @@ int getPlayerColor(int, void*, Mat& playerImage)
 		return 1;
 	}
 	return 0;
+}
+
+void createNewField() {
+	std::array<std::array<int, width>, height> arr;
+	
+	for ( int i = 0; i < height; i++ ) {
+		std::array<int, width> row = arr.at(i);
+		for ( int j = 0; j < width; j++ ) {
+			row.at(j) = 0;
+			//cout << "i, j = " << i << ", " << j << endl;
+			//cout << row.at(j) << endl;
+		}
+		arr.at(i) = row;
+	}
+	field = arr;
+	changeField(5,1,1);
+	showField();
+}
+
+void showField() {
+	
+	Mat image = Mat(height*5, width*5, CV_8UC3, Scalar(0,0,255));
+	for ( int i = 0; i < height; i++ ) {
+		std::array<int, width> row = field.at(i);
+		for ( int j = 0; j < width; j++ ) {
+			// Draw each part of the field a little bigger
+			for (int ii = i*5; ii < i*5+5; ii++) {
+				for (int jj = j*5; jj < j*5+5; jj++) {
+					// Color Player
+					if (row.at(j) == 1) {
+						image.at<cv::Vec3b>(ii,jj)[2] = 100;
+					}
+				}
+			}
+			cout << row[j] << " ";
+			
+		}
+		cout << endl;
+	}
+	static const std::string kWinName3 = "Field";
+	namedWindow(kWinName3, WINDOW_NORMAL);
+	imshow(kWinName3, image);
+}
+
+void changeField(int x, int y, int newValue) {
+	field.at(y).at(x) = newValue;
 }
 
 
