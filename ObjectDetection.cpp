@@ -5,6 +5,8 @@
 #include <opencv2/dnn.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
+#include <stdio.h>
+#include <stdlib.h>
 
 const char* keys =
 "{ help  h     | | Print help message. }"
@@ -44,6 +46,10 @@ void drawPred(int classId, float conf, int left, int top, int right, int bottom,
 void callback(int pos, void* userdata);
 
 std::vector<String> getOutputsNames(const Net& net);
+
+int getPlayerColor(int, void*, Mat& playerImage);
+
+void test(Mat& image);
 
 int main(int argc, char** argv)
 {
@@ -178,14 +184,23 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 					int left = centerX - width / 2;
 					int top = centerY - height / 2;
 
+					// Handle Players
 					if (classIdPoint.x == 0) {
-						Mat img2;
-						img2 = frame(Rect(left, top, width, height));
-						imshow(kWinName2, img2);
+						// Extract player from frame
+						Mat player;
+						player = frame(Rect(left, top, width, height));
+
+						// Check if red or black player
+						if (getPlayerColor(0, 0, player) == 1) {
+							cout << "Red Player" << endl;
+						}
+						else {
+							cout << "Black Player" << endl;
+						}
+						imshow(kWinName2, player);
+						//test(player);
+						waitKey(0);
 					}
-
-
-
 
 					classIds.push_back(classIdPoint.x);
 					confidences.push_back((float)confidence);
@@ -245,3 +260,48 @@ std::vector<String> getOutputsNames(const Net& net)
 	}
 	return names;
 }
+
+// TODO: Eleganter lösen (frei wählbare Farben für beide Teams, count und vergleichen)
+int getPlayerColor(int, void*, Mat& playerImage)
+{
+	Mat dst;//dst image
+	resize(playerImage, dst, Size(100, 100));//resize image
+	int count_red = 0;
+	for (int y = 0; y < dst.rows; y++) {
+		for (int x = 0; x < dst.cols; x++) {
+			//if (dst.at<uchar>(y, x) != 0) {
+				if (dst.at<cv::Vec3b>(y, x)[2] > 150) {
+					count_red++;
+				}
+			//}
+		}
+	}
+	float percent = (float)((float)count_red / ((float)dst.rows*(float)dst.cols));
+	//cout << count_red << "/" << (dst.rows*dst.cols) << " = " << percent << endl;
+	if (percent > 0.027) {
+		return 1;
+	}
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
