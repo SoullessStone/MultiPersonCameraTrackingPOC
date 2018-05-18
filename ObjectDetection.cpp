@@ -197,6 +197,8 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
             // detected objects and C is a number of classes + 4 where the first 4
             // numbers are [center_x, center_y, width, height]
             float* data = (float*)outs[i].data;
+	    static const std::string kWinName2 = "test";
+            namedWindow(kWinName2, WINDOW_NORMAL);
             for (int j = 0; j < outs[i].rows; ++j, data += outs[i].cols)
             {
                 Mat scores = outs[i].row(j).colRange(5, outs[i].cols);
@@ -211,6 +213,15 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
                     int height = (int)(data[3] * frame.rows);
                     int left = centerX - width / 2;
                     int top = centerY - height / 2;
+
+		    if (classIdPoint.x == 0) {
+		    	Mat img2;
+		    	img2 = frame(Rect(left, top, width, height));
+	    	    	imshow(kWinName2, img2);
+		    }
+		    
+		    
+
 
                     classIds.push_back(classIdPoint.x);
                     confidences.push_back((float)confidence);
