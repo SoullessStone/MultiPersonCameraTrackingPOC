@@ -215,18 +215,18 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 						// Check if red or black player
 						if (getPlayerColor(0, 0, player) == 1) {
 							cout << "Red Player" << endl;
+
+							// Find number
+							cv::Mat greyPlayer;
+							cv::cvtColor(player, greyPlayer, cv::COLOR_BGR2GRAY);
+							std::array<int, 7> possibleNumbers = {1,3,4,5,6,8,9};
+							for(int& i: possibleNumbers) { 
+								cout << "------ Possibility for " << i << ": " << getPossibilityForPlayerAndNumber(greyPlayer, i) << endl;
+								//waitKey();
+							}
 						}
 						else {
 							cout << "Black Player" << endl;
-						}
-
-						// Find number
-						cv::Mat greyPlayer;
-						cv::cvtColor(player, greyPlayer, cv::COLOR_BGR2GRAY);
-						std::array<int, 7> possibleNumbers = {1,3,4,5,6,8,9};
-						for(int& i: possibleNumbers) { 
-							cout << "------ Possibility for " << i << ": " << getPossibilityForPlayerAndNumber(greyPlayer, i) << endl;
-							//waitKey();
 						}
 
 						imshow(kWinName2, player);
@@ -255,17 +255,26 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 
 int getPossibilityForPlayerAndNumber(Mat& player, int number) {
 	Mat n = imread( "numbers/"+std::to_string(number)+".jpg", IMREAD_GRAYSCALE );
+	cv::resize(n,n,Size(45,60), 0, 0, cv::INTER_AREA);
+	cv::resize(n,n,Size(600,800), 0, 0, cv::INTER_AREA);
 	Mat nSmall;
 	cv::resize(n,nSmall,Size(45,60), 0, 0, cv::INTER_AREA);
 	int c1 = countSiftMatches(player, nSmall);
+	/*cout << "count 1: " << std::to_string(c1) << endl;
 	cv::resize(n,nSmall,Size(60,80), 0, 0, cv::INTER_AREA);
 	int c2 = countSiftMatches(player, nSmall);
+	cout << "count 2: " << std::to_string(c2) << endl;
 	cv::resize(n,nSmall,Size(90,120), 0, 0, cv::INTER_AREA);
 	int c3 = countSiftMatches(player, nSmall);
+	cout << "count 3: " << std::to_string(c3) << endl;
 	cv::resize(n,nSmall,Size(112,150), 0, 0, cv::INTER_AREA);
 	int c4 = countSiftMatches(player, nSmall);
-	//cout << "count autoscaled: " << std::to_string(c) << endl;
-	return c1+c2+c3+c4;
+	cout << "count 4: " << std::to_string(c4) << endl;
+	cv::resize(n,nSmall,Size(300,400), 0, 0, cv::INTER_AREA);
+	int c5 = countSiftMatches(player, nSmall);
+	cout << "count 5: " << std::to_string(c5) << endl;*/
+	waitKey();
+	return c1;
 }
 
 int countSiftMatches(Mat& player, Mat& number) {
@@ -275,18 +284,21 @@ int countSiftMatches(Mat& player, Mat& number) {
 		std::cout<< " --(!) Error reading images " << std::endl;
 		return -1; 
 	}
+	Mat resizedPlayer;
+	cv::resize(player,resizedPlayer,player.size()*3, 0, 0, cv::INTER_AREA);
+
 	//-- Step 1: Detect the keypoints using SIFT Detector, compute the descriptors
 	Ptr<SIFT> detector = SIFT::create();
 	std::vector<KeyPoint> keypoints_1, keypoints_2;
 	Mat descriptors_1, descriptors_2;
-	detector->detectAndCompute( player, Mat(), keypoints_1, descriptors_1 );
+	detector->detectAndCompute( resizedPlayer, Mat(), keypoints_1, descriptors_1 );
 	// TODO only calculate Keypoints&Descriptors once
 	detector->detectAndCompute( number, Mat(), keypoints_2, descriptors_2 );
 	//-- Step 2: Matching descriptor vectors using FLANN matcher
 	BFMatcher matcher;
 	std::vector< DMatch > matches;
 	matcher.match( descriptors_1, descriptors_2, matches );
-	double max_dist = 0; double min_dist = 100;
+	double max_dist = 0; double min_dist = 130;
 	//-- Quick calculation of max and min distances between keypoints
 	for( int i = 0; i < descriptors_1.rows; i++ )
 	{ double dist = matches[i].distance;
@@ -310,11 +322,12 @@ int countSiftMatches(Mat& player, Mat& number) {
 	}
 	//-- Draw only "good" matches
 	Mat img_matches;
-	drawMatches( player, keypoints_1, number, keypoints_2,
+	drawMatches( resizedPlayer, keypoints_1, number, keypoints_2,
 		 good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
 		 vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
 	//-- Show detected matches
 	imshow( "Good Matches", img_matches );
+	waitKey();
 	return (int)good_matches.size();
 	//for( int i = 0; i < (int)good_matches.size(); i++ )
 	//{ 
