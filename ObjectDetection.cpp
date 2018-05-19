@@ -273,7 +273,6 @@ int getPossibilityForPlayerAndNumber(Mat& player, int number) {
 	cv::resize(n,nSmall,Size(300,400), 0, 0, cv::INTER_AREA);
 	int c5 = countSiftMatches(player, nSmall);
 	cout << "count 5: " << std::to_string(c5) << endl;*/
-	waitKey();
 	return c1;
 }
 
@@ -285,7 +284,10 @@ int countSiftMatches(Mat& player, Mat& number) {
 		return -1; 
 	}
 	Mat resizedPlayer;
-	cv::resize(player,resizedPlayer,player.size()*3, 0, 0, cv::INTER_AREA);
+	
+	int newHeight = 600;
+	int newWidth = (int)((((double)player.cols / (double)player.rows))*(double)newHeight);
+	cv::resize(player,resizedPlayer,Size(newWidth, newHeight), 0, 0, cv::INTER_AREA);
 
 	//-- Step 1: Detect the keypoints using SIFT Detector, compute the descriptors
 	Ptr<SIFT> detector = SIFT::create();
