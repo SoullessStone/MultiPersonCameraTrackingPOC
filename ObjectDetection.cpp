@@ -255,6 +255,7 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 
 int getPossibilityForPlayerAndNumber(Mat& player, int number) {
 	Mat n = imread( "numbers/"+std::to_string(number)+".jpg", IMREAD_GRAYSCALE );
+	// TODO evtl. resize relativ zu n
 	cv::resize(n,n,Size(45,60), 0, 0, cv::INTER_AREA);
 	cv::resize(n,n,Size(600,800), 0, 0, cv::INTER_AREA);
 	Mat nSmall;
