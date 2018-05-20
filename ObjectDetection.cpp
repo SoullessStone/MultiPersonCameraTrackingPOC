@@ -112,7 +112,7 @@ int main(int argc, char** argv)
 
 	// Create a window
 	static const std::string kWinName = "Deep learning object detection in OpenCV";
-	namedWindow(kWinName, WINDOW_NORMAL);
+	//namedWindow(kWinName, WINDOW_NORMAL);
 	int initialConf = (int)(confThreshold * 100);
 	createTrackbar("Confidence threshold, %", kWinName, &initialConf, 99, callback);
 
@@ -159,7 +159,7 @@ int main(int argc, char** argv)
 		std::string label = format("Inference time: %.2f ms", t);
 		putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0));
 
-		imshow(kWinName, frame);
+		//imshow(kWinName, frame);
 	}
 	return 0;
 }
@@ -189,8 +189,8 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 			// detected objects and C is a number of classes + 4 where the first 4
 			// numbers are [center_x, center_y, width, height]
 			float* data = (float*)outs[i].data;
-			static const std::string kWinName2 = "test";
-			namedWindow(kWinName2, WINDOW_NORMAL);
+			//static const std::string kWinName2 = "test";
+			//namedWindow(kWinName2, WINDOW_NORMAL);
 			for (int j = 0; j < outs[i].rows; ++j, data += outs[i].cols)
 			{
 				Mat scores = outs[i].row(j).colRange(5, outs[i].cols);
@@ -229,7 +229,7 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 							cout << "Black Player" << endl;
 						}
 
-						imshow(kWinName2, player);
+						//imshow(kWinName2, player);
 						waitKey(0);
 					}
 
@@ -260,21 +260,14 @@ int getPossibilityForPlayerAndNumber(Mat& player, int number) {
 	int smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
 	cv::resize(n,n,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
 
-	int bigHeight = 900;
-	int bigWidth = (int)((((double)n.cols / (double)n.rows))*(double)bigHeight);
-	cv::resize(n,n,Size(bigWidth,bigHeight), 0, 0, cv::INTER_AREA);
-
 	Mat nSmall;
 	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
+
+
+
 	int c1 = countSiftMatches(player, nSmall);
 
-
-	Mat newPlayer;
-	cv::resize(player,newPlayer,player.size()*6, 0, 0, cv::INTER_AREA);
-
-	imwrite( "test.jpg", newPlayer );
-
-
+	// imwrite( "test.jpg", newPlayer );
 	/*cout << "count 1: " << std::to_string(c1) << endl;
 	cv::resize(n,nSmall,Size(60,80), 0, 0, cv::INTER_AREA);
 	int c2 = countSiftMatches(player, nSmall);
@@ -300,9 +293,11 @@ int countSiftMatches(Mat& player, Mat& number) {
 	}
 	Mat resizedPlayer;
 	
-	int newHeight = 600;
+	int newHeight = 400;
 	int newWidth = (int)((((double)player.cols / (double)player.rows))*(double)newHeight);
 	cv::resize(player,resizedPlayer,Size(newWidth, newHeight), 0, 0, cv::INTER_AREA);
+
+	threshold( resizedPlayer, resizedPlayer, 120, 255,0 );
 
 	//-- Step 1: Detect the keypoints using SIFT Detector, compute the descriptors
 	Ptr<SIFT> detector = SIFT::create();
