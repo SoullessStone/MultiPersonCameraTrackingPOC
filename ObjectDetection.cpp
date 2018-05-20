@@ -254,13 +254,27 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 }
 
 int getPossibilityForPlayerAndNumber(Mat& player, int number) {
-	Mat n = imread( "numbers/"+std::to_string(number)+".jpg", IMREAD_GRAYSCALE );
-	// TODO evtl. resize relativ zu n
-	cv::resize(n,n,Size(45,60), 0, 0, cv::INTER_AREA);
-	cv::resize(n,n,Size(600,800), 0, 0, cv::INTER_AREA);
+	Mat n = imread( "numbers/"+std::to_string(number)+"_black.jpg", IMREAD_GRAYSCALE );
+
+	int smallHeight = 40;
+	int smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
+	cv::resize(n,n,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
+
+	int bigHeight = 900;
+	int bigWidth = (int)((((double)n.cols / (double)n.rows))*(double)bigHeight);
+	cv::resize(n,n,Size(bigWidth,bigHeight), 0, 0, cv::INTER_AREA);
+
 	Mat nSmall;
-	cv::resize(n,nSmall,Size(45,60), 0, 0, cv::INTER_AREA);
+	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
 	int c1 = countSiftMatches(player, nSmall);
+
+
+	Mat newPlayer;
+	cv::resize(player,newPlayer,player.size()*6, 0, 0, cv::INTER_AREA);
+
+	imwrite( "test.jpg", newPlayer );
+
+
 	/*cout << "count 1: " << std::to_string(c1) << endl;
 	cv::resize(n,nSmall,Size(60,80), 0, 0, cv::INTER_AREA);
 	int c2 = countSiftMatches(player, nSmall);
@@ -438,8 +452,8 @@ void showField() {
 		cout << endl;
 	}
 	static const std::string kWinName3 = "Field";
-	namedWindow(kWinName3, WINDOW_NORMAL);
-	imshow(kWinName3, image);
+	//namedWindow(kWinName3, WINDOW_NORMAL);
+	//imshow(kWinName3, image);
 }
 
 void changeField(int x, int y, int newValue) {
