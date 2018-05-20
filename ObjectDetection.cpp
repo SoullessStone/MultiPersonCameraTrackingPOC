@@ -285,11 +285,11 @@ int getPossibilityForPlayerAndNumber(Mat& player, int number) {
 	int c5 = countSiftMatches(player, nSmall);
 
 	// imwrite( "test.jpg", newPlayer );
-	cout << "count 1: " << std::to_string(c1) << endl;
+	/*cout << "count 1: " << std::to_string(c1) << endl;
 	cout << "count 2: " << std::to_string(c2) << endl;
 	cout << "count 3: " << std::to_string(c3) << endl;
 	cout << "count 4: " << std::to_string(c4) << endl;
-	cout << "count 5: " << std::to_string(c5) << endl;
+	cout << "count 5: " << std::to_string(c5) << endl;*/
 	return c1+c2+c3+c4+c5;
 }
 
@@ -314,7 +314,7 @@ int countSiftMatches(Mat& player, Mat& number) {
 
 	threshold( resizedPlayer, resizedPlayer, 120, 255,0 );
 
-	imshow("before", resizedPlayer);
+	//imshow("before", resizedPlayer);
 
 	cv::floodFill(resizedPlayer, cv::Point(0,0), 0, (cv::Rect*)0, cv::Scalar(), 200); 
 	cv::floodFill(resizedPlayer, cv::Point(resizedPlayer.cols-1,resizedPlayer.rows-1), 0, (cv::Rect*)0, cv::Scalar(), 200); 
@@ -367,8 +367,8 @@ int countSiftMatches(Mat& player, Mat& number) {
 		 good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
 		 vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
 	//-- Show detected matches
-	imshow( "Good Matches", img_matches );
-	waitKey();
+	//imshow( "Good Matches", img_matches );
+	//waitKey();
 	return (int)good_matches.size();
 	//for( int i = 0; i < (int)good_matches.size(); i++ )
 	//{ 
@@ -423,16 +423,21 @@ int getPlayerColor(int, void*, Mat& playerImage)
 	int count_red = 0;
 	for (int y = 0; y < dst.rows; y++) {
 		for (int x = 0; x < dst.cols; x++) {
-			//if (dst.at<uchar>(y, x) != 0) {
-				if (dst.at<cv::Vec3b>(y, x)[2] > 150) {
-					count_red++;
-				}
-			//}
+			int r = dst.at<cv::Vec3b>(y, x)[2];
+			int g = dst.at<cv::Vec3b>(y, x)[1];
+			int b = dst.at<cv::Vec3b>(y, x)[0];
+			bool verify = r + 50 > g+b;
+			if (r > 150 && verify) {
+				count_red++;
+				//cout << dst.at<cv::Vec3b>(y, x) << endl;
+				//waitKey();
+			}
 		}
 	}
 	float percent = (float)((float)count_red / ((float)dst.rows*(float)dst.cols));
-	//cout << count_red << "/" << (dst.rows*dst.cols) << " = " << percent << endl;
-	if (percent > 0.027) {
+	imshow("player", playerImage);
+	cout << count_red << "/" << (dst.rows*dst.cols) << " = " << percent << endl;
+	if (percent > 0.0) {
 		return 1;
 	}
 	return 0;
