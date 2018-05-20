@@ -262,26 +262,35 @@ int getPossibilityForPlayerAndNumber(Mat& player, int number) {
 
 	Mat nSmall;
 	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
-
-
-
 	int c1 = countSiftMatches(player, nSmall);
 
-	// imwrite( "test.jpg", newPlayer );
-	/*cout << "count 1: " << std::to_string(c1) << endl;
-	cv::resize(n,nSmall,Size(60,80), 0, 0, cv::INTER_AREA);
+	smallHeight = 60;
+	smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
+	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
 	int c2 = countSiftMatches(player, nSmall);
-	cout << "count 2: " << std::to_string(c2) << endl;
-	cv::resize(n,nSmall,Size(90,120), 0, 0, cv::INTER_AREA);
+
+	smallHeight = 80;
+	smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
+	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
 	int c3 = countSiftMatches(player, nSmall);
-	cout << "count 3: " << std::to_string(c3) << endl;
-	cv::resize(n,nSmall,Size(112,150), 0, 0, cv::INTER_AREA);
+
+	smallHeight = 120;
+	smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
+	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
 	int c4 = countSiftMatches(player, nSmall);
-	cout << "count 4: " << std::to_string(c4) << endl;
-	cv::resize(n,nSmall,Size(300,400), 0, 0, cv::INTER_AREA);
+
+	smallHeight = 200;
+	smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
+	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
 	int c5 = countSiftMatches(player, nSmall);
-	cout << "count 5: " << std::to_string(c5) << endl;*/
-	return c1;
+
+	// imwrite( "test.jpg", newPlayer );
+	cout << "count 1: " << std::to_string(c1) << endl;
+	cout << "count 2: " << std::to_string(c2) << endl;
+	cout << "count 3: " << std::to_string(c3) << endl;
+	cout << "count 4: " << std::to_string(c4) << endl;
+	cout << "count 5: " << std::to_string(c5) << endl;
+	return c1+c2+c3+c4+c5;
 }
 
 int countSiftMatches(Mat& player, Mat& number) {
@@ -293,11 +302,31 @@ int countSiftMatches(Mat& player, Mat& number) {
 	}
 	Mat resizedPlayer;
 	
-	int newHeight = 400;
+	int newHeight = 600;
 	int newWidth = (int)((((double)player.cols / (double)player.rows))*(double)newHeight);
 	cv::resize(player,resizedPlayer,Size(newWidth, newHeight), 0, 0, cv::INTER_AREA);
 
+	//int left = resizedPlayer.cols / 4;
+	//int top = resizedPlayer.rows / 6;
+	//int width = resizedPlayer.cols / 2;
+	//int height = resizedPlayer.rows / 2;
+	//resizedPlayer = resizedPlayer(Rect(left, top, width, height));
+
 	threshold( resizedPlayer, resizedPlayer, 120, 255,0 );
+
+	imshow("before", resizedPlayer);
+
+	cv::floodFill(resizedPlayer, cv::Point(0,0), 0, (cv::Rect*)0, cv::Scalar(), 200); 
+	cv::floodFill(resizedPlayer, cv::Point(resizedPlayer.cols-1,resizedPlayer.rows-1), 0, (cv::Rect*)0, cv::Scalar(), 200); 
+	cv::floodFill(resizedPlayer, cv::Point(resizedPlayer.cols-1,0), 0, (cv::Rect*)0, cv::Scalar(), 200); 
+	cv::floodFill(resizedPlayer, cv::Point(0,resizedPlayer.rows-1), 0, (cv::Rect*)0, cv::Scalar(), 200); 
+
+	int erosion_size = 1;
+	Mat element = getStructuringElement( MORPH_RECT,
+                                       Size( 2*erosion_size + 1, 2*erosion_size+1 ),
+                                       Point( erosion_size, erosion_size ) );
+	erode( resizedPlayer, resizedPlayer, element );
+
 
 	//-- Step 1: Detect the keypoints using SIFT Detector, compute the descriptors
 	Ptr<SIFT> detector = SIFT::create();
