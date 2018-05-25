@@ -42,6 +42,21 @@ using namespace dnn;
 using namespace std;
 using namespace cv::xfeatures2d;
 
+struct PointPair
+{
+	Point p1;
+	Point p2;
+	int id;
+	PointPair(int inId, int x1, int y1, int x2, int y2)
+	{
+		id = inId;
+		p1 = Point(x1,y1);
+		p2 = Point(x2,y2);
+	}
+};
+
+// TODO Move to .h file
+
 void postprocess(Mat& frame, const std::vector<Mat>& out, Net& net);
 
 void drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame);
@@ -52,23 +67,25 @@ std::vector<String> getOutputsNames(const Net& net);
 
 int getPlayerColor(int, void*, Mat& playerImage);
 
-void createNewField();
-
-void showField();
-
 void test(Mat& image);
 
-void changeField(int x, int y, int newValue);
-
 int countSiftMatches(Mat& player, Mat& number);
+
 int getPossibilityForPlayerAndNumber(Mat& player, int number);
+
+void initPointPairs();
+
+void barycentric(Point p, Point a, Point b, Point c, float &u, float &v, float &w);
+
+void createFieldModel(std::vector<PointPair> additionalPointsRed, std::vector<PointPair> additionalPointsGreen, std::vector<PointPair> additionalPointsBlue);
+
+std::array<PointPair, 3> findNearestThreePoints(Point p);
+
+// Variables
+std::vector<PointPair> allPointPairs;
 
 float confThreshold;
 std::vector<std::string> classes;
-
-const int width = 10;
-const int height = 3;
-std::array<std::array<int, width>, height> field;
 
 int main(int argc, char** argv)
 {
@@ -79,9 +96,6 @@ int main(int argc, char** argv)
 		parser.printMessage();
 		return 0;
 	}
-
-	// Init Gamefield
-	createNewField();
 
 	confThreshold = parser.get<float>("thr");
 	float scale = parser.get<float>("scale");
@@ -160,6 +174,7 @@ int main(int argc, char** argv)
 		putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0));
 
 		//imshow(kWinName, frame);
+		waitKey(0);
 	}
 	return 0;
 }
@@ -183,6 +198,7 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 		std::vector<int> classIds;
 		std::vector<float> confidences;
 		std::vector<Rect> boxes;
+		int counter = 0;
 		for (size_t i = 0; i < outs.size(); ++i)
 		{
 			// Network produces output blob with a shape NxC where N is a number of
@@ -205,9 +221,12 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 					int height = (int)(data[3] * frame.rows);
 					int left = centerX - width / 2;
 					int top = centerY - height / 2;
+					int bottom = centerY + height / 2;
 
 					// Handle Players
 					if (classIdPoint.x == 0) {
+						cout << "-------------------------------- Player " << counter << " --------------------------------" << endl;
+						counter += 1;
 						// Extract player from frame
 						Mat player;
 						player = frame(Rect(left, top, width, height));
@@ -229,7 +248,31 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 							cout << "Black Player" << endl;
 						}
 
-						//imshow(kWinName2, player);
+						Point bottomOfPlayer(centerX, bottom);
+						initPointPairs();
+						std::array<PointPair, 3> nearestPoints = findNearestThreePoints(bottomOfPlayer);
+
+						cout << "bottomOfPlayer: " << bottomOfPlayer << endl;
+						float alpha = 0.0;
+						float beta = 0.0;
+						float gamma = 0.0;
+						barycentric(bottomOfPlayer, nearestPoints[0].p1, nearestPoints[1].p1, nearestPoints[2].p1, alpha, beta, gamma);
+						float x_part = alpha*(float)nearestPoints[0].p2.x + beta*(float)nearestPoints[1].p2.x + gamma*(float)nearestPoints[2].p2.x;
+						float y_part = alpha*(float)nearestPoints[0].p2.y + beta*(float)nearestPoints[1].p2.y + gamma*(float)nearestPoints[2].p2.y;
+						cout << "x: " << x_part << endl;
+						cout << "y: " << y_part << endl;
+
+						PointPair clickedPointPair(1000+j, bottomOfPlayer.x, bottomOfPlayer.y, x_part, y_part);
+
+						std::vector<PointPair> input2;
+						std::vector<PointPair> input3;
+						input2.push_back(nearestPoints[0]);
+						input2.push_back(nearestPoints[1]);
+						input2.push_back(nearestPoints[2]);
+						input3.push_back(clickedPointPair);
+						createFieldModel(allPointPairs, input2, input3);
+
+
 						waitKey(0);
 					}
 
@@ -415,7 +458,7 @@ std::vector<String> getOutputsNames(const Net& net)
 	return names;
 }
 
-// TODO: Eleganter lösen (frei wählbare Farben für beide Teams, count und vergleichen)
+// TODO: Eleganter lösen (frei wählbare Farben für beide Teams, count und vergleichen, evtl hsv-distance: http://answers.opencv.org/question/127885/how-can-i-best-compare-two-bgr-colors-to-determine-how-similardifferent-they-are/)
 int getPlayerColor(int, void*, Mat& playerImage)
 {
 	Mat dst;//dst image
@@ -437,56 +480,207 @@ int getPlayerColor(int, void*, Mat& playerImage)
 	float percent = (float)((float)count_red / ((float)dst.rows*(float)dst.cols));
 	imshow("player", playerImage);
 	cout << count_red << "/" << (dst.rows*dst.cols) << " = " << percent << endl;
+	//waitKey();
 	if (percent > 0.0) {
 		return 1;
 	}
 	return 0;
 }
 
-void createNewField() {
-	std::array<std::array<int, width>, height> arr;
-	
-	for ( int i = 0; i < height; i++ ) {
-		std::array<int, width> row = arr.at(i);
-		for ( int j = 0; j < width; j++ ) {
-			row.at(j) = 0;
-			//cout << "i, j = " << i << ", " << j << endl;
-			//cout << row.at(j) << endl;
-		}
-		arr.at(i) = row;
-	}
-	field = arr;
-	changeField(5,1,1);
-	showField();
+void initPointPairs() {
+	// Oberste Linie
+	allPointPairs.push_back(PointPair(1, 646, 320, 0, 0)); // 1
+	allPointPairs.push_back(PointPair(2, 674, 320, 282, 0));
+	allPointPairs.push_back(PointPair(3, 808, 329, 882, 0));
+	allPointPairs.push_back(PointPair(4, 886, 335, 1182, 0));
+	allPointPairs.push_back(PointPair(5, 983, 345, 1482, 0)); // 5
+	allPointPairs.push_back(PointPair(6, 1281, 381, 2082, 0));
+	allPointPairs.push_back(PointPair(7, 1486, 418, 2364, 0));
+	// Zweite Linie
+	allPointPairs.push_back(PointPair(8, 615, 329, 0, 140));
+	allPointPairs.push_back(PointPair(9, 646, 334, 282, 140));
+	allPointPairs.push_back(PointPair(10, 762, 344, 882, 140)); // 10
+	allPointPairs.push_back(PointPair(11, 846, 351, 1182, 140));
+	allPointPairs.push_back(PointPair(12, 949, 363, 1482, 140));
+	allPointPairs.push_back(PointPair(13, 1257, 403, 2082, 140));
+	allPointPairs.push_back(PointPair(14, 1485, 444, 2364, 140));
+	// Dritte Linie
+	allPointPairs.push_back(PointPair(15, 643, 350, 512, 284)); // 15
+	allPointPairs.push_back(PointPair(16, 720, 359, 882, 284));
+	allPointPairs.push_back(PointPair(17, 801, 367, 1182, 284));
+	allPointPairs.push_back(PointPair(18, 905, 381, 1482, 284));
+	allPointPairs.push_back(PointPair(19, 1078, 410, 1852, 284));
+	// Vierte Linie
+	allPointPairs.push_back(PointPair(20, 479, 370, 0, 590)); // 20
+	allPointPairs.push_back(PointPair(21, 505, 375, 282, 590));
+	allPointPairs.push_back(PointPair(22, 1128, 531, 2082, 590)); // A
+	allPointPairs.push_back(PointPair(23, 1452, 610, 2364, 590));
+	// Fünfte Linie
+	allPointPairs.push_back(PointPair(24, 401, 426, 512, 896));
+	allPointPairs.push_back(PointPair(25, 447, 450, 882, 896)); // 25
+	allPointPairs.push_back(PointPair(26, 506, 479, 1182, 896));
+	allPointPairs.push_back(PointPair(27, 593, 522, 1482, 896));
+	allPointPairs.push_back(PointPair(28, 771, 614, 1852, 896)); // B
+	// Sechste Linie
+	allPointPairs.push_back(PointPair(29, 299, 422, 0, 1040));
+	allPointPairs.push_back(PointPair(30, 313, 438, 282, 1040)); // 30
+	allPointPairs.push_back(PointPair(31, 369, 482, 882, 1040));
+	allPointPairs.push_back(PointPair(32, 410, 517, 1182, 1040));
+	allPointPairs.push_back(PointPair(33, 481, 575, 1482, 1040));
+	allPointPairs.push_back(PointPair(34, 824, 819, 2082, 1040)); // C
+		 // 35 gibts nicht
+	// Siebte Linie
+	allPointPairs.push_back(PointPair(36, 236, 439, 0, 1180));
+	allPointPairs.push_back(PointPair(37, 245, 461, 282, 1180));
+	allPointPairs.push_back(PointPair(38, 276, 520, 882, 1180));
+	allPointPairs.push_back(PointPair(39, 301, 566, 1182, 1180));
+	allPointPairs.push_back(PointPair(40, 351, 637, 1482, 1180)); // 40
+	// Zweiter Teil vierte Linie
+	allPointPairs.push_back(PointPair(43, 531, 384, 512, 590)); // 43
+	allPointPairs.push_back(PointPair(44, 598, 398, 882, 590));
+	allPointPairs.push_back(PointPair(45, 673, 416, 1182, 590));
+	allPointPairs.push_back(PointPair(46, 774, 439, 1482, 590));
+	allPointPairs.push_back(PointPair(47, 960, 486, 1852, 590));
 }
 
-void showField() {
-	
-	Mat image = Mat(height*5, width*5, CV_8UC3, Scalar(0,0,255));
-	for ( int i = 0; i < height; i++ ) {
-		std::array<int, width> row = field.at(i);
-		for ( int j = 0; j < width; j++ ) {
-			// Draw each part of the field a little bigger
-			for (int ii = i*5; ii < i*5+5; ii++) {
-				for (int jj = j*5; jj < j*5+5; jj++) {
-					// Color Player
-					if (row.at(j) == 1) {
-						image.at<cv::Vec3b>(ii,jj)[2] = 100;
-					}
-				}
-			}
-			cout << row[j] << " ";
-			
-		}
-		cout << endl;
-	}
-	static const std::string kWinName3 = "Field";
-	//namedWindow(kWinName3, WINDOW_NORMAL);
-	//imshow(kWinName3, image);
+void barycentric(Point p, Point a, Point b, Point c, float &u, float &v, float &w)
+{
+  	int v0[] = { b.x-a.x, b.y-a.y };
+  	int v1[] = { c.x-a.x, c.y-a.y };
+  	int v2[] = { p.x-a.x, p.y-a.y };
+	int array_size = 2;
+	float d00 = inner_product(v0, v0 + array_size, v0, 0);
+	float d01 = inner_product(v0, v0 + array_size, v1, 0);
+	float d11 = inner_product(v1, v1 + array_size, v1, 0);
+	float d20 = inner_product(v2, v2 + array_size, v0, 0);
+	float d21 = inner_product(v2, v2 + array_size, v1, 0);
+	float denom = d00 * d11 - d01 * d01;
+	v = (d11 * d20 - d01 * d21) / denom;
+	w = (d00 * d21 - d01 * d20) / denom;
+	u = 1.0f - v - w;
 }
 
-void changeField(int x, int y, int newValue) {
-	field.at(y).at(x) = newValue;
+void createFieldModel(std::vector<PointPair> additionalPointsRed, std::vector<PointPair> additionalPointsGreen, std::vector<PointPair> additionalPointsBlue) {
+	Mat field(650,1250, CV_8UC3, Scalar(153,136,119));
+	// white field
+	int white_x = 141;
+	int white_y = 70;
+	int white_width = 900;
+	int white_height = 450;
+	Scalar white_color(255,255,255);
+	Point white_topleft(white_x,white_y) ;
+	Point white_bottomleft(white_x,white_y+white_height) ;
+	Point white_topright(white_x+white_width,white_y) ;
+	Point white_bottomright(white_x+white_width,white_y+white_height) ;
+	Point white_topthird(white_x+white_width/3,white_y) ;
+	Point white_bottomthird(white_x+white_width/3,white_y+white_height) ;
+	Point white_tophalf(white_x+white_width/2,white_y) ;
+	Point white_bottomhalf(white_x+white_width/2,white_y+white_height) ;
+	Point white_topTwoThirds(white_x+2*(white_width/3),white_y) ;
+	Point white_bottomTwoThirds(white_x+2*(white_width/3),white_y+white_height) ;
+	line(field, white_topleft, white_bottomleft, white_color, 2);
+	line(field, white_topleft, white_topright, white_color, 2);
+	line(field, white_topright, white_bottomright, white_color, 2);
+	line(field, white_bottomleft, white_bottomright, white_color, 2);
+	line(field, white_topthird, white_bottomthird, white_color, 2);
+	line(field, white_tophalf, white_bottomhalf, white_color, 2);
+	line(field, white_topTwoThirds, white_bottomTwoThirds, white_color, 2);
+	// yellow field
+	int yellow_x = 256;
+	int yellow_y = 142;
+	int yellow_width = 670;
+	int yellow_height = 306;
+	Scalar yellow_color(0,255,255);
+	Point yellow_topleft(yellow_x,yellow_y) ;
+	Point yellow_bottomleft(yellow_x,yellow_y+yellow_height) ;
+	Point yellow_topright(yellow_x+yellow_width,yellow_y) ;
+	Point yellow_bottomright(yellow_x+yellow_width,yellow_y+yellow_height) ;
+	line(field, yellow_topleft, yellow_bottomleft, yellow_color, 2);
+	line(field, yellow_topleft, yellow_topright, yellow_color, 2);
+	line(field, yellow_topright, yellow_bottomright, yellow_color, 2);
+	line(field, yellow_bottomleft, yellow_bottomright, yellow_color, 2);
+
+	for(PointPair& pp: additionalPointsRed) {
+		circle(field, Point(pp.p2.x / 2, pp.p2.y / 2), 8, Scalar(0, 0, 255));
+		putText(field, std::to_string(pp.id), cvPoint(pp.p2.x / 2+15,pp.p2.y / 2+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(200,200,250), 1, CV_AA);
+	}
+
+	for(PointPair& pp: additionalPointsGreen) {
+		circle(field, Point(pp.p2.x / 2, pp.p2.y / 2), 8, Scalar(0, 255, 0));
+		putText(field, std::to_string(pp.id), cvPoint(pp.p2.x / 2+15,pp.p2.y / 2+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(100,200,250), 1, CV_AA);
+	}
+
+	for(PointPair& pp: additionalPointsBlue) {
+		circle(field, Point(pp.p2.x / 2, pp.p2.y / 2), 8, Scalar(255, 0, 0));
+		putText(field, std::to_string(pp.id), cvPoint(pp.p2.x / 2+15,pp.p2.y / 2+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0,200,250), 1, CV_AA);
+	}	
+
+	imshow("Field-Model", field);
+	imwrite( "test.jpg", field );
+}
+
+std::array<PointPair, 3> findNearestThreePoints(Point p) {
+	//cout << "Input p: " << p << endl;
+
+	PointPair nearestPP1(9999,9999,9999,9999,9999);
+	double pp1Distance = 9999.0;
+	PointPair nearestPP2(9999,9999,9999,9999,9999);
+	double pp2Distance = 9999.0;
+	PointPair nearestPP3(99999,999,9999,9999,9999);
+	double pp3Distance = 9999.0;
+
+	double maxDouble = std::numeric_limits<double>::max();
+	int x, y;
+	double sum1 = maxDouble, sum2 = maxDouble, sum3 = maxDouble;
+	for(PointPair& curPP: allPointPairs) {
+		x = p.x - curPP.p1.x;
+		y = p.y - curPP.p1.y;
+		double curDistance = sqrt(pow((double)x, 2.0) + pow((double)y, 2.0));
+		//cout << "curPP: #" << curPP.id << " " << curPP.p1 << ", distance: " << curDistance << endl;
+
+		if (pp1Distance == 9999.0) {
+			nearestPP1 = curPP;
+			pp1Distance = curDistance;
+			continue;
+		}
+		if (pp2Distance == 9999.0) {
+			nearestPP2 = curPP;
+			pp2Distance = curDistance;
+			continue;
+		}
+		if (pp3Distance == 9999.0) {
+			nearestPP3 = curPP;
+			pp3Distance = curDistance;
+			continue;
+		}
+		bool pp1DistanceIsTheBiggest = pp1Distance >= pp2Distance && pp1Distance >= pp3Distance;
+		if (pp1DistanceIsTheBiggest && curDistance < pp1Distance) {
+			nearestPP1 = curPP;
+			pp1Distance = curDistance;
+			continue;
+		}
+		bool pp2DistanceIsTheBiggest = pp2Distance >= pp1Distance && pp2Distance >= pp3Distance;
+		if (pp2DistanceIsTheBiggest && curDistance < pp2Distance) {
+			nearestPP2 = curPP;
+			pp2Distance = curDistance;
+			continue;
+		}
+		bool pp3DistanceIsTheBiggest = pp3Distance >= pp2Distance && pp3Distance >= pp1Distance;
+		if (pp3DistanceIsTheBiggest && curDistance < pp3Distance) {
+			nearestPP3 = curPP;
+			pp3Distance = curDistance;
+			continue;
+		}
+		if (!(pp1DistanceIsTheBiggest||pp2DistanceIsTheBiggest||pp3DistanceIsTheBiggest))
+		{
+			cout << "Komischer State, mal reinschauen..." << endl;
+		}
+	}
+
+	std::array<PointPair, 3> result = {
+		nearestPP1, nearestPP2, nearestPP3
+	};
+	return result;
 }
 
 
