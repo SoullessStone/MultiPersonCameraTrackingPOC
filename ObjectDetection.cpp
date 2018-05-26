@@ -137,6 +137,9 @@ int main(int argc, char** argv)
 	else
 		cap.open(0);
 
+	
+	initPointPairs();
+
 	// Process frames.
 	Mat frame, blob;
 	while (waitKey(1) < 0)
@@ -249,7 +252,6 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 						}
 
 						Point bottomOfPlayer(centerX, bottom);
-						initPointPairs();
 						std::array<PointPair, 3> nearestPoints = findNearestThreePoints(bottomOfPlayer);
 
 						cout << "bottomOfPlayer: " << bottomOfPlayer << endl;
@@ -262,7 +264,14 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 						cout << "x: " << x_part << endl;
 						cout << "y: " << y_part << endl;
 
-						PointPair clickedPointPair(1000+j, bottomOfPlayer.x, bottomOfPlayer.y, x_part, y_part);
+						if (x_part < 0) {
+							x_part = 0;
+						}
+						if (y_part < 0) {
+							y_part = 0;
+						}
+
+						PointPair clickedPointPair(counter, bottomOfPlayer.x, bottomOfPlayer.y, x_part, y_part);
 
 						std::vector<PointPair> input2;
 						std::vector<PointPair> input3;
