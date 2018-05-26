@@ -470,30 +470,26 @@ std::vector<String> getOutputsNames(const Net& net)
 // TODO: Eleganter lösen (frei wählbare Farben für beide Teams, count und vergleichen, evtl hsv-distance: http://answers.opencv.org/question/127885/how-can-i-best-compare-two-bgr-colors-to-determine-how-similardifferent-they-are/)
 int getPlayerColor(int, void*, Mat& playerImage)
 {
-	Mat dst;//dst image
-	resize(playerImage, dst, Size(100, 100));//resize image
-	int count_red = 0;
-	for (int y = 0; y < dst.rows; y++) {
-		for (int x = 0; x < dst.cols; x++) {
-			int r = dst.at<cv::Vec3b>(y, x)[2];
-			int g = dst.at<cv::Vec3b>(y, x)[1];
-			int b = dst.at<cv::Vec3b>(y, x)[0];
-			bool verify = r + 50 > g+b;
-			if (r > 150 && verify) {
-				count_red++;
-				//cout << dst.at<cv::Vec3b>(y, x) << endl;
-				//waitKey();
-			}
-		}
-	}
-	float percent = (float)((float)count_red / ((float)dst.rows*(float)dst.cols));
+
+	// Convert input image to HSV
+	cv::Mat hsv_image;
+	cv::cvtColor(playerImage, hsv_image, cv::COLOR_BGR2HSV);
+	// Normalisieren durch Grössenvereinheitlichung
+	resize(hsv_image, hsv_image, Size(100, 100));
+
+	// Threshold the HSV image, keep only the red pixels 	
+	cv::Mat lower_red_hue_range;
+	cv::Mat upper_red_hue_range;
+	cv::inRange(hsv_image, cv::Scalar(0, 100, 100), cv::Scalar(10, 255, 255), lower_red_hue_range);
+	cv::inRange(hsv_image, cv::Scalar(160, 100, 100), cv::Scalar(179, 255, 255), upper_red_hue_range);
+	int countA = countNonZero(lower_red_hue_range);
+	int countB = countNonZero(upper_red_hue_range);
+	float percent = (float)(((float)countA+(float)countB) / ((float) 2*(float)hsv_image.rows*(float)hsv_image.cols));
+
 	imshow("player", playerImage);
-	cout << count_red << "/" << (dst.rows*dst.cols) << " = " << percent << endl;
-	//waitKey();
-	if (percent > 0.0) {
-		return 1;
-	}
-	return 0;
+	imshow("lower_red_hue_range", lower_red_hue_range);
+	imshow("upper_red_hue_range", upper_red_hue_range);
+	return percent > 0.025;
 }
 
 void initPointPairs() {
