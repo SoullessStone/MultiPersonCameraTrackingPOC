@@ -53,6 +53,10 @@ struct PointPair
 		p1 = Point(x1,y1);
 		p2 = Point(x2,y2);
 	}
+
+	void print() {
+		cout << id << " {" << p1 << " " << p2 << "}" << endl;
+	}
 };
 
 // TODO Move to .h file
@@ -87,6 +91,7 @@ std::vector<PointPair> allPointPairs;
 float confThreshold;
 std::vector<std::string> classes;
 
+// Based on https://github.com/opencv/opencv/blob/master/samples/dnn/object_detection.cpp
 int main(int argc, char** argv)
 {
 	CommandLineParser parser(argc, argv, keys);
@@ -136,7 +141,6 @@ int main(int argc, char** argv)
 		cap.open(parser.get<String>("input"));
 	else
 		cap.open(0);
-
 	
 	initPointPairs();
 
@@ -147,7 +151,7 @@ int main(int argc, char** argv)
 		cap >> frame;
 		if (frame.empty())
 		{
-			waitKey();
+			//waitKey();
 			continue;
 		}
 
@@ -177,7 +181,7 @@ int main(int argc, char** argv)
 		putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0));
 
 		//imshow(kWinName, frame);
-		waitKey(0);
+		//waitKey(0);
 	}
 	return 0;
 }
@@ -197,11 +201,13 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 	}
 	else if (outLayerType == "Region")
 	{
-		cout << "Region" << endl;
+		//cout << "Region" << endl;
 		std::vector<int> classIds;
 		std::vector<float> confidences;
 		std::vector<Rect> boxes;
 		int counter = 0;
+		std::vector<PointPair> input2;
+		std::vector<PointPair> input3;
 		for (size_t i = 0; i < outs.size(); ++i)
 		{
 			// Network produces output blob with a shape NxC where N is a number of
@@ -228,41 +234,40 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 
 					// Handle Players
 					if (classIdPoint.x == 0) {
-						cout << "-------------------------------- Player " << counter << " --------------------------------" << endl;
+						//cout << "-------------------------------- Player " << counter << " --------------------------------" << endl;
 						counter += 1;
 						// Extract player from frame
 						Mat player;
 						player = frame(Rect(left, top, width, height));
-
+						int playerNumber = counter;
 						// Check if red or black player
 						if (getPlayerColor(0, 0, player) == 1) {
-							cout << "Red Player" << endl;
+							playerNumber += 100;
+							//cout << "Red Player" << endl;
 
 							// Find number
-							cv::Mat greyPlayer;
+							// TODO Etwas finden, das funktioniert
+							/*cv::Mat greyPlayer;
 							cv::cvtColor(player, greyPlayer, cv::COLOR_BGR2GRAY);
 							std::array<int, 7> possibleNumbers = {1,3,4,5,6,8,9};
 							for(int& i: possibleNumbers) { 
 								cout << "------ Possibility for " << i << ": " << getPossibilityForPlayerAndNumber(greyPlayer, i) << endl;
 								//waitKey();
-							}
+							}*/
 						}
 						else {
-							cout << "Black Player" << endl;
+							//cout << "Black Player" << endl;
 						}
 
 						Point bottomOfPlayer(centerX, bottom);
 						std::array<PointPair, 3> nearestPoints = findNearestThreePoints(bottomOfPlayer);
 
-						cout << "bottomOfPlayer: " << bottomOfPlayer << endl;
 						float alpha = 0.0;
 						float beta = 0.0;
 						float gamma = 0.0;
 						barycentric(bottomOfPlayer, nearestPoints[0].p1, nearestPoints[1].p1, nearestPoints[2].p1, alpha, beta, gamma);
 						float x_part = alpha*(float)nearestPoints[0].p2.x + beta*(float)nearestPoints[1].p2.x + gamma*(float)nearestPoints[2].p2.x;
 						float y_part = alpha*(float)nearestPoints[0].p2.y + beta*(float)nearestPoints[1].p2.y + gamma*(float)nearestPoints[2].p2.y;
-						cout << "x: " << x_part << endl;
-						cout << "y: " << y_part << endl;
 
 						if (x_part < 0) {
 							x_part = 0;
@@ -271,18 +276,14 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 							y_part = 0;
 						}
 
-						PointPair clickedPointPair(counter, bottomOfPlayer.x, bottomOfPlayer.y, x_part, y_part);
+						PointPair clickedPointPair(playerNumber, bottomOfPlayer.x, bottomOfPlayer.y, x_part, y_part);
 
-						std::vector<PointPair> input2;
-						std::vector<PointPair> input3;
-						input2.push_back(nearestPoints[0]);
-						input2.push_back(nearestPoints[1]);
-						input2.push_back(nearestPoints[2]);
+						input2.push_back(PointPair(0, nearestPoints[0].p2.x, nearestPoints[0].p2.y, x_part, y_part));
+						input2.push_back(PointPair(0, nearestPoints[1].p2.x, nearestPoints[1].p2.y, x_part, y_part));
+						input2.push_back(PointPair(0, nearestPoints[2].p2.x, nearestPoints[2].p2.y, x_part, y_part));
 						input3.push_back(clickedPointPair);
-						createFieldModel(allPointPairs, input2, input3);
 
-
-						waitKey(0);
+						//imshow ("player", player);
 					}
 
 					classIds.push_back(classIdPoint.x);
@@ -291,6 +292,9 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 				}
 			}
 		}
+		createFieldModel(allPointPairs, input2, input3);
+		imwrite( "frame.jpg", frame );
+		waitKey(0);
 		std::vector<int> indices;
 		NMSBoxes(boxes, confidences, confThreshold, 0.4, indices);
 		for (size_t i = 0; i < indices.size(); ++i)
@@ -486,9 +490,9 @@ int getPlayerColor(int, void*, Mat& playerImage)
 	int countB = countNonZero(upper_red_hue_range);
 	float percent = (float)(((float)countA+(float)countB) / ((float) 2*(float)hsv_image.rows*(float)hsv_image.cols));
 
-	imshow("player", playerImage);
-	imshow("lower_red_hue_range", lower_red_hue_range);
-	imshow("upper_red_hue_range", upper_red_hue_range);
+	//imshow("player", playerImage);
+	//imshow("lower_red_hue_range", lower_red_hue_range);
+	//imshow("upper_red_hue_range", upper_red_hue_range);
 	return percent > 0.025;
 }
 
@@ -611,8 +615,7 @@ void createFieldModel(std::vector<PointPair> additionalPointsRed, std::vector<Po
 	}
 
 	for(PointPair& pp: additionalPointsGreen) {
-		circle(field, Point(pp.p2.x / 2, pp.p2.y / 2), 8, Scalar(0, 255, 0));
-		putText(field, std::to_string(pp.id), cvPoint(pp.p2.x / 2+15,pp.p2.y / 2+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(100,200,250), 1, CV_AA);
+		line(field, Point(pp.p1.x/2,pp.p1.y/2), Point(pp.p2.x/2,pp.p2.y/2), yellow_color, 1);
 	}
 
 	for(PointPair& pp: additionalPointsBlue) {
@@ -621,7 +624,7 @@ void createFieldModel(std::vector<PointPair> additionalPointsRed, std::vector<Po
 	}	
 
 	imshow("Field-Model", field);
-	imwrite( "test.jpg", field );
+	imwrite( "model.jpg", field );
 }
 
 std::array<PointPair, 3> findNearestThreePoints(Point p) {
