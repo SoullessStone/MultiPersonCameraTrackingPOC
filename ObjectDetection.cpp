@@ -146,6 +146,8 @@ int main(int argc, char** argv)
 
 	// Process frames.
 	Mat frame, blob;
+
+	int skippedFrames = 5;
 	while (waitKey(1) < 0)
 	{
 		cap >> frame;
@@ -154,6 +156,13 @@ int main(int argc, char** argv)
 			//waitKey();
 			continue;
 		}
+		if (skippedFrames == 5) {
+			skippedFrames = 0;
+		} else {
+			skippedFrames++;
+			continue;
+		}
+
 
 		// Create a 4D blob from a frame.
 		Size inpSize(inpWidth > 0 ? inpWidth : frame.cols,
@@ -180,7 +189,8 @@ int main(int argc, char** argv)
 		std::string label = format("Inference time: %.2f ms", t);
 		putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0));
 
-		//imshow(kWinName, frame);
+		cv::resize(frame,frame,Size((int)(((double)frame.cols / (double)2)),(int)(((double)frame.rows / (double)2))), 0, 0, cv::INTER_AREA);
+		imshow(kWinName, frame);
 		//waitKey(0);
 	}
 	return 0;
@@ -293,8 +303,8 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 			}
 		}
 		createFieldModel(allPointPairs, input2, input3);
-		imwrite( "frame.jpg", frame );
-		waitKey(0);
+		//imwrite( "frame.jpg", frame );
+		//waitKey(0);
 		std::vector<int> indices;
 		NMSBoxes(boxes, confidences, confThreshold, 0.4, indices);
 		for (size_t i = 0; i < indices.size(); ++i)
@@ -624,7 +634,7 @@ void createFieldModel(std::vector<PointPair> additionalPointsRed, std::vector<Po
 	}	
 
 	imshow("Field-Model", field);
-	imwrite( "model.jpg", field );
+	//imwrite( "model.jpg", field );
 }
 
 std::array<PointPair, 3> findNearestThreePoints(Point p) {
