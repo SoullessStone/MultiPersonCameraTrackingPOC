@@ -102,11 +102,15 @@ int main( int argc, char** argv )
 		}
 		cout << "This is number " << maxNumber << " (" << maxCount << ")" << endl;
 		cout << "Should be number " << s.substr (11,1) << endl;
-		if (std::stoi( s.substr (11,1) ) == maxNumber) {
-			correct++;
-		}else {
-			wrong++;
-		}
+		if (maxCount >= 10) {
+			if (std::stoi( s.substr (11,1) ) == maxNumber) {
+				correct++;
+			}else {
+				wrong++;
+			}
+		} else {
+			cout << "Skipped, not sure enough" << endl;
+		}		
 		//imshow("Player", player);
 		//waitKey();
 	}
