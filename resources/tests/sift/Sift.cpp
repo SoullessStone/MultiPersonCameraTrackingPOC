@@ -126,7 +126,12 @@ int getPossibilityForPlayerAndNumber(Mat& player, int number) {
 	cout << player.cols << "x" << player.rows << endl;
 	// Nur Nummern gethresholded: 0.272727
 	// Mat n = imread( "numbers/"+std::to_string(number)+"_t.jpg", IMREAD_GRAYSCALE );
+	
 	Mat n = imread( "numbers/"+std::to_string(number)+".jpg", IMREAD_GRAYSCALE );
+
+	/*
+	// Normale Konfiguration (ohne alles andere eingeschaltet): 0.318182
+	// Wenn man nur über 10 akzeptiert: 6/6 :)
 	Mat nSmall;
 	cv::resize(n,nSmall,Size(45,60), 0, 0, cv::INTER_AREA);
 	int c1 = countSiftMatches(player, nSmall);
@@ -135,8 +140,33 @@ int getPossibilityForPlayerAndNumber(Mat& player, int number) {
 	cv::resize(n,nSmall,Size(90,120), 0, 0, cv::INTER_AREA);
 	int c3 = countSiftMatches(player, nSmall);
 	cv::resize(n,nSmall,Size(112,150), 0, 0, cv::INTER_AREA);
+	int c4 = countSiftMatches(player, nSmall);*/
+
+	// Das hier anstatt die "Normale Konfiguration": 0.41
+	// Dafür schlechter als normal, wenn man nur über 10 akzeptiert: 4/4
+	int smallHeight = 40;
+	int smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
+	cv::resize(n,n,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
+
+	Mat nSmall;
+	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
+	int c1 = countSiftMatches(player, nSmall);
+
+	smallHeight = 60;
+	smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
+	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
+	int c2 = countSiftMatches(player, nSmall);
+
+	smallHeight = 80;
+	smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
+	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
+	int c3 = countSiftMatches(player, nSmall);
+
+	smallHeight = 120;
+	smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
+	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
+
 	int c4 = countSiftMatches(player, nSmall);
-	//cout << "count autoscaled: " << std::to_string(c) << endl;
 	cout << number << ": possibilities -> " << c1 << ", "<< c2 << ", "<< c3 << ", "<< c4 << endl;
 	return c1+c2+c3+c4;
 }
