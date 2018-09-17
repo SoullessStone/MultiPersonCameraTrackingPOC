@@ -2,10 +2,10 @@
 #include <sstream>
 #include <iostream>
 
-#include <opencv2/dnn.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
 #include "opencv2/core.hpp"
+#include <opencv2/imgproc.hpp>
+#include <opencv2/dnn.hpp>
+#include <opencv2/highgui.hpp>
 #include "opencv2/features2d.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/xfeatures2d.hpp"
@@ -13,7 +13,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Own Stuf
 #include <MainColorExtractor.h>
+#include <PointPair.h>
 
 const char* keys =
 "{ help  h     | | Print help message. }"
@@ -44,24 +46,6 @@ using namespace dnn;
 using namespace std;
 using namespace cv::xfeatures2d;
 
-struct PointPair
-{
-	Point p1;
-	Point p2;
-	int id;
-	PointPair(int inId, int x1, int y1, int x2, int y2)
-	{
-		id = inId;
-		p1 = Point(x1,y1);
-		p2 = Point(x2,y2);
-	}
-
-	void print() {
-		cout << id << " {" << p1 << " " << p2 << "}" << endl;
-	}
-};
-
-// TODO Move to .h file
 
 void postprocess(Mat& frame, const std::vector<Mat>& out, Net& net);
 
