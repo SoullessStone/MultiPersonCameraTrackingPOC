@@ -14,8 +14,9 @@
 #include <stdlib.h>
 
 // Own Stuf
+#include <PerspectiveToModelMapper.h>
 #include <MainColorExtractor.h>
-#include <PointPair.h>
+#include <NumberExtractor.h>
 
 const char* keys =
 "{ help  h     | | Print help message. }"
@@ -55,19 +56,9 @@ void callback(int pos, void* userdata);
 
 std::vector<String> getOutputsNames(const Net& net);
 
-void test(Mat& image);
-
-int countSiftMatches(Mat& player, Mat& number);
-
-int getPossibilityForPlayerAndNumber(Mat& player, int number);
-
 void initPointPairs();
 
-void barycentric(Point p, Point a, Point b, Point c, float &u, float &v, float &w);
-
 void createFieldModel(std::vector<PointPair> additionalPointsRed, std::vector<PointPair> additionalPointsGreen, std::vector<PointPair> additionalPointsBlue);
-
-std::array<PointPair, 3> findNearestThreePoints(Point p);
 
 // Variables
 std::vector<PointPair> allPointPairs;
@@ -202,8 +193,8 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 		std::vector<float> confidences;
 		std::vector<Rect> boxes;
 		int counter = 0;
-		std::vector<PointPair> input2;
-		std::vector<PointPair> input3;
+		std::vector<PointPair> linesToDraw;
+		std::vector<PointPair> playersToDraw;
 		for (size_t i = 0; i < outs.size(); ++i)
 		{
 			// Network produces output blob with a shape NxC where N is a number of
@@ -247,7 +238,7 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 							cv::cvtColor(player, greyPlayer, cv::COLOR_BGR2GRAY);
 							std::array<int, 7> possibleNumbers = {1,3,4,5,6,8,9};
 							for(int& i: possibleNumbers) { 
-								cout << "------ Possibility for " << i << ": " << getPossibilityForPlayerAndNumber(greyPlayer, i) << endl;
+								cout << "------ Possibility for " << i << ": " << NumberExtractor::getPossibilityForPlayerAndNumber(greyPlayer, i) << endl;
 								//waitKey();
 							}*/
 						}
@@ -255,15 +246,19 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 							//cout << "Black Player" << endl;
 						}
 
+						// Unterster Punkt des Spielers erkennen
 						Point bottomOfPlayer(centerX, bottom);
-						std::array<PointPair, 3> nearestPoints = findNearestThreePoints(bottomOfPlayer);
-
-						float alpha = 0.0;
-						float beta = 0.0;
-						float gamma = 0.0;
-						barycentric(bottomOfPlayer, nearestPoints[0].p1, nearestPoints[1].p1, nearestPoints[2].p1, alpha, beta, gamma);
-						float x_part = alpha*(float)nearestPoints[0].p2.x + beta*(float)nearestPoints[1].p2.x + gamma*(float)nearestPoints[2].p2.x;
-						float y_part = alpha*(float)nearestPoints[0].p2.y + beta*(float)nearestPoints[1].p2.y + gamma*(float)nearestPoints[2].p2.y;
+						// In der Perspektive die nähesten drei Keypoints finden
+						std::array<PointPair, 3> nearestPoints = PerspectiveToModelMapper::findNearestThreePointsInModelSpace(bottomOfPlayer, allPointPairs);
+						
+						// bottomOfPlayer als baryzentrische Koordinaten in Bezug auf die drei nähesten Punkte beschreiben
+						float u = 0.0;
+						float v = 0.0;
+						float w = 0.0;
+						PerspectiveToModelMapper::barycentric(bottomOfPlayer, nearestPoints[0].p1, nearestPoints[1].p1, nearestPoints[2].p1, u, v, w);
+						// Position des Spielers in Modelkoordinaten ausdrücken
+						float x_part = u*(float)nearestPoints[0].p2.x + v*(float)nearestPoints[1].p2.x + w*(float)nearestPoints[2].p2.x;
+						float y_part = u*(float)nearestPoints[0].p2.y + v*(float)nearestPoints[1].p2.y + w*(float)nearestPoints[2].p2.y;
 
 						if (x_part < 0) {
 							x_part = 0;
@@ -272,13 +267,13 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 							y_part = 0;
 						}
 
-						PointPair clickedPointPair(playerNumber, bottomOfPlayer.x, bottomOfPlayer.y, x_part, y_part);
+						PointPair playerPointPair(playerNumber, bottomOfPlayer.x, bottomOfPlayer.y, x_part, y_part);
+						playersToDraw.push_back(playerPointPair);
 
-						input2.push_back(PointPair(0, nearestPoints[0].p2.x, nearestPoints[0].p2.y, x_part, y_part));
-						input2.push_back(PointPair(0, nearestPoints[1].p2.x, nearestPoints[1].p2.y, x_part, y_part));
-						input2.push_back(PointPair(0, nearestPoints[2].p2.x, nearestPoints[2].p2.y, x_part, y_part));
-						input3.push_back(clickedPointPair);
-
+						linesToDraw.push_back(PointPair(0, nearestPoints[0].p2.x, nearestPoints[0].p2.y, x_part, y_part));
+						linesToDraw.push_back(PointPair(0, nearestPoints[1].p2.x, nearestPoints[1].p2.y, x_part, y_part));
+						linesToDraw.push_back(PointPair(0, nearestPoints[2].p2.x, nearestPoints[2].p2.y, x_part, y_part));
+						
 						//imshow ("player", player);
 					}
 
@@ -288,7 +283,7 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 				}
 			}
 		}
-		createFieldModel(allPointPairs, input2, input3);
+		createFieldModel(allPointPairs, linesToDraw, playersToDraw);
 		//imwrite( "frame.jpg", frame );
 		//waitKey(0);
 		std::vector<int> indices;
@@ -303,129 +298,6 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 	}
 	else
 		CV_Error(Error::StsNotImplemented, "Unknown output layer type: " + outLayerType);
-}
-
-int getPossibilityForPlayerAndNumber(Mat& player, int number) {
-	Mat n = imread( "numbers/"+std::to_string(number)+"_black.jpg", IMREAD_GRAYSCALE );
-
-	int smallHeight = 40;
-	int smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
-	cv::resize(n,n,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
-
-	Mat nSmall;
-	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
-	int c1 = countSiftMatches(player, nSmall);
-
-	smallHeight = 60;
-	smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
-	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
-	int c2 = countSiftMatches(player, nSmall);
-
-	smallHeight = 80;
-	smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
-	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
-	int c3 = countSiftMatches(player, nSmall);
-
-	smallHeight = 120;
-	smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
-	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
-	int c4 = countSiftMatches(player, nSmall);
-
-	smallHeight = 200;
-	smallWidth = (int)((((double)n.cols / (double)n.rows))*(double)smallHeight);
-	cv::resize(n,nSmall,Size(smallWidth,smallHeight), 0, 0, cv::INTER_AREA);
-	int c5 = countSiftMatches(player, nSmall);
-
-	// imwrite( "test.jpg", newPlayer );
-	/*cout << "count 1: " << std::to_string(c1) << endl;
-	cout << "count 2: " << std::to_string(c2) << endl;
-	cout << "count 3: " << std::to_string(c3) << endl;
-	cout << "count 4: " << std::to_string(c4) << endl;
-	cout << "count 5: " << std::to_string(c5) << endl;*/
-	return c1+c2+c3+c4+c5;
-}
-
-int countSiftMatches(Mat& player, Mat& number) {
-	
-	if( !player.data || !number.data )
-	{
-		std::cout<< " --(!) Error reading images " << std::endl;
-		return -1; 
-	}
-	Mat resizedPlayer;
-	
-	int newHeight = 600;
-	int newWidth = (int)((((double)player.cols / (double)player.rows))*(double)newHeight);
-	cv::resize(player,resizedPlayer,Size(newWidth, newHeight), 0, 0, cv::INTER_AREA);
-
-	//int left = resizedPlayer.cols / 4;
-	//int top = resizedPlayer.rows / 6;
-	//int width = resizedPlayer.cols / 2;
-	//int height = resizedPlayer.rows / 2;
-	//resizedPlayer = resizedPlayer(Rect(left, top, width, height));
-
-	threshold( resizedPlayer, resizedPlayer, 120, 255,0 );
-
-	//imshow("before", resizedPlayer);
-
-	cv::floodFill(resizedPlayer, cv::Point(0,0), 0, (cv::Rect*)0, cv::Scalar(), 200); 
-	cv::floodFill(resizedPlayer, cv::Point(resizedPlayer.cols-1,resizedPlayer.rows-1), 0, (cv::Rect*)0, cv::Scalar(), 200); 
-	cv::floodFill(resizedPlayer, cv::Point(resizedPlayer.cols-1,0), 0, (cv::Rect*)0, cv::Scalar(), 200); 
-	cv::floodFill(resizedPlayer, cv::Point(0,resizedPlayer.rows-1), 0, (cv::Rect*)0, cv::Scalar(), 200); 
-
-	int erosion_size = 1;
-	Mat element = getStructuringElement( MORPH_RECT,
-                                       Size( 2*erosion_size + 1, 2*erosion_size+1 ),
-                                       Point( erosion_size, erosion_size ) );
-	erode( resizedPlayer, resizedPlayer, element );
-
-
-	//-- Step 1: Detect the keypoints using SIFT Detector, compute the descriptors
-	Ptr<SIFT> detector = SIFT::create();
-	std::vector<KeyPoint> keypoints_1, keypoints_2;
-	Mat descriptors_1, descriptors_2;
-	detector->detectAndCompute( resizedPlayer, Mat(), keypoints_1, descriptors_1 );
-	// TODO only calculate Keypoints&Descriptors once
-	detector->detectAndCompute( number, Mat(), keypoints_2, descriptors_2 );
-	//-- Step 2: Matching descriptor vectors using FLANN matcher
-	BFMatcher matcher;
-	std::vector< DMatch > matches;
-	matcher.match( descriptors_1, descriptors_2, matches );
-	double max_dist = 0; double min_dist = 130;
-	//-- Quick calculation of max and min distances between keypoints
-	for( int i = 0; i < descriptors_1.rows; i++ )
-	{ double dist = matches[i].distance;
-	if( dist < min_dist ) min_dist = dist;
-	if( dist > max_dist ) max_dist = dist;
-	}
-	//printf("-- Max dist : %f \n", max_dist );
-	//printf("-- Min dist : %f \n", min_dist );
-	//-- Draw only "good" matches (i.e. whose distance is less than 2*min_dist,
-	//-- or a small arbitary value ( 0.02 ) in the event that min_dist is very
-	//-- small)
-	//-- PS.- radiusMatch can also be used here.
-	std::vector< DMatch > good_matches;
-	for( int i = 0; i < descriptors_1.rows; i++ )
-	{ 
-		//printf("%f, min dist*2 = %f \n", matches[i].distance,2*min_dist);
-		if( matches[i].distance <= max(2*min_dist, 0.02) )
-		{ 
-			good_matches.push_back( matches[i]); 
-		}
-	}
-	//-- Draw only "good" matches
-	Mat img_matches;
-	drawMatches( resizedPlayer, keypoints_1, number, keypoints_2,
-		 good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
-		 vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
-	//-- Show detected matches
-	//imshow( "Good Matches", img_matches );
-	//waitKey();
-	return (int)good_matches.size();
-	//for( int i = 0; i < (int)good_matches.size(); i++ )
-	//{ 
-		//printf( "-- Good Match [%d] Keypoint 1: %d-- Keypoint 2: %d\n", i, good_matches[i].queryIdx, good_matches[i].trainIdx ); 
-	//}
 }
 
 void drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame)
@@ -523,23 +395,6 @@ void initPointPairs() {
 	allPointPairs.push_back(PointPair(47, 960, 486, 1852, 590));
 }
 
-void barycentric(Point p, Point a, Point b, Point c, float &u, float &v, float &w)
-{
-  	int v0[] = { b.x-a.x, b.y-a.y };
-  	int v1[] = { c.x-a.x, c.y-a.y };
-  	int v2[] = { p.x-a.x, p.y-a.y };
-	int array_size = 2;
-	float d00 = inner_product(v0, v0 + array_size, v0, 0);
-	float d01 = inner_product(v0, v0 + array_size, v1, 0);
-	float d11 = inner_product(v1, v1 + array_size, v1, 0);
-	float d20 = inner_product(v2, v2 + array_size, v0, 0);
-	float d21 = inner_product(v2, v2 + array_size, v1, 0);
-	float denom = d00 * d11 - d01 * d01;
-	v = (d11 * d20 - d01 * d21) / denom;
-	w = (d00 * d21 - d01 * d20) / denom;
-	u = 1.0f - v - w;
-}
-
 void createFieldModel(std::vector<PointPair> additionalPointsRed, std::vector<PointPair> additionalPointsGreen, std::vector<PointPair> additionalPointsBlue) {
 	Mat field(650,1250, CV_8UC3, Scalar(153,136,119));
 	// white field
@@ -597,71 +452,6 @@ void createFieldModel(std::vector<PointPair> additionalPointsRed, std::vector<Po
 	imshow("Field-Model", field);
 	//imwrite( "model.jpg", field );
 }
-
-std::array<PointPair, 3> findNearestThreePoints(Point p) {
-	//cout << "Input p: " << p << endl;
-
-	PointPair nearestPP1(9999,9999,9999,9999,9999);
-	double pp1Distance = 9999.0;
-	PointPair nearestPP2(9999,9999,9999,9999,9999);
-	double pp2Distance = 9999.0;
-	PointPair nearestPP3(99999,999,9999,9999,9999);
-	double pp3Distance = 9999.0;
-
-	double maxDouble = std::numeric_limits<double>::max();
-	int x, y;
-	double sum1 = maxDouble, sum2 = maxDouble, sum3 = maxDouble;
-	for(PointPair& curPP: allPointPairs) {
-		x = p.x - curPP.p1.x;
-		y = p.y - curPP.p1.y;
-		double curDistance = sqrt(pow((double)x, 2.0) + pow((double)y, 2.0));
-		//cout << "curPP: #" << curPP.id << " " << curPP.p1 << ", distance: " << curDistance << endl;
-
-		if (pp1Distance == 9999.0) {
-			nearestPP1 = curPP;
-			pp1Distance = curDistance;
-			continue;
-		}
-		if (pp2Distance == 9999.0) {
-			nearestPP2 = curPP;
-			pp2Distance = curDistance;
-			continue;
-		}
-		if (pp3Distance == 9999.0) {
-			nearestPP3 = curPP;
-			pp3Distance = curDistance;
-			continue;
-		}
-		bool pp1DistanceIsTheBiggest = pp1Distance >= pp2Distance && pp1Distance >= pp3Distance;
-		if (pp1DistanceIsTheBiggest && curDistance < pp1Distance) {
-			nearestPP1 = curPP;
-			pp1Distance = curDistance;
-			continue;
-		}
-		bool pp2DistanceIsTheBiggest = pp2Distance >= pp1Distance && pp2Distance >= pp3Distance;
-		if (pp2DistanceIsTheBiggest && curDistance < pp2Distance) {
-			nearestPP2 = curPP;
-			pp2Distance = curDistance;
-			continue;
-		}
-		bool pp3DistanceIsTheBiggest = pp3Distance >= pp2Distance && pp3Distance >= pp1Distance;
-		if (pp3DistanceIsTheBiggest && curDistance < pp3Distance) {
-			nearestPP3 = curPP;
-			pp3Distance = curDistance;
-			continue;
-		}
-		if (!(pp1DistanceIsTheBiggest||pp2DistanceIsTheBiggest||pp3DistanceIsTheBiggest))
-		{
-			cout << "Komischer State, mal reinschauen..." << endl;
-		}
-	}
-
-	std::array<PointPair, 3> result = {
-		nearestPP1, nearestPP2, nearestPP3
-	};
-	return result;
-}
-
 
 
 
