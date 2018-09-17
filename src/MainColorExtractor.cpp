@@ -3,10 +3,10 @@
 // TODO: Eleganter lösen (frei wählbare Farben für beide Teams, count und vergleichen, evtl hsv-distance: http://answers.opencv.org/question/127885/how-can-i-best-compare-two-bgr-colors-to-determine-how-similardifferent-they-are/)
 int MainColorExtractor::getPlayerColor(int, void*, Mat& playerImage)
 {
-
 	// Convert input image to HSV
 	cv::Mat hsv_image;
 	cv::cvtColor(playerImage, hsv_image, cv::COLOR_BGR2HSV);
+
 	// Normalisieren durch Grössenvereinheitlichung
 	resize(hsv_image, hsv_image, Size(100, 100));
 
@@ -19,8 +19,5 @@ int MainColorExtractor::getPlayerColor(int, void*, Mat& playerImage)
 	int countB = countNonZero(upper_red_hue_range);
 	float percent = (float)(((float)countA+(float)countB) / ((float) 2*(float)hsv_image.rows*(float)hsv_image.cols));
 
-	//imshow("player", playerImage);
-	//imshow("lower_red_hue_range", lower_red_hue_range);
-	//imshow("upper_red_hue_range", upper_red_hue_range);
 	return percent > 0.025;
 }

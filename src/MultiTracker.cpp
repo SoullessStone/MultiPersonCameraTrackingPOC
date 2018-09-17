@@ -19,6 +19,12 @@
 #include <MainColorExtractor.h>
 #include <NumberExtractor.h>
 
+using namespace cv;
+using namespace dnn;
+using namespace std;
+using namespace cv::xfeatures2d;
+
+// Diese Datei zur Objekterkennung basiert auf: https://github.com/opencv/opencv/blob/master/samples/dnn/object_detection.cpp
 const char* keys =
 "{ help  h     | | Print help message. }"
 "{ input i     | | Path to input image or video file. Skip this argument to capture frames from a camera.}"
@@ -43,12 +49,6 @@ const char* keys =
 "0: CPU target (by default),"
 "1: OpenCL }";
 
-using namespace cv;
-using namespace dnn;
-using namespace std;
-using namespace cv::xfeatures2d;
-
-
 void postprocess(Mat& frame, const std::vector<Mat>& out, Net& net);
 
 void drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame);
@@ -65,11 +65,8 @@ std::vector<PointPair> allPointPairs;
 float confThreshold;
 std::vector<std::string> classes;
 
-// Based on https://github.com/opencv/opencv/blob/master/samples/dnn/object_detection.cpp
 int main(int argc, char** argv)
 {
-	//foo f("hola");
-	//f.print_whatever();
 	CommandLineParser parser(argc, argv, keys);
 	parser.about("Use this script to run object detection deep learning networks using OpenCV.");
 	if (argc == 1 || parser.has("help"))
@@ -129,7 +126,6 @@ int main(int argc, char** argv)
 		cap >> frame;
 		if (frame.empty())
 		{
-			//waitKey();
 			continue;
 		}
 		if (skippedFrames == 5) {
@@ -138,7 +134,6 @@ int main(int argc, char** argv)
 			skippedFrames++;
 			continue;
 		}
-
 
 		// Create a 4D blob from a frame.
 		Size inpSize(inpWidth > 0 ? inpWidth : frame.cols,
@@ -167,7 +162,6 @@ int main(int argc, char** argv)
 
 		cv::resize(frame,frame,Size((int)(((double)frame.cols / (double)2)),(int)(((double)frame.rows / (double)2))), 0, 0, cv::INTER_AREA);
 		imshow(kWinName, frame);
-		//waitKey(0);
 	}
 	return 0;
 }
@@ -187,7 +181,6 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 	}
 	else if (outLayerType == "Region")
 	{
-		//cout << "Region" << endl;
 		std::vector<int> classIds;
 		std::vector<float> confidences;
 		std::vector<Rect> boxes;
@@ -200,8 +193,6 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 			// detected objects and C is a number of classes + 4 where the first 4
 			// numbers are [center_x, center_y, width, height]
 			float* data = (float*)outs[i].data;
-			//static const std::string kWinName2 = "test";
-			//namedWindow(kWinName2, WINDOW_NORMAL);
 			for (int j = 0; j < outs[i].rows; ++j, data += outs[i].cols)
 			{
 				Mat scores = outs[i].row(j).colRange(5, outs[i].cols);
@@ -220,7 +211,6 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 
 					// Handle Players
 					if (classIdPoint.x == 0) {
-						//cout << "-------------------------------- Player " << counter << " --------------------------------" << endl;
 						counter += 1;
 						// Extract player from frame
 						Mat player;
@@ -272,8 +262,6 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 						linesToDraw.push_back(PointPair(0, nearestPoints[0].p2.x, nearestPoints[0].p2.y, x_part, y_part));
 						linesToDraw.push_back(PointPair(0, nearestPoints[1].p2.x, nearestPoints[1].p2.y, x_part, y_part));
 						linesToDraw.push_back(PointPair(0, nearestPoints[2].p2.x, nearestPoints[2].p2.y, x_part, y_part));
-						
-						//imshow ("player", player);
 					}
 
 					classIds.push_back(classIdPoint.x);
@@ -283,8 +271,7 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 			}
 		}
 		ModelImageGenerator::createFieldModel(allPointPairs, linesToDraw, playersToDraw);
-		//imwrite( "frame.jpg", frame );
-		//waitKey(0);
+
 		std::vector<int> indices;
 		NMSBoxes(boxes, confidences, confThreshold, 0.4, indices);
 		for (size_t i = 0; i < indices.size(); ++i)

@@ -18,7 +18,6 @@ std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModel
 		x = p.x - curPP.p1.x;
 		y = p.y - curPP.p1.y;
 		double curDistance = sqrt(pow((double)x, 2.0) + pow((double)y, 2.0));
-		//cout << "curPP: #" << curPP.id << " " << curPP.p1 << ", distance: " << curDistance << endl;
 
 		if (pp1Distance == 9999.0) {
 			nearestPP1 = curPP;
