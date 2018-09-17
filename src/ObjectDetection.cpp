@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <MainColorExtractor.h>
+
 const char* keys =
 "{ help  h     | | Print help message. }"
 "{ input i     | | Path to input image or video file. Skip this argument to capture frames from a camera.}"
@@ -94,6 +96,8 @@ std::vector<std::string> classes;
 // Based on https://github.com/opencv/opencv/blob/master/samples/dnn/object_detection.cpp
 int main(int argc, char** argv)
 {
+	foo f("hola");
+	f.print_whatever();
 	CommandLineParser parser(argc, argv, keys);
 	parser.about("Use this script to run object detection deep learning networks using OpenCV.");
 	if (argc == 1 || parser.has("help"))
