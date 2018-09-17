@@ -8,4 +8,4 @@ Build with
   make  
 
 Run with  
-  ./ObjectDetection -i=SOMEFILE -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416  
+  ./MultiTracker -i=SOMEFILE -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416  

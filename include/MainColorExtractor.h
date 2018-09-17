@@ -1,9 +1,11 @@
-#include <string>
+#include "opencv2/core.hpp"
+#include <opencv2/imgproc.hpp>
 
-class foo {
+using namespace cv;
+
+// TODO: evtl. noch obere dinge aus Main entfernen
+
+class MainColorExtractor {
 public:
-    foo(const std::string& s);
-    void print_whatever() const;
-private:
-    std::string _whatever;
+	static int getPlayerColor(int, void*, Mat& playerImage);
 };

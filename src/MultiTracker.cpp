@@ -71,8 +71,6 @@ void callback(int pos, void* userdata);
 
 std::vector<String> getOutputsNames(const Net& net);
 
-int getPlayerColor(int, void*, Mat& playerImage);
-
 void test(Mat& image);
 
 int countSiftMatches(Mat& player, Mat& number);
@@ -96,8 +94,8 @@ std::vector<std::string> classes;
 // Based on https://github.com/opencv/opencv/blob/master/samples/dnn/object_detection.cpp
 int main(int argc, char** argv)
 {
-	foo f("hola");
-	f.print_whatever();
+	//foo f("hola");
+	//f.print_whatever();
 	CommandLineParser parser(argc, argv, keys);
 	parser.about("Use this script to run object detection deep learning networks using OpenCV.");
 	if (argc == 1 || parser.has("help"))
@@ -255,7 +253,7 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 						player = frame(Rect(left, top, width, height));
 						int playerNumber = counter;
 						// Check if red or black player
-						if (getPlayerColor(0, 0, player) == 1) {
+						if (MainColorExtractor::getPlayerColor(0, 0, player) == 1) {
 							playerNumber += 100;
 							//cout << "Red Player" << endl;
 
@@ -483,31 +481,6 @@ std::vector<String> getOutputsNames(const Net& net)
 			names[i] = layersNames[outLayers[i] - 1];
 	}
 	return names;
-}
-
-// TODO: Eleganter lösen (frei wählbare Farben für beide Teams, count und vergleichen, evtl hsv-distance: http://answers.opencv.org/question/127885/how-can-i-best-compare-two-bgr-colors-to-determine-how-similardifferent-they-are/)
-int getPlayerColor(int, void*, Mat& playerImage)
-{
-
-	// Convert input image to HSV
-	cv::Mat hsv_image;
-	cv::cvtColor(playerImage, hsv_image, cv::COLOR_BGR2HSV);
-	// Normalisieren durch Grössenvereinheitlichung
-	resize(hsv_image, hsv_image, Size(100, 100));
-
-	// Threshold the HSV image, keep only the red pixels 	
-	cv::Mat lower_red_hue_range;
-	cv::Mat upper_red_hue_range;
-	cv::inRange(hsv_image, cv::Scalar(0, 100, 100), cv::Scalar(10, 255, 255), lower_red_hue_range);
-	cv::inRange(hsv_image, cv::Scalar(160, 100, 100), cv::Scalar(179, 255, 255), upper_red_hue_range);
-	int countA = countNonZero(lower_red_hue_range);
-	int countB = countNonZero(upper_red_hue_range);
-	float percent = (float)(((float)countA+(float)countB) / ((float) 2*(float)hsv_image.rows*(float)hsv_image.cols));
-
-	//imshow("player", playerImage);
-	//imshow("lower_red_hue_range", lower_red_hue_range);
-	//imshow("upper_red_hue_range", upper_red_hue_range);
-	return percent > 0.025;
 }
 
 void initPointPairs() {
