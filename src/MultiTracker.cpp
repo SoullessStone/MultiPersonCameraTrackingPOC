@@ -117,7 +117,7 @@ int main(int argc, char** argv)
 	else
 		cap.open(0);
 	
-	initPointPairsMichel();
+	initPointPairsHudritsch();
 
 	// Process frames.
 	Mat frame, blob;
