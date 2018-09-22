@@ -57,7 +57,8 @@ void callback(int pos, void* userdata);
 
 std::vector<String> getOutputsNames(const Net& net);
 
-void initPointPairs();
+void initPointPairsMarcos();
+void initPointPairsHudritsch();
 
 // Variables
 std::vector<PointPair> allPointPairs;
@@ -115,7 +116,7 @@ int main(int argc, char** argv)
 	else
 		cap.open(0);
 	
-	initPointPairs();
+	initPointPairsHudritsch();
 
 	// Process frames.
 	Mat frame, blob;
@@ -245,6 +246,9 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 						float v = 0.0;
 						float w = 0.0;
 						PerspectiveToModelMapper::barycentric(bottomOfPlayer, nearestPoints[0].p1, nearestPoints[1].p1, nearestPoints[2].p1, u, v, w);
+						//circle(frame, Point(nearestPoints[0].p1.x, nearestPoints[0].p1.y), 10, Scalar(0, 0, 255));
+						//circle(frame, Point(nearestPoints[1].p1.x, nearestPoints[1].p1.y), 10, Scalar(0, 0, 255));
+						//circle(frame, Point(nearestPoints[2].p1.x, nearestPoints[2].p1.y), 10, Scalar(0, 0, 255));
 						// Position des Spielers in Modelkoordinaten ausdrücken
 						float x_part = u*(float)nearestPoints[0].p2.x + v*(float)nearestPoints[1].p2.x + w*(float)nearestPoints[2].p2.x;
 						float y_part = u*(float)nearestPoints[0].p2.y + v*(float)nearestPoints[1].p2.y + w*(float)nearestPoints[2].p2.y;
@@ -325,7 +329,66 @@ std::vector<String> getOutputsNames(const Net& net)
 	return names;
 }
 
-void initPointPairs() {
+void initPointPairsMarcos() {
+
+	// Oberste Linie
+	//allPointPairs.push_back(PointPair(1, 646, 320, 0, 0)); // 1
+	//allPointPairs.push_back(PointPair(2, 674, 320, 282, 0));
+	allPointPairs.push_back(PointPair(3, 308, 715, 882, 0));
+	allPointPairs.push_back(PointPair(4, 323, 665, 1182, 0));
+	allPointPairs.push_back(PointPair(5, 336, 633, 1482, 0)); // 5
+	allPointPairs.push_back(PointPair(6, 348, 598, 2082, 0));
+	allPointPairs.push_back(PointPair(7, 355, 586, 2364, 0));
+	// Zweite Linie
+	//allPointPairs.push_back(PointPair(8, 615, 329, 0, 140));
+	//allPointPairs.push_back(PointPair(9, 646, 334, 282, 140));
+	allPointPairs.push_back(PointPair(10, 440, 712, 882, 140)); // 10
+	allPointPairs.push_back(PointPair(11, 426, 664, 1182, 140));
+	allPointPairs.push_back(PointPair(12, 415, 632, 1482, 140));
+	allPointPairs.push_back(PointPair(13, 408, 598, 2082, 140));
+	allPointPairs.push_back(PointPair(14, 407, 588, 2364, 140));
+	// Dritte Linie
+	allPointPairs.push_back(PointPair(15, 727, 809, 512, 284)); // 15
+	allPointPairs.push_back(PointPair(16, 596, 702, 882, 284));
+	allPointPairs.push_back(PointPair(17, 544, 658, 1182, 284));
+	allPointPairs.push_back(PointPair(18, 514, 632, 1482, 284));
+	allPointPairs.push_back(PointPair(19, 490, 607, 1852, 284));
+	// Vierte Linie
+	allPointPairs.push_back(PointPair(20, 1732, 904, 0, 590)); // 20
+	allPointPairs.push_back(PointPair(21, 1267, 819, 282, 590));
+	allPointPairs.push_back(PointPair(22, 601, 595, 2082, 590)); // A
+	allPointPairs.push_back(PointPair(23, 582, 585, 2364, 590));
+	// Fünfte Linie
+	allPointPairs.push_back(PointPair(24, 1226, 709, 512, 896));
+	allPointPairs.push_back(PointPair(25, 1019, 664, 882, 896)); // 25
+	allPointPairs.push_back(PointPair(26, 912, 638, 1182, 896));
+	allPointPairs.push_back(PointPair(27, 833, 618, 1482, 896));
+	allPointPairs.push_back(PointPair(28, 764, 598, 1852, 896)); // B
+	// Sechste Linie
+	allPointPairs.push_back(PointPair(29, 1796, 777, 0, 1040));
+	allPointPairs.push_back(PointPair(30, 1483, 726, 282, 1040)); // 30
+	allPointPairs.push_back(PointPair(31, 1080, 656, 882, 1040));
+	allPointPairs.push_back(PointPair(32, 967, 633, 1182, 1040));
+	allPointPairs.push_back(PointPair(33, 890, 617, 1482, 1040));
+	allPointPairs.push_back(PointPair(34, 776, 590, 2082, 1040)); // C
+	// 35 sichtbar, aber bei hudritsch nicht drin
+	// Siebte Linie
+	allPointPairs.push_back(PointPair(36, 1804, 735, 0, 1180));
+	allPointPairs.push_back(PointPair(37, 1522, 708, 282, 1180));
+	allPointPairs.push_back(PointPair(38, 1127, 647, 882, 1180));
+	allPointPairs.push_back(PointPair(39, 1016, 627, 1182, 1180));
+	allPointPairs.push_back(PointPair(40, 938, 612, 1482, 1180)); // 40
+	// Zweiter Teil vierte Linie
+	// 41 + 42 sichtbar aber bei hudritsch nicht drin
+	allPointPairs.push_back(PointPair(43, 1037, 749, 512, 590)); // 43
+	allPointPairs.push_back(PointPair(44, 844, 681, 882, 590));
+	allPointPairs.push_back(PointPair(45, 756, 647, 1182, 590));
+	allPointPairs.push_back(PointPair(46, 690, 623, 1482, 590));
+	allPointPairs.push_back(PointPair(47, 639, 605, 1852, 590));
+}
+
+
+void initPointPairsHudritsch() {
 	// Oberste Linie
 	allPointPairs.push_back(PointPair(1, 646, 320, 0, 0)); // 1
 	allPointPairs.push_back(PointPair(2, 674, 320, 282, 0));
@@ -380,9 +443,6 @@ void initPointPairs() {
 	allPointPairs.push_back(PointPair(46, 774, 439, 1482, 590));
 	allPointPairs.push_back(PointPair(47, 960, 486, 1852, 590));
 }
-
-
-
 
 
 
