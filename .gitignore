@@ -1,5 +1,6 @@
 # Fat MP4
 *.MP4
+*.mp4
 
 # Yolo weights
 *.weights
