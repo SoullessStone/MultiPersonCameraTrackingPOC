@@ -46,7 +46,7 @@ void ModelImageGenerator::createFieldModel(std::vector<PointPair> additionalPoin
 	}
 
 	for(PointPair& pp: additionalPointsGreen) {
-		line(field, Point(pp.p2.x/2,pp.p1.y/2), Point(pp.p2.x/2,pp.p2.y/2), yellow_color, 1);
+		line(field, Point(pp.p1.x/2,pp.p1.y/2), Point(pp.p2.x/2,pp.p2.y/2), yellow_color, 1);
 	}
 
 	for(PointPair& pp: additionalPointsBlue) {
