@@ -117,7 +117,7 @@ int main(int argc, char** argv)
 	else
 		cap.open(0);
 	
-	initPointPairsHudritsch();
+	initPointPairsMichel();
 
 	// Process frames.
 	Mat frame, blob;
@@ -331,18 +331,16 @@ std::vector<String> getOutputsNames(const Net& net)
 }
 
 void initPointPairsMarcos() {
-
-	// Oberste Linie
-	//allPointPairs.push_back(PointPair(1, 646, 320, 0, 0)); // 1
-	//allPointPairs.push_back(PointPair(2, 674, 320, 282, 0));
+	// 1 nicht sichtbar
+	allPointPairs.push_back(PointPair(2, 214, 1066, 282, 0));
 	allPointPairs.push_back(PointPair(3, 308, 715, 882, 0));
 	allPointPairs.push_back(PointPair(4, 323, 665, 1182, 0));
 	allPointPairs.push_back(PointPair(5, 336, 633, 1482, 0)); // 5
 	allPointPairs.push_back(PointPair(6, 348, 598, 2082, 0));
 	allPointPairs.push_back(PointPair(7, 355, 586, 2364, 0));
 	// Zweite Linie
-	//allPointPairs.push_back(PointPair(8, 615, 329, 0, 140));
-	//allPointPairs.push_back(PointPair(9, 646, 334, 282, 140));
+	// 8 nicht sichtbar
+	allPointPairs.push_back(PointPair(9, 584, 1026, 282, 140));
 	allPointPairs.push_back(PointPair(10, 440, 712, 882, 140)); // 10
 	allPointPairs.push_back(PointPair(11, 426, 664, 1182, 140));
 	allPointPairs.push_back(PointPair(12, 415, 632, 1482, 140));
@@ -372,7 +370,7 @@ void initPointPairsMarcos() {
 	allPointPairs.push_back(PointPair(32, 967, 633, 1182, 1040));
 	allPointPairs.push_back(PointPair(33, 890, 617, 1482, 1040));
 	allPointPairs.push_back(PointPair(34, 776, 590, 2082, 1040)); // C
-	// 35 sichtbar, aber bei hudritsch nicht drin
+	allPointPairs.push_back(PointPair(35, 748, 580, 2364, 1040));
 	// Siebte Linie
 	allPointPairs.push_back(PointPair(36, 1804, 735, 0, 1180));
 	allPointPairs.push_back(PointPair(37, 1522, 708, 282, 1180));
@@ -380,7 +378,8 @@ void initPointPairsMarcos() {
 	allPointPairs.push_back(PointPair(39, 1016, 627, 1182, 1180));
 	allPointPairs.push_back(PointPair(40, 938, 612, 1482, 1180)); // 40
 	// Zweiter Teil vierte Linie
-	// 41 + 42 sichtbar aber bei hudritsch nicht drin
+	allPointPairs.push_back(PointPair(41, 814, 586, 2082, 1180));
+	allPointPairs.push_back(PointPair(42, 776, 576, 2364, 1180));
 	allPointPairs.push_back(PointPair(43, 1037, 749, 512, 590)); // 43
 	allPointPairs.push_back(PointPair(44, 844, 681, 882, 590));
 	allPointPairs.push_back(PointPair(45, 756, 647, 1182, 590));
@@ -430,23 +429,26 @@ void initPointPairsHudritsch() {
 	allPointPairs.push_back(PointPair(32, 410, 517, 1182, 1040));
 	allPointPairs.push_back(PointPair(33, 481, 575, 1482, 1040));
 	allPointPairs.push_back(PointPair(34, 824, 819, 2082, 1040)); // C
-		 // 35 gibts nicht
+	allPointPairs.push_back(PointPair(35, 1276, 1040, 2364, 1040));
 	// Siebte Linie
 	allPointPairs.push_back(PointPair(36, 236, 439, 0, 1180));
 	allPointPairs.push_back(PointPair(37, 245, 461, 282, 1180));
 	allPointPairs.push_back(PointPair(38, 276, 520, 882, 1180));
 	allPointPairs.push_back(PointPair(39, 301, 566, 1182, 1180));
 	allPointPairs.push_back(PointPair(40, 351, 637, 1482, 1180)); // 40
+	allPointPairs.push_back(PointPair(41, 652, 970, 2082, 1180));
 	// Zweiter Teil vierte Linie
+	// 42 nicht sichtbar
 	allPointPairs.push_back(PointPair(43, 531, 384, 512, 590)); // 43
 	allPointPairs.push_back(PointPair(44, 598, 398, 882, 590));
 	allPointPairs.push_back(PointPair(45, 673, 416, 1182, 590));
 	allPointPairs.push_back(PointPair(46, 774, 439, 1482, 590));
-	allPointPairs.push_back(PointPair(47, 960, 486, 1852, 590));
+	allPointPairs.push_back(PointPair(47, 960, 486, 2082, 590));
 }
 
 
 void initPointPairsMichel() {
+	
 	allPointPairs.push_back(PointPair(1, 292, 361, 0, 0)); // 1
 	allPointPairs.push_back(PointPair(2, 457, 342, 282, 0));
 	allPointPairs.push_back(PointPair(3, 884, 303, 882, 0));
@@ -480,22 +482,23 @@ void initPointPairsMichel() {
 	allPointPairs.push_back(PointPair(27, 1705, 611, 1482, 896));
 	allPointPairs.push_back(PointPair(28, 1919, 561, 1852, 896)); // B
 	// Sechste Linie
-	allPointPairs.push_back(PointPair(29, 1900, 10, 0, 1040));
+	// 29 nicht sichtbar
 	allPointPairs.push_back(PointPair(30, 2, 962, 282, 1040)); // 30
 	allPointPairs.push_back(PointPair(31, 1094, 914, 882, 1040));
 	allPointPairs.push_back(PointPair(32, 1558, 808, 1182, 1040));
 	allPointPairs.push_back(PointPair(33, 1860, 716, 1482, 1040));
-	allPointPairs.push_back(PointPair(34, 1862, 12, 2082, 1040)); // C
-	//35 - Clicked coordinates: 1792, 18
+	// 34 nicht sichtbar
+	// 35 nicht sichtbar
 	// Siebte Linie
-	allPointPairs.push_back(PointPair(36, 1728, 16, 0, 1180));
+	// 36 nicht sichtbar
+	// 37 nicht sichtbar
 	allPointPairs.push_back(PointPair(37, 1622, 2, 282, 1180));
 	allPointPairs.push_back(PointPair(38, 1166, 1078, 882, 1180));
 	allPointPairs.push_back(PointPair(39, 1684, 930, 1182, 1180));
-	allPointPairs.push_back(PointPair(40, 1572, 30, 1482, 1180)); // 40
+	// 40 nicht sichtbar
 	// Zweiter Teil vierte Linie
-	// 41 - Clicked coordinates: 1382, 26
-	// 42 - Clicked coordinates: 1500, 46
+	// 41 nicht sichtbar
+	// 42 nicht sichtbar
 	allPointPairs.push_back(PointPair(43, 536, 528, 512, 590)); // 43
 	allPointPairs.push_back(PointPair(44, 948, 490, 882, 590));
 	allPointPairs.push_back(PointPair(45, 1232, 460, 1182, 590));
