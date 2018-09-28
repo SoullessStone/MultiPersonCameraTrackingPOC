@@ -63,6 +63,7 @@ void initPointPairsMichel();
 
 // Variables
 std::vector<PointPair> allPointPairs;
+PerspectiveToModelMapper perspectiveToModelMapper;
 
 float confThreshold;
 std::vector<std::string> classes;
@@ -117,7 +118,7 @@ int main(int argc, char** argv)
 	else
 		cap.open(0);
 	
-	initPointPairsMichel();
+	initPointPairsMarcos();
 
 	// Process frames.
 	Mat frame, blob;
@@ -164,6 +165,9 @@ int main(int argc, char** argv)
 
 		cv::resize(frame,frame,Size((int)(((double)frame.cols / (double)2)),(int)(((double)frame.rows / (double)2))), 0, 0, cv::INTER_AREA);
 		imshow(kWinName, frame);
+		
+
+		waitKey();
 	}
 	return 0;
 }
@@ -239,17 +243,19 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 
 						// Unterster Punkt des Spielers erkennen
 						Point bottomOfPlayer(centerX, bottom);
+
+						cout << "### playernumber: " << playerNumber << endl;
+						putText(frame, std::to_string(playerNumber), bottomOfPlayer, FONT_HERSHEY_COMPLEX_SMALL, 1.5, cvScalar(0,200,250), 1, CV_AA);
 						// In der Perspektive die nähesten drei Keypoints finden
-						std::array<PointPair, 3> nearestPoints = PerspectiveToModelMapper::findNearestThreePointsInModelSpace(bottomOfPlayer, allPointPairs);
+
+						std::array<PointPair, 3> nearestPoints = perspectiveToModelMapper.findNearestThreePointsInModelSpace(bottomOfPlayer, allPointPairs);
 						
 						// bottomOfPlayer als baryzentrische Koordinaten in Bezug auf die drei nähesten Punkte beschreiben
 						float u = 0.0;
 						float v = 0.0;
 						float w = 0.0;
-						PerspectiveToModelMapper::barycentric(bottomOfPlayer, nearestPoints[0].p1, nearestPoints[1].p1, nearestPoints[2].p1, u, v, w);
-						//circle(frame, Point(nearestPoints[0].p1.x, nearestPoints[0].p1.y), 10, Scalar(0, 0, 255));
-						//circle(frame, Point(nearestPoints[1].p1.x, nearestPoints[1].p1.y), 10, Scalar(0, 0, 255));
-						//circle(frame, Point(nearestPoints[2].p1.x, nearestPoints[2].p1.y), 10, Scalar(0, 0, 255));
+						perspectiveToModelMapper.barycentric(bottomOfPlayer, nearestPoints[0].p1, nearestPoints[1].p1, nearestPoints[2].p1, u, v, w);
+						
 						// Position des Spielers in Modelkoordinaten ausdrücken
 						float x_part = u*(float)nearestPoints[0].p2.x + v*(float)nearestPoints[1].p2.x + w*(float)nearestPoints[2].p2.x;
 						float y_part = u*(float)nearestPoints[0].p2.y + v*(float)nearestPoints[1].p2.y + w*(float)nearestPoints[2].p2.y;
@@ -277,6 +283,10 @@ void postprocess(Mat& frame, const std::vector<Mat>& outs, Net& net)
 		}
 		ModelImageGenerator::createFieldModel(allPointPairs, linesToDraw, playersToDraw);
 
+		for(PointPair& pp: allPointPairs) {
+			circle(frame, Point(pp.p1.x, pp.p1.y), 8, Scalar(0, 0, 255));
+			putText(frame, std::to_string(pp.id), cvPoint(pp.p1.x+15,pp.p1.y+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(200,200,250), 1, CV_AA);
+		}
 		std::vector<int> indices;
 		NMSBoxes(boxes, confidences, confThreshold, 0.4, indices);
 		for (size_t i = 0; i < indices.size(); ++i)
