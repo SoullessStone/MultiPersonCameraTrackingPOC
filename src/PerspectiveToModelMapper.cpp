@@ -1,5 +1,10 @@
 #include <PerspectiveToModelMapper.h>
 
+PerspectiveToModelMapper::PerspectiveToModelMapper()
+{
+	initBannedConstellations();
+}
+
 std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModelSpace(Point p, std::vector<PointPair> allPointPairs)
 {
 	//cout << "Input p: " << p << endl;
@@ -99,10 +104,6 @@ void PerspectiveToModelMapper::barycentric(Point p, Point a, Point b, Point c, f
 
 bool PerspectiveToModelMapper::arePointsInLine(PointPair a, PointPair b, PointPair c) {
 	for(PointConstellation& pc : bannedConstellations) {
-		// TODO: HIER KOMMEN WIR NIE REIN, KEINE BANNEDCONSTELLATIONS. NOCH ANSCHAUEN...
-		cout<<"jey";
-		if (pc.id1 == 15)
-			cout << a.id<<" "<< b.id<<" "<< c.id << endl;
 		if (pc.equals(a.id, b.id, c.id)) {
 			cout << "killed: " << endl;
 			a.print();
@@ -116,8 +117,10 @@ bool PerspectiveToModelMapper::arePointsInLine(PointPair a, PointPair b, PointPa
 
 void PerspectiveToModelMapper::initBannedConstellations() {
 	// Referenzpunktkonstellationen, die zwar nicht exakt auf einer Linie sind und doch schlechte Ergebnisse liefern
-	PerspectiveToModelMapper::bannedConstellations.push_back(PointConstellation(1, 9, 15));
+	bannedConstellations.push_back(PointConstellation(1, 9, 15));
 	bannedConstellations.push_back(PointConstellation(9, 15, 44));
+	bannedConstellations.push_back(PointConstellation(9, 15, 45));
+	bannedConstellations.push_back(PointConstellation(9, 15, 16));
 	bannedConstellations.push_back(PointConstellation(15, 44, 26));
 	bannedConstellations.push_back(PointConstellation(44, 26, 40));
 	bannedConstellations.push_back(PointConstellation(36, 30, 24));
