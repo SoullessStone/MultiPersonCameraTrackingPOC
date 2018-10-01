@@ -28,7 +28,7 @@ struct Camera
 	VideoCapture cap;
 	Mat frame;
 	int wantedMs;
-	int maxMs = 71000;
+	int maxMs = 70175;
 	double lastUsedMs = 0;
 	int firstFrame = true;
 
@@ -38,7 +38,6 @@ struct Camera
 		cap = VideoCapture();
 		cap.open(inFile);
 		wantedMs = startPoint;
-		cout << "constructor" <<endl;
 	}
 
 	int getWantedMs() {
@@ -52,26 +51,18 @@ struct Camera
 	Mat getNextFrame()
 	{
 		// waiting for right frame
-		cout << "getNextFrame" <<endl;
-		//if (!firstFrame) {
-			for (;;) {
-				int upperThreshold = (int)cap.get(CV_CAP_PROP_POS_MSEC) + 20;
-				int lowerThreshold = (int)cap.get(CV_CAP_PROP_POS_MSEC) - 20;
-				cap >> frame;
-				//cout << "Camera #" << id << ": " << cap.get(CV_CAP_PROP_POS_MSEC) << endl;
-				if  (wantedMs < upperThreshold && wantedMs > lowerThreshold) {
-					break;
-				}
+		for (;;) {
+			int upperThreshold = (int)cap.get(CV_CAP_PROP_POS_MSEC) + 20;
+			int lowerThreshold = (int)cap.get(CV_CAP_PROP_POS_MSEC) - 20;
+			cap >> frame;
+			if  (wantedMs < upperThreshold && wantedMs > lowerThreshold) {
+				break;
 			}
-		//} else {
-		//	cap >> frame;
-		//	firstFrame = false;
-		//}
-		wantedMs += 1000;
+		}
+		wantedMs += 500;
 		if (frame.empty())
 		{
 			cout << "Reached last frame..." << endl;
-			//throw std::invalid_argument( "final or empty frame" );
 		}
 		cout << "Camera #" << id << ": return frame at " << cap.get(CV_CAP_PROP_POS_MSEC ) << "ms" << endl;
 		lastUsedMs = cap.get(CV_CAP_PROP_POS_MSEC);
@@ -92,8 +83,8 @@ struct PointPair
 	}
 };
 
-Camera cameraHud(1, "../../hudritsch_short.mp4", 250);
-Camera cameraMar(2, "../../marcos_short.mp4", 250);
+Camera cameraHud(1, "../../hudritsch_short.mp4", 175);
+Camera cameraMar(2, "../../marcos_short.mp4", 175);
 Camera cameraMic(3, "../../michel_short.mp4", 100);
 std::vector<std::string> output;
 int playerId = 0;
