@@ -147,12 +147,78 @@ int main( int argc, char** argv )
 			}
 		}
 		
-	} else {
+	} else if (arg == "Test"){
+		string wantedHud = "300 800 1300 1800 2300 2800 3300 3800";
+		vector<int> wantedHudArray;
+		stringstream ss(wantedHud);
+		int temp;
+		while (ss >> temp) {
+			wantedHudArray.push_back(temp);
+		}
+		string lastUsedHud = "300.000000 800.000000 1300.000000 1800.000000 2300.000000 2800.000000 3300.000000 3800.000000";
+		vector<int> lastUsedHudArray;
+		ss = stringstream(lastUsedHud);
+		while (ss >> temp) {
+			lastUsedHudArray.push_back(temp);
+		}
+		string wantedMar = "300 800 1300 1800 2300 2800 3300 3800";
+		vector<int> wantedMarArray;
+		ss = stringstream(wantedMar);
+		while (ss >> temp) {
+			wantedMarArray.push_back(temp);
+		}
+		string lastUsedMar = "300.299993 800.799981 1301.299970 1801.799958 2302.299946 2802.799935 3303.299923 3803.799912";
+		vector<int> lastUsedMarArray;
+		ss = stringstream(lastUsedMar);
+		while (ss >> temp) {
+			lastUsedMarArray.push_back(temp);
+		}
+		string wantedMic = "100 600 1100 1600 2100 2600 3100 3600";
+		vector<int> wantedMicArray;
+		ss = stringstream(wantedMic);
+		while (ss >> temp) {
+			wantedMicArray.push_back(temp);
+		}
+		string lastUsedMic = "102.312228 613.873366 1108.382467 1602.891567 2114.452706 2608.961806 3103.470907 3615.032045";
+		vector<int> lastUsedMicArray;
+		ss = stringstream(lastUsedMic);
+		while (ss >> temp) {
+			lastUsedMicArray.push_back(temp);
+		}
+		string playerId = "0 0 0 0 0 0 0 0";
+		vector<int> playerIdArray;
+		ss = stringstream(playerId);
+		while (ss >> temp) {
+			playerIdArray.push_back(temp);
+		}
+		string x = "422 428 402 414 449 529 577 668";
+		vector<int> xArray;
+		ss = stringstream(x);
+		while (ss >> temp) {
+			xArray.push_back(temp);
+		}
+		string y = "77 67 48 27 22 22 26 19";
+		vector<int> yArray;
+		ss = stringstream(y);
+		while (ss >> temp) {
+			yArray.push_back(temp);
+		}
+
+		namedWindow("Field", 1);
+		for ( int i = 0; i < yArray.size(); i++ ) {
+			cout << xArray.at(i) << endl;
+			Mat fieldModel = createFieldModel();
+			circle(fieldModel, cvPoint(xArray.at(i),yArray.at(i)), 15, Scalar(0, 0, 255));		
+			imshow("Field", fieldModel);
+			showNewFrames();
+			waitKey();
+		}
+		
+	}else {
 		cout << "I don't know..." << endl;
 	} 
 }
 	
-
 
 void showNewFrames () {
 	Mat frameHud, frameMar, frameMic;
@@ -167,8 +233,6 @@ void showNewFrames () {
 	imshow("cameraMic", frameMic);
 
 }
-
-
 
 Mat createFieldModel() {
 	// Feldgenerierung kopiert aus Hauptprojekt am 24.09.2018
