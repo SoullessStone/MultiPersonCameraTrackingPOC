@@ -30,14 +30,22 @@ struct Camera
 	int wantedMs;
 	int maxMs = 70140;
 	double lastUsedMs = 0;
+	double fps;
+	int curFrame = 0;
+	double curFrameDouble = 0.0;
+	int targetFrame;
 	int firstFrame = true;
 
-	Camera(int inId, const std::string& inFile, int startPoint)
+	Camera(int inId, const std::string& inFile, double fpsIn, int start)
 	{
 		id = inId;
 		cap = VideoCapture();
 		cap.open(inFile);
-		wantedMs = startPoint;
+		wantedMs = fpsIn;
+		fps = fpsIn;
+		curFrameDouble = (double)start + fpsIn/2;
+		targetFrame = start + fps/2;
+		cout << cap.get(CV_CAP_PROP_FPS) << endl;
 	}
 
 	int getWantedMs() {
@@ -50,22 +58,15 @@ struct Camera
 
 	Mat getNextFrame()
 	{
+		cout << "cur und target: " << curFrame << " " << targetFrame << endl;
 		// waiting for right frame
-		for (;;) {
-			int upperThreshold = (int)cap.get(CV_CAP_PROP_POS_MSEC) + 20;
-			int lowerThreshold = (int)cap.get(CV_CAP_PROP_POS_MSEC) - 20;
+		for (;curFrame!=targetFrame;curFrame++) {
 			cap >> frame;
-			if  (wantedMs < upperThreshold && wantedMs > lowerThreshold) {
-				break;
-			}
+			// TODO endbedingung
 		}
-		wantedMs += 500;
-		if (frame.empty())
-		{
-			cout << "Reached last frame..." << endl;
-		}
+		curFrameDouble = (curFrameDouble+fps/2);
+		targetFrame = (int)curFrameDouble;
 		cout << "Camera #" << id << ": return frame at " << cap.get(CV_CAP_PROP_POS_MSEC ) << "ms" << endl;
-		lastUsedMs = cap.get(CV_CAP_PROP_POS_MSEC);
 		return frame;
 	}
 };
@@ -83,9 +84,9 @@ struct PointPair
 	}
 };
 
-Camera cameraHud(1, "../../hudritsch_short.mp4", 140);
-Camera cameraMar(2, "../../marcos_short.mp4", 140);
-Camera cameraMic(3, "../../michel_short.mp4", 100);
+Camera cameraHud(1, "../../hudritsch_short.mp4", 80, 40);
+Camera cameraMar(2, "../../marcos_short.mp4", 59.9401, 30);
+Camera cameraMic(3, "../../michel_short.mp4", 58.644, 10);
 std::vector<std::string> output;
 int playerId = 0;
 
