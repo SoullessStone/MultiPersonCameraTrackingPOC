@@ -49,8 +49,6 @@ const char* keys =
 "0: CPU target (by default),"
 "1: OpenCL }";
 
-std::vector<String> getOutputsNames(const Net& net);
-
 void initPointPairsMarcos();
 void initPointPairsHudritsch();
 void initPointPairsMichel();
@@ -106,67 +104,42 @@ int main(int argc, char** argv)
 	initPointPairsMarcos();
 	initPointPairsMichel();
 
-	Mat blob, frameHud, frameMar, frameMic;
-	PlayerExtractor playerExtractor(classes, confThreshold);
+	Mat frameHud, frameMar, frameMic;
+	PlayerExtractor playerExtractor(classes, confThreshold, net, scale, mean, swapRB, inpWidth, inpHeight);
+	std::vector<RecognizedPlayer> detectedPlayersHud;
+	std::vector<RecognizedPlayer> detectedPlayersMar;
+	std::vector<RecognizedPlayer> detectedPlayersMic;
+	std::vector<Mat> outs;
 	while (waitKey(1) < 0)
 	{
 		try
 		{
 			frameHud = cameraHud.getNextFrame();
+			frameMar = cameraMar.getNextFrame();
+			frameMic = cameraMic.getNextFrame();
 		} catch (int e)
 		{
 			cout << "No frames left, show is over" << endl;
 			break;
 		}
-		
-		/*cv::resize(frameHud,frameHud,Size((int)(((double)frameHud.cols / (double)3)),(int)(((double)frameHud.rows / (double)3))), 0, 0, cv::INTER_AREA);
-		imshow("cameraHud", frameHud);
-		frameMar = cameraMar.getNextFrame();
+		outs = playerExtractor.getOuts(frameHud);
+		detectedPlayersHud = playerExtractor.extract(frameHud, outs, referencePointsHud);
+		outs = playerExtractor.getOuts(frameMar);
+		detectedPlayersMar = playerExtractor.extract(frameMar, outs, referencePointsMar);
+		outs = playerExtractor.getOuts(frameMic);
+		detectedPlayersMic = playerExtractor.extract(frameMic, outs, referencePointsMic);
+
+		cv::resize(frameHud,frameHud,Size((int)(((double)frameHud.cols / (double)3)),(int)(((double)frameHud.rows / (double)3))), 0, 0, cv::INTER_AREA);
+		imshow("frameHud", frameHud);
 		cv::resize(frameMar,frameMar,Size((int)(((double)frameMar.cols / (double)3)),(int)(((double)frameMar.rows / (double)3))), 0, 0, cv::INTER_AREA);
-		imshow("capMar", frameMar);
-		frameMic = cameraMic.getNextFrame();
+		imshow("frameMar", frameMar);
 		cv::resize(frameMic,frameMic,Size((int)(((double)frameMic.cols / (double)3)),(int)(((double)frameMic.rows / (double)3))), 0, 0, cv::INTER_AREA);
-		imshow("cameraMic", frameMic);*/
-
-		// Create a 4D blob from a frame.
-		Size inpSize(inpWidth > 0 ? inpWidth : frameHud.cols,
-			inpHeight > 0 ? inpHeight : frameHud.rows);
-		blobFromImage(frameHud, blob, scale, inpSize, mean, swapRB, false);
-
-		// Run a model.
-		net.setInput(blob);
-		if (net.getLayer(0)->outputNameToIndex("im_info") != -1)  // Faster-RCNN or R-FCN
-		{
-			resize(frameHud, frameHud, inpSize);
-			Mat imInfo = (Mat_<float>(1, 3) << inpSize.height, inpSize.width, 1.6f);
-			net.setInput(imInfo, "im_info");
-		}
-		std::vector<Mat> outs;
-		net.forward(outs, getOutputsNames(net));
-
-		playerExtractor.extract(frameHud, outs, net, referencePointsHud);
-
-		cv::resize(frameHud,frameHud,Size((int)(((double)frameHud.cols / (double)2)),(int)(((double)frameHud.rows / (double)2))), 0, 0, cv::INTER_AREA);
-		imshow("Frame", frameHud);
+		imshow("frameMic", frameMic);
 		
+		waitKey();
 
-		//waitKey();
 	}
 	return 0;
-}
-
-std::vector<String> getOutputsNames(const Net& net)
-{
-	static std::vector<String> names;
-	if (names.empty())
-	{
-		std::vector<int> outLayers = net.getUnconnectedOutLayers();
-		std::vector<String> layersNames = net.getLayerNames();
-		names.resize(outLayers.size());
-		for (size_t i = 0; i < outLayers.size(); ++i)
-			names[i] = layersNames[outLayers[i] - 1];
-	}
-	return names;
 }
 
 void initPointPairsMarcos() {

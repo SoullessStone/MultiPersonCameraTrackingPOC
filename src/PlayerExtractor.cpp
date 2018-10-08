@@ -1,12 +1,51 @@
 #include <PlayerExtractor.h>
 
 
-PlayerExtractor::PlayerExtractor(std::vector<std::string> inClasses, int inConfThreshold) {
-	classes = inClasses;
-	confThreshold = inConfThreshold;
+PlayerExtractor::PlayerExtractor(std::vector<std::string> classes, int confThreshold, Net& net, float scale, Scalar mean, bool swapRB, int inpWidth, int inpHeight) {
+	this->classes = classes;
+	this->confThreshold = confThreshold;
+	this->net = net;
+	this->scale = scale;
+	this->mean = mean;
+	this->swapRB = swapRB;
+	this->inpWidth = inpWidth;
+	this->inpHeight = inpHeight;
 }
 
-std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::vector<Mat>& outs, Net& net, std::vector<PointPair> referencePoints)
+std::vector<Mat> PlayerExtractor::getOuts(Mat frame) {
+		// Create a 4D blob from a frame.
+		Size inpSize(inpWidth > 0 ? inpWidth : frame.cols,
+			inpHeight > 0 ? inpHeight : frame.rows);
+		blobFromImage(frame, tempBlob, scale, inpSize, mean, swapRB, false);
+
+		// Run a model.
+		net.setInput(tempBlob);
+		if (net.getLayer(0)->outputNameToIndex("im_info") != -1)  // Faster-RCNN or R-FCN
+		{
+			resize(frame, frame, inpSize);
+			Mat imInfo = (Mat_<float>(1, 3) << inpSize.height, inpSize.width, 1.6f);
+			net.setInput(imInfo, "im_info");
+		}
+		std::vector<Mat> outs;
+		net.forward(outs, getOutputsNames(net));
+		return outs;
+}
+
+std::vector<String> PlayerExtractor::getOutputsNames(const Net& net)
+{
+	static std::vector<String> names;
+	if (names.empty())
+	{
+		std::vector<int> outLayers = net.getUnconnectedOutLayers();
+		std::vector<String> layersNames = net.getLayerNames();
+		names.resize(outLayers.size());
+		for (size_t i = 0; i < outLayers.size(); ++i)
+			names[i] = layersNames[outLayers[i] - 1];
+	}
+	return names;
+}
+
+std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::vector<Mat>& outs, std::vector<PointPair> referencePoints)
 {
 	std::vector<RecognizedPlayer> returnablePlayers;
 	returnablePlayers.push_back(RecognizedPlayer());
