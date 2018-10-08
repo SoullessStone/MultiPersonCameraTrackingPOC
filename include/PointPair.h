@@ -1,13 +1,13 @@
-// Nötig, weil sonst PointPair doppelt da ist: http://forums.devshed.com/programming-42/compile-error-redefinition-class-437198.html
+// Nötig, weil sonst Klasse doppelt da ist: http://forums.devshed.com/programming-42/compile-error-redefinition-class-437198.html
 #ifndef DO_NOT_DEFINE_POINTPAIR_MULTIPLE_TIMES
+
+	#define DO_NOT_DEFINE_POINTPAIR_MULTIPLE_TIMES 
 
 	#include <iostream>
 	#include "opencv2/core.hpp"
 
 	using namespace std;
 	using namespace cv;
-
-	#define DO_NOT_DEFINE_POINTPAIR_MULTIPLE_TIMES 
 
 	struct PointPair
 	{

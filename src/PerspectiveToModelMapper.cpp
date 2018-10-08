@@ -79,9 +79,6 @@ std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModel
 	std::array<PointPair, 3> result = {
 		nearestPP1, nearestPP2, nearestPP3
 	};
-	nearestPP1.print();
-	nearestPP2.print();
-	nearestPP3.print();
 	return result;
 }
 
@@ -105,10 +102,10 @@ void PerspectiveToModelMapper::barycentric(Point p, Point a, Point b, Point c, f
 bool PerspectiveToModelMapper::arePointsInLine(PointPair a, PointPair b, PointPair c) {
 	for(PointConstellation& pc : bannedConstellations) {
 		if (pc.equals(a.id, b.id, c.id)) {
-			cout << "killed: " << endl;
-			a.print();
-			b.print();
-			c.print();
+			//cout << "killed: " << endl;
+			//a.print();
+			//b.print();
+			//c.print();
 			return true;
 		}
 	}
