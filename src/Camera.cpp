@@ -1,6 +1,5 @@
 #include <Camera.h>
 
-
 Camera::Camera(int inId, const std::string& inFile, int startPoint)
 {
 	id = inId;
@@ -22,6 +21,7 @@ Mat Camera::getNextFrame()
 	// waiting for right frame
 	for (;;) {
 		if (maxMs < wantedMs) {
+			// Video ends here
 			throw -1;
 		}
 		int upperThreshold = (int)cap.get(CV_CAP_PROP_POS_MSEC) + 20;
@@ -32,11 +32,7 @@ Mat Camera::getNextFrame()
 		}
 	}
 	wantedMs += 500;
-	if (frame.empty())
-	{
-		cout << "Reached last frame..." << endl;
-	}
-	cout << "Camera #" << id << ": return frame at " << cap.get(CV_CAP_PROP_POS_MSEC ) << "ms" << endl;
+	//cout << "Camera #" << id << ": return frame at " << cap.get(CV_CAP_PROP_POS_MSEC ) << "ms" << endl;
 	lastUsedMs = cap.get(CV_CAP_PROP_POS_MSEC);
 	return frame;
 }

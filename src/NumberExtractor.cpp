@@ -1,5 +1,7 @@
 #include <NumberExtractor.h>
 
+
+// TODO Work in progress...
 int NumberExtractor::getPossibilityForPlayerAndNumber(Mat& player, int number)
 {
 	Mat n = imread( "../resources/numbers/"+std::to_string(number)+"_black.jpg", IMREAD_GRAYSCALE );

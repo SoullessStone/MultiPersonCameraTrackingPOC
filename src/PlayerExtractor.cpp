@@ -1,6 +1,5 @@
 #include <PlayerExtractor.h>
 
-
 PlayerExtractor::PlayerExtractor(std::vector<std::string> classes, int confThreshold, Net& net, float scale, Scalar mean, bool swapRB, int inpWidth, int inpHeight) {
 	this->classes = classes;
 	this->confThreshold = confThreshold;
@@ -47,8 +46,6 @@ std::vector<String> PlayerExtractor::getOutputsNames(const Net& net)
 
 std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::vector<Mat>& outs, std::vector<PointPair> referencePoints)
 {
-	std::vector<RecognizedPlayer> returnablePlayers;
-	returnablePlayers.push_back(RecognizedPlayer());
 	static std::vector<int> outLayers = net.getUnconnectedOutLayers();
 	static std::string outLayerType = net.getLayer(outLayers[0])->type;
 
@@ -93,8 +90,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 					if (classIdPoint.x == 0) {
 						counter += 1;
 						// Extract player from frame
-						Mat player;
-						player = frame(Rect(left, top, width, height));
+						Mat player = frame(Rect(left, top, width, height));
 						int playerNumber = counter;
 						// Check if red or black player
 						if (MainColorExtractor::getPlayerColor(0, 0, player) == 1) {
@@ -115,24 +111,25 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 							//cout << "Black Player" << endl;
 						}
 
-						// Unterster Punkt des Spielers erkennen
+						// Find the bottom part of the player
 						Point bottomOfPlayer(centerX, bottom);
 
+						// Draw the players number near him
 						putText(frame, std::to_string(playerNumber), bottomOfPlayer, FONT_HERSHEY_COMPLEX_SMALL, 1.5, cvScalar(0,200,250), 1, CV_AA);
-						// In der Perspektive die nähesten drei Keypoints finden
-
+						// Find the three nearest PointPairs in perspective
 						std::array<PointPair, 3> nearestPoints = perspectiveToModelMapper.findNearestThreePointsInModelSpace(bottomOfPlayer, referencePoints);
 						
-						// bottomOfPlayer als baryzentrische Koordinaten in Bezug auf die drei nähesten Punkte beschreiben
+						// Describe bottomOfPlayer as baryzentric coordinates in relation to the three nearest points
 						float u = 0.0;
 						float v = 0.0;
 						float w = 0.0;
 						perspectiveToModelMapper.barycentric(bottomOfPlayer, nearestPoints[0].p1, nearestPoints[1].p1, nearestPoints[2].p1, u, v, w);
 						
-						// Position des Spielers in Modelkoordinaten ausdrücken
+						// Calculate position of player in model coordinates
 						float x_part = u*(float)nearestPoints[0].p2.x + v*(float)nearestPoints[1].p2.x + w*(float)nearestPoints[2].p2.x;
 						float y_part = u*(float)nearestPoints[0].p2.y + v*(float)nearestPoints[1].p2.y + w*(float)nearestPoints[2].p2.y;
 
+						// Could be out of bounds, we don't want that
 						if (x_part < 0) {
 							x_part = 0;
 						}
@@ -140,6 +137,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 							y_part = 0;
 						}
 
+						// Add some things to be drawn later
 						PointPair playerPointPair(playerNumber, bottomOfPlayer.x, bottomOfPlayer.y, x_part, y_part);
 						playersToDraw.push_back(playerPointPair);
 
@@ -147,19 +145,22 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						linesToDraw.push_back(PointPair(0, nearestPoints[1].p2.x, nearestPoints[1].p2.y, x_part, y_part));
 						linesToDraw.push_back(PointPair(0, nearestPoints[2].p2.x, nearestPoints[2].p2.y, x_part, y_part));
 					}
-
+					// CNN-Stuff
 					classIds.push_back(classIdPoint.x);
 					confidences.push_back((float)confidence);
 					boxes.push_back(Rect(left, top, width, height));
 				}
 			}
 		}
+		// Create the image of the model with some additional information (players, used reference points etc)
 		ModelImageGenerator::createFieldModel(referencePoints, linesToDraw, playersToDraw);
 
+		// Draw some things on the frame
 		for(PointPair& pp: referencePoints) {
 			circle(frame, Point(pp.p1.x, pp.p1.y), 8, Scalar(0, 0, 255));
 			putText(frame, std::to_string(pp.id), cvPoint(pp.p1.x+15,pp.p1.y+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(200,200,250), 1, CV_AA);
 		}
+		// CNN-Stuff
 		std::vector<int> indices;
 		NMSBoxes(boxes, confidences, confThreshold, 0.4, indices);
 		for (size_t i = 0; i < indices.size(); ++i)
@@ -172,6 +173,11 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 	}
 	else
 		CV_Error(Error::StsNotImplemented, "Unknown output layer type: " + outLayerType);
+
+
+	// TODO Das hier ist nur temporär, soll dann richtige Informationen zurückliefern
+	std::vector<RecognizedPlayer> returnablePlayers;
+	returnablePlayers.push_back(RecognizedPlayer());
 	return returnablePlayers;
 }
 

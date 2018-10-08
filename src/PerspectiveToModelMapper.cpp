@@ -7,8 +7,7 @@ PerspectiveToModelMapper::PerspectiveToModelMapper()
 
 std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModelSpace(Point p, std::vector<PointPair> allPointPairs)
 {
-	//cout << "Input p: " << p << endl;
-
+	// Init nearest Pointpairs
 	PointPair nearestPP1(9999,9999,9999,9999,9999);
 	double pp1Distance = 9999.0;
 	PointPair nearestPP2(9999,9999,9999,9999,9999);
@@ -16,15 +15,13 @@ std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModel
 	PointPair nearestPP3(99999,999,9999,9999,9999);
 	double pp3Distance = 9999.0;
 
-	double maxDouble = std::numeric_limits<double>::max();
 	int x, y;
-	double sum1 = maxDouble, sum2 = maxDouble, sum3 = maxDouble;
 	for(PointPair& curPP: allPointPairs) {
 		x = p.x - curPP.p1.x;
 		y = p.y - curPP.p1.y;
 		double curDistance = sqrt(pow((double)x, 2.0) + pow((double)y, 2.0));
 
-		// Initiale Punkte: Jeden Referenzpunkt mal abfüllen
+		// We have to fill every point at least once. That's, what the three if's do
 		if (pp1Distance == 9999.0) {
 			nearestPP1 = curPP;
 			pp1Distance = curDistance;
@@ -43,7 +40,7 @@ std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModel
 			continue;
 		}
 
-		// Aktuellen Punkt nur mit PP1 vergleichen, wenn PP1 auch der am weitesten entfernte ist.
+		// Compare current point only with pp1, if pp1 is the furthest point
 		bool pp1DistanceIsTheBiggest = pp1Distance >= pp2Distance && pp1Distance >= pp3Distance;
 		if (pp1DistanceIsTheBiggest && curDistance < pp1Distance) {
 			if (! arePointsInLine(curPP, nearestPP2, nearestPP3)) {
@@ -52,7 +49,7 @@ std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModel
 			}
 			continue;
 		}
-		// Aktuellen Punkt nur mit PP2 vergleichen, wenn PP2 auch der am weitesten entfernte ist.
+		// Compare current point only with pp2, if pp1 is the furthest point
 		bool pp2DistanceIsTheBiggest = pp2Distance >= pp1Distance && pp2Distance >= pp3Distance;
 		if (pp2DistanceIsTheBiggest && curDistance < pp2Distance) {
 			if (! arePointsInLine(nearestPP1, curPP, nearestPP3)) {
@@ -61,7 +58,7 @@ std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModel
 			}
 			continue;
 		}
-		// Aktuellen Punkt nur mit PP3 vergleichen, wenn PP3 auch der am weitesten entfernte ist.
+		// Compare current point only with pp3, if pp1 is the furthest point
 		bool pp3DistanceIsTheBiggest = pp3Distance >= pp2Distance && pp3Distance >= pp1Distance;
 		if (pp3DistanceIsTheBiggest && curDistance < pp3Distance) {
 			if (! arePointsInLine(nearestPP1, nearestPP2, curPP)) {
@@ -72,7 +69,7 @@ std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModel
 		}
 		if (!(pp1DistanceIsTheBiggest||pp2DistanceIsTheBiggest||pp3DistanceIsTheBiggest))
 		{
-			cout << "Komischer State, mal reinschauen..." << endl;
+			cout << "Funny state, look into it..." << endl;
 		}
 	}
 
@@ -100,6 +97,7 @@ void PerspectiveToModelMapper::barycentric(Point p, Point a, Point b, Point c, f
 }
 
 bool PerspectiveToModelMapper::arePointsInLine(PointPair a, PointPair b, PointPair c) {
+	// If the constellation of the three points is banned, they are "in a line"
 	for(PointConstellation& pc : bannedConstellations) {
 		if (pc.equals(a.id, b.id, c.id)) {
 			//cout << "killed: " << endl;
@@ -109,11 +107,12 @@ bool PerspectiveToModelMapper::arePointsInLine(PointPair a, PointPair b, PointPa
 			return true;
 		}
 	}
+	// More mathematical definition of "in a line"
 	return (a.p2.x == b.p2.x && b.p2.x == c.p2.x) || (a.p2.y == b.p2.y && b.p2.y == c.p2.y);
 }
 
 void PerspectiveToModelMapper::initBannedConstellations() {
-	// Referenzpunktkonstellationen, die zwar nicht exakt auf einer Linie sind und doch schlechte Ergebnisse liefern
+	// Reference point constellations. These are not exactly on a line, but don't work that good
 	bannedConstellations.push_back(PointConstellation(1, 9, 15));
 	bannedConstellations.push_back(PointConstellation(9, 15, 44));
 	bannedConstellations.push_back(PointConstellation(9, 15, 45));

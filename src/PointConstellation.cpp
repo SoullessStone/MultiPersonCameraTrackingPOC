@@ -1,10 +1,10 @@
 #include <PointConstellation.h>
 
-PointConstellation::PointConstellation(int a, int b, int c)
+PointConstellation::PointConstellation(int id1, int id2, int id3)
 {
-	id1 = a;
-	id2 = b;
-	id3 = c;
+	this->id1 = id1;
+	this->id2 = id2;
+	this->id3 = id3;
 }
 
 void PointConstellation::print() {
