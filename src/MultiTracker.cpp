@@ -107,8 +107,11 @@ int main(int argc, char** argv)
 	std::vector<RecognizedPlayer> detectedPlayersMic;
 	std::vector<Mat> outs;
 	// "Forever" - We quit, when no more frames are available
-	while (waitKey(1) < 0)
+	int i = 0;
+	while (true == true)
 	{
+		i++;
+		cout << i << endl;
 		try
 		{
 			// Get new frames
@@ -137,7 +140,7 @@ int main(int argc, char** argv)
 		cv::resize(frameMic,frameMic,Size((int)(((double)frameMic.cols / (double)3)),(int)(((double)frameMic.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameMic", frameMic);
 		
-		waitKey();
+		//waitKey();
 
 	}
 	return 0;

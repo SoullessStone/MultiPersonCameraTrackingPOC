@@ -86,14 +86,56 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 					int left = centerX - width / 2;
 					int top = centerY - height / 2;
 					int bottom = centerY + height / 2;
+
+					// Sometimes the result is out of bounds, we cannot allow that.
+					if(left + width >= frame.cols) {
+						cout << "Trim player (width)" << endl;
+						cout << width << endl;
+						width = frame.cols - left - 1;
+						cout << width << endl;
+						cout << "---------------------" << endl;
+						cout << left << endl;
+						cout << top << endl;
+						cout << width << endl;
+						cout << height << endl;
+						Mat asdf = frame(Rect(left, top, width, height));
+						imshow("player", asdf);
+						Mat res;
+						cv::resize(frame,res,Size((int)(((double)frame.cols / (double)3)),(int)(((double)frame.rows / (double)3))), 0, 0, cv::INTER_AREA);
+						imshow("res", res);
+						//waitKey();
+					}
+					if(top + height >= frame.rows) {
+						cout << "Trim player (height)" << endl;
+						cout << height << endl;
+						height = frame.rows - top - 1;
+						cout << height << endl;
+						cout << "---------------------" << endl;
+						cout << left << endl;
+						cout << top << endl;
+						cout << width << endl;
+						cout << height << endl;
+						Mat asdf = frame(Rect(left, top, width, height));
+						imshow("player", asdf);
+						Mat res;
+						cv::resize(frame,res,Size((int)(((double)frame.cols / (double)3)),(int)(((double)frame.rows / (double)3))), 0, 0, cv::INTER_AREA);
+						imshow("res", res);
+						//waitKey();
+					}
+					
 					// Handle Players
 					if (classIdPoint.x == 0) {
+						// Create container in which we store the information about the player
+						RecognizedPlayer currentPlayer;
+
 						counter += 1;
-						// Extract player from frame
 						Mat player = frame(Rect(left, top, width, height));
 						int playerNumber = counter;
 						// Check if red or black player
+						bool isRed;
 						if (MainColorExtractor::getPlayerColor(0, 0, player) == 1) {
+							currentPlayer.setShirtNumber(1, false);
+							currentPlayer.isPositionInModelValid();
 							playerNumber += 100;
 							//cout << "Red Player" << endl;
 
@@ -106,8 +148,10 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 								cout << "------ Possibility for " << i << ": " << NumberExtractor::getPossibilityForPlayerAndNumber(greyPlayer, i) << endl;
 								//waitKey();
 							}*/
+							currentPlayer.setIsRed(true, true);
 						}
 						else {
+							currentPlayer.setIsRed(false, true);
 							//cout << "Black Player" << endl;
 						}
 
@@ -136,6 +180,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						if (y_part < 0) {
 							y_part = 0;
 						}
+						currentPlayer.setPositionInModel(Point(x_part, y_part), true);
 
 						// Add some things to be drawn later
 						PointPair playerPointPair(playerNumber, bottomOfPlayer.x, bottomOfPlayer.y, x_part, y_part);
@@ -145,6 +190,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						linesToDraw.push_back(PointPair(0, nearestPoints[1].p2.x, nearestPoints[1].p2.y, x_part, y_part));
 						linesToDraw.push_back(PointPair(0, nearestPoints[2].p2.x, nearestPoints[2].p2.y, x_part, y_part));
 					}
+
 					// CNN-Stuff
 					classIds.push_back(classIdPoint.x);
 					confidences.push_back((float)confidence);
