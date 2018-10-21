@@ -46,6 +46,7 @@ std::vector<String> PlayerExtractor::getOutputsNames(const Net& net)
 
 std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::vector<Mat>& outs, std::vector<PointPair> referencePoints)
 {
+	std::vector<RecognizedPlayer> returnablePlayers;
 	static std::vector<int> outLayers = net.getUnconnectedOutLayers();
 	static std::string outLayerType = net.getLayer(outLayers[0])->type;
 
@@ -78,36 +79,36 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 				double confidence;
 				minMaxLoc(scores, 0, &confidence, 0, &classIdPoint);
 				if (confidence > confThreshold)
-				{
-					int centerX = (int)(data[0] * frame.cols);
-					int centerY = (int)(data[1] * frame.rows);
-					int width = (int)(data[2] * frame.cols);
-					int height = (int)(data[3] * frame.rows);
-					int left = centerX - width / 2;
-					int top = centerY - height / 2;
-					int bottom = centerY + height / 2;
-
-					// Sometimes the result is out of bounds, we cannot allow that.
-					if(left + width >= frame.cols) {
-						cout << "Trim player (width)" << endl;
-						width = frame.cols - left - 1;
-					}
-					if(top + height >= frame.rows) {
-						cout << "Trim player (height)" << endl;
-						height = frame.rows - top - 1;
-					}
-					// Sometimes the start point is also out of bounds, we have to fix that also
-					if (left < 0) {
-						cout << "Trim player (left)" << endl;
-						left = 0;
-					}
-					if (top < 0) {
-						cout << "Trim player (top)" << endl;
-						top = 0;
-					}
-					
+				{					
 					// Handle Players
 					if (classIdPoint.x == 0) {
+						
+						int centerX = (int)(data[0] * frame.cols);
+						int centerY = (int)(data[1] * frame.rows);
+						int width = (int)(data[2] * frame.cols);
+						int height = (int)(data[3] * frame.rows);
+						int left = centerX - width / 2;
+						int top = centerY - height / 2;
+						int bottom = centerY + height / 2;
+
+						// Sometimes the result is out of bounds, we cannot allow that.
+						if(left + width >= frame.cols) {
+							cout << "Trim player (width)" << endl;
+							width = frame.cols - left - 1;
+						}
+						if(top + height >= frame.rows) {
+							cout << "Trim player (height)" << endl;
+							height = frame.rows - top - 1;
+						}
+						// Sometimes the start point is also out of bounds, we have to fix that also
+						if (left < 0) {
+							cout << "Trim player (left)" << endl;
+							left = 0;
+						}
+						if (top < 0) {
+							cout << "Trim player (top)" << endl;
+							top = 0;
+						}
 						// Create container in which we store the information about the player
 						RecognizedPlayer currentPlayer;
 
@@ -118,7 +119,6 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						bool isRed;
 						if (MainColorExtractor::getPlayerColor(0, 0, player) == 1) {
 							currentPlayer.setShirtNumber(1, false);
-							currentPlayer.isPositionInModelValid();
 							playerNumber += 100;
 							//cout << "Red Player" << endl;
 
@@ -137,6 +137,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 							currentPlayer.setIsRed(false, true);
 							//cout << "Black Player" << endl;
 						}
+						currentPlayer.setCamerasPlayerId(playerNumber);
 
 						// Find the bottom part of the player
 						Point bottomOfPlayer(centerX, bottom);
@@ -172,12 +173,14 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						linesToDraw.push_back(PointPair(0, nearestPoints[0].p2.x, nearestPoints[0].p2.y, x_part, y_part));
 						linesToDraw.push_back(PointPair(0, nearestPoints[1].p2.x, nearestPoints[1].p2.y, x_part, y_part));
 						linesToDraw.push_back(PointPair(0, nearestPoints[2].p2.x, nearestPoints[2].p2.y, x_part, y_part));
-					}
 
-					// CNN-Stuff
-					classIds.push_back(classIdPoint.x);
-					confidences.push_back((float)confidence);
-					boxes.push_back(Rect(left, top, width, height));
+						// CNN-Stuff
+						classIds.push_back(classIdPoint.x);
+						confidences.push_back((float)confidence);
+						boxes.push_back(Rect(left, top, width, height));
+						
+						returnablePlayers.push_back(currentPlayer);
+					}
 				}
 			}
 		}
@@ -203,10 +206,6 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 	else
 		CV_Error(Error::StsNotImplemented, "Unknown output layer type: " + outLayerType);
 
-
-	// TODO Das hier ist nur temporär, soll dann richtige Informationen zurückliefern
-	std::vector<RecognizedPlayer> returnablePlayers;
-	returnablePlayers.push_back(RecognizedPlayer());
 	return returnablePlayers;
 }
 

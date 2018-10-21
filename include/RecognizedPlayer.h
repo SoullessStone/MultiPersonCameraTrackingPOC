@@ -13,6 +13,9 @@ struct RecognizedPlayer
 		Point positionInModel;
 		bool isRed;
 		int shirtNumber;
+
+		// Debug information
+		int camerasPlayerId;
 	public:
 		// Constructor
 		RecognizedPlayer();
@@ -21,6 +24,7 @@ struct RecognizedPlayer
 		void setPositionInModel(Point positionInModel, bool valid);
 		void setIsRed(bool isRed, bool valid);
 		void setShirtNumber(int shirtNumber, bool valid);
+		void setCamerasPlayerId(int id);
 
 		bool isPositionInModelValid();
 		bool isIsRedValid();
@@ -29,5 +33,7 @@ struct RecognizedPlayer
 		Point getPositionInModel();
 		bool getIsRed();
 		int getShirtNumber();
+		int getCamerasPlayerId();
 		
+		std::string toString();
 };

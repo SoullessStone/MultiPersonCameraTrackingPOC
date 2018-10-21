@@ -54,6 +54,7 @@ const char* keys =
 void initPointPairsMarcos();
 void initPointPairsHudritsch();
 void initPointPairsMichel();
+void printList(std::vector<RecognizedPlayer>& players);
 
 // Reference points for the three views
 std::vector<PointPair> referencePointsHud;
@@ -131,16 +132,21 @@ int main(int argc, char** argv)
 		// Detect players for the three views
 		outs = playerExtractor.getOuts(frameHud);
 		detectedPlayersHud = playerExtractor.extract(frameHud, outs, referencePointsHud);
-		outs = playerExtractor.getOuts(frameMar);
-		detectedPlayersMar = playerExtractor.extract(frameMar, outs, referencePointsMar);
-		outs = playerExtractor.getOuts(frameMic);
-		detectedPlayersMic = playerExtractor.extract(frameMic, outs, referencePointsMic);
-
-		// Show the frames
+		printList(detectedPlayersHud);
 		cv::resize(frameHud,frameHud,Size((int)(((double)frameHud.cols / (double)3)),(int)(((double)frameHud.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameHud", frameHud);
+		waitKey();
+
+		outs = playerExtractor.getOuts(frameMar);
+		detectedPlayersMar = playerExtractor.extract(frameMar, outs, referencePointsMar);
+		printList(detectedPlayersMar);
 		cv::resize(frameMar,frameMar,Size((int)(((double)frameMar.cols / (double)3)),(int)(((double)frameMar.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameMar", frameMar);
+		waitKey();
+
+		outs = playerExtractor.getOuts(frameMic);
+		detectedPlayersMic = playerExtractor.extract(frameMic, outs, referencePointsMic);
+		printList(detectedPlayersMic);
 		cv::resize(frameMic,frameMic,Size((int)(((double)frameMic.cols / (double)3)),(int)(((double)frameMic.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameMic", frameMic);
 
@@ -152,6 +158,13 @@ int main(int argc, char** argv)
 
 	}
 	return 0;
+}
+
+void printList(std::vector<RecognizedPlayer>& players) {
+	cout << "/////////////////////////////////////////////" << endl;
+	for(RecognizedPlayer& player : players) {
+		cout << player.toString() << endl;
+	}
 }
 
 void initPointPairsMarcos() {
