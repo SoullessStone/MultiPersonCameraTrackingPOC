@@ -4,6 +4,7 @@
 #include <RecognizedPlayer.h>
 #include <PointPair.h>
 #include <MainColorExtractor.h>
+#include <NumberExtractor.h>
 #include <PerspectiveToModelMapper.h>
 #include <PointPair.h>
 #include <ModelImageGenerator.h>

@@ -15,9 +15,6 @@
 #include <stdlib.h>
 
 // Own Stuf
-#include <ModelImageGenerator.h>
-#include <MainColorExtractor.h>
-#include <NumberExtractor.h>
 #include <PlayerExtractor.h>
 #include <Camera.h>
 
@@ -135,14 +132,14 @@ int main(int argc, char** argv)
 		printList(detectedPlayersHud);
 		cv::resize(frameHud,frameHud,Size((int)(((double)frameHud.cols / (double)3)),(int)(((double)frameHud.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameHud", frameHud);
-		waitKey();
+		//waitKey();
 
 		outs = playerExtractor.getOuts(frameMar);
 		detectedPlayersMar = playerExtractor.extract(frameMar, outs, referencePointsMar);
 		printList(detectedPlayersMar);
 		cv::resize(frameMar,frameMar,Size((int)(((double)frameMar.cols / (double)3)),(int)(((double)frameMar.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameMar", frameMar);
-		waitKey();
+		//waitKey();
 
 		outs = playerExtractor.getOuts(frameMic);
 		detectedPlayersMic = playerExtractor.extract(frameMic, outs, referencePointsMic);
@@ -154,7 +151,7 @@ int main(int argc, char** argv)
 		//std::chrono::duration<double> diff = endTime - startTime;
 		//cout << "Time since start: " << diff.count() << "s" << endl;
 		
-		waitKey();
+		//waitKey();
 
 	}
 	return 0;

@@ -11,7 +11,8 @@ using namespace cv::xfeatures2d;
 
 class NumberExtractor {
 public:
-	static int getPossibilityForPlayerAndNumber(Mat& player, int number);
+	static int getNumberForPlayer(Mat& player);
 private:
+	static int getPossibilityForPlayerAndNumber(Mat& player, int number);
 	static int countSiftMatches(Mat& player, Mat& number);
 };

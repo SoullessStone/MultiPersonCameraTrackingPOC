@@ -118,22 +118,23 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						// Check if red or black player
 						bool isRed;
 						if (MainColorExtractor::getPlayerColor(0, 0, player) == 1) {
-							currentPlayer.setShirtNumber(1, false);
 							playerNumber += 100;
 							//cout << "Red Player" << endl;
 
 							// Find number
-							// TODO Etwas finden, das funktioniert
-							/*cv::Mat greyPlayer;
+							Mat greyPlayer;
 							cv::cvtColor(player, greyPlayer, cv::COLOR_BGR2GRAY);
-							std::array<int, 7> possibleNumbers = {1,3,4,5,6,8,9};
-							for(int& i: possibleNumbers) { 
-								cout << "------ Possibility for " << i << ": " << NumberExtractor::getPossibilityForPlayerAndNumber(greyPlayer, i) << endl;
-								//waitKey();
-							}*/
+							int result = NumberExtractor::getNumberForPlayer(greyPlayer);
+							if (result == -1){
+								currentPlayer.setShirtNumber(-1, false);
+							} else {
+								currentPlayer.setShirtNumber(result, true);
+							}
+
 							currentPlayer.setIsRed(true, true);
 						}
 						else {
+							currentPlayer.setShirtNumber(-1, false);
 							currentPlayer.setIsRed(false, true);
 							//cout << "Black Player" << endl;
 						}
@@ -143,7 +144,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						Point bottomOfPlayer(centerX, bottom);
 
 						// Draw the players number near him
-						putText(frame, std::to_string(playerNumber), bottomOfPlayer, FONT_HERSHEY_COMPLEX_SMALL, 1.5, cvScalar(0,200,250), 1, CV_AA);
+						putText(frame, std::to_string(playerNumber), bottomOfPlayer, FONT_HERSHEY_COMPLEX_SMALL, 2, cvScalar(0,200,250), 1, CV_AA);
 						// Find the three nearest PointPairs in perspective
 						std::array<PointPair, 3> nearestPoints = perspectiveToModelMapper.findNearestThreePointsInModelSpace(bottomOfPlayer, referencePoints);
 						
