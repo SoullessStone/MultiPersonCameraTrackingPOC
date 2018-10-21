@@ -90,37 +90,20 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 					// Sometimes the result is out of bounds, we cannot allow that.
 					if(left + width >= frame.cols) {
 						cout << "Trim player (width)" << endl;
-						cout << width << endl;
 						width = frame.cols - left - 1;
-						cout << width << endl;
-						cout << "---------------------" << endl;
-						cout << left << endl;
-						cout << top << endl;
-						cout << width << endl;
-						cout << height << endl;
-						Mat asdf = frame(Rect(left, top, width, height));
-						imshow("player", asdf);
-						Mat res;
-						cv::resize(frame,res,Size((int)(((double)frame.cols / (double)3)),(int)(((double)frame.rows / (double)3))), 0, 0, cv::INTER_AREA);
-						imshow("res", res);
-						//waitKey();
 					}
 					if(top + height >= frame.rows) {
 						cout << "Trim player (height)" << endl;
-						cout << height << endl;
 						height = frame.rows - top - 1;
-						cout << height << endl;
-						cout << "---------------------" << endl;
-						cout << left << endl;
-						cout << top << endl;
-						cout << width << endl;
-						cout << height << endl;
-						Mat asdf = frame(Rect(left, top, width, height));
-						imshow("player", asdf);
-						Mat res;
-						cv::resize(frame,res,Size((int)(((double)frame.cols / (double)3)),(int)(((double)frame.rows / (double)3))), 0, 0, cv::INTER_AREA);
-						imshow("res", res);
-						//waitKey();
+					}
+					// Sometimes the start point is also out of bounds, we have to fix that also
+					if (left < 0) {
+						cout << "Trim player (left)" << endl;
+						left = 0;
+					}
+					if (top < 0) {
+						cout << "Trim player (top)" << endl;
+						top = 0;
 					}
 					
 					// Handle Players

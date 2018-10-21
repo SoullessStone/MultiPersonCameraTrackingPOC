@@ -1,6 +1,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <chrono>
 
 #include "opencv2/core.hpp"
 #include <opencv2/imgproc.hpp>
@@ -108,10 +109,13 @@ int main(int argc, char** argv)
 	std::vector<Mat> outs;
 	// "Forever" - We quit, when no more frames are available
 	int i = 0;
+
+	//auto startTime = std::chrono::system_clock::now();
+
 	while (true == true)
 	{
 		i++;
-		cout << i << endl;
+		cout << "Frame #" << i << endl;
 		try
 		{
 			// Get new frames
@@ -139,8 +143,12 @@ int main(int argc, char** argv)
 		imshow("frameMar", frameMar);
 		cv::resize(frameMic,frameMic,Size((int)(((double)frameMic.cols / (double)3)),(int)(((double)frameMic.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameMic", frameMic);
+
+		//auto endTime = std::chrono::system_clock::now();
+		//std::chrono::duration<double> diff = endTime - startTime;
+		//cout << "Time since start: " << diff.count() << "s" << endl;
 		
-		//waitKey();
+		waitKey();
 
 	}
 	return 0;
