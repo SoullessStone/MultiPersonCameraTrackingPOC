@@ -122,14 +122,14 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 							//cout << "Red Player" << endl;
 
 							// Find number
-							/*Mat greyPlayer;
+							Mat greyPlayer;
 							cv::cvtColor(player, greyPlayer, cv::COLOR_BGR2GRAY);
 							int result = NumberExtractor::getNumberForPlayer(greyPlayer);
 							if (result == -1){
 								currentPlayer.setShirtNumber(-1, false);
 							} else {
 								currentPlayer.setShirtNumber(result, true);
-							}*/
+							}
 
 							currentPlayer.setIsRed(true, true);
 						}
@@ -182,8 +182,28 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						confidences.push_back((float)confidence);
 						boxes.push_back(Rect(left, top, width, height));
 						
-						// TODO perspektivenkoordinaten auch speichern, hier noch doppelte rausfiltern
-						returnablePlayers.push_back(currentPlayer);
+						// TODO hier noch doppelte rausfiltern
+						cout << "player id " << playerNumber << endl;
+						bool isDuplicate = false;
+						for(RecognizedPlayer& rPlayer: returnablePlayers) {
+							Point rPlayerPerspectivePosition = rPlayer.getPositionInPerspective();
+							int diffX = rPlayerPerspectivePosition.x - bottomOfPlayer.x;
+							int diffY = rPlayerPerspectivePosition.y - bottomOfPlayer.y;
+							if (diffX < 0)
+								diffX = diffX * -1;
+							if (diffY < 0)
+								diffY = diffY * -1;
+							cout << "diffX/diffY: " << diffX << "/" << diffY << endl;
+							if (diffX + diffY < 30 && rPlayer.getIsRed() == currentPlayer.getIsRed()) {
+								isDuplicate = true;
+								cout << "Skipped dublicate - diffX/diffY: " << diffX << "/" << diffY << endl;
+								cout << "currentId/alreadyId: " << currentPlayer.getCamerasPlayerId() << "/" << rPlayer.getCamerasPlayerId() << endl;
+							}
+						}
+						if (! isDuplicate)
+							returnablePlayers.push_back(currentPlayer);
+						else
+							cout << "Skipped dublicate: " << endl;
 					}
 				}
 			}
