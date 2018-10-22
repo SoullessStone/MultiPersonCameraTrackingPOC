@@ -122,14 +122,14 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 							//cout << "Red Player" << endl;
 
 							// Find number
-							Mat greyPlayer;
+							/*Mat greyPlayer;
 							cv::cvtColor(player, greyPlayer, cv::COLOR_BGR2GRAY);
 							int result = NumberExtractor::getNumberForPlayer(greyPlayer);
 							if (result == -1){
 								currentPlayer.setShirtNumber(-1, false);
 							} else {
 								currentPlayer.setShirtNumber(result, true);
-							}
+							}*/
 
 							currentPlayer.setIsRed(true, true);
 						}
@@ -138,13 +138,15 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 							currentPlayer.setIsRed(false, true);
 							//cout << "Black Player" << endl;
 						}
+
 						currentPlayer.setCamerasPlayerId(playerNumber);
 
 						// Find the bottom part of the player
 						Point bottomOfPlayer(centerX, bottom);
+						currentPlayer.setPositionInPerspective(bottomOfPlayer);
 
 						// Draw the players number near him
-						putText(frame, std::to_string(playerNumber), bottomOfPlayer, FONT_HERSHEY_COMPLEX_SMALL, 2, cvScalar(0,200,250), 1, CV_AA);
+						putText(frame, std::to_string(playerNumber), bottomOfPlayer, FONT_HERSHEY_COMPLEX_SMALL, 2, cvScalar(255,255,255), 2, CV_AA);
 						// Find the three nearest PointPairs in perspective
 						std::array<PointPair, 3> nearestPoints = perspectiveToModelMapper.findNearestThreePointsInModelSpace(bottomOfPlayer, referencePoints);
 						
@@ -180,6 +182,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						confidences.push_back((float)confidence);
 						boxes.push_back(Rect(left, top, width, height));
 						
+						// TODO perspektivenkoordinaten auch speichern, hier noch doppelte rausfiltern
 						returnablePlayers.push_back(currentPlayer);
 					}
 				}
@@ -213,7 +216,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 void PlayerExtractor::drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame)
 {
 	rectangle(frame, Point(left, top), Point(right, bottom), Scalar(0, 255, 0));
-
+	/*
 	std::string label = format("%.2f", conf);
 	if (!classes.empty())
 	{
@@ -228,4 +231,5 @@ void PlayerExtractor::drawPred(int classId, float conf, int left, int top, int r
 	rectangle(frame, Point(left, top - labelSize.height),
 		Point(left + labelSize.width, top + baseLine), Scalar::all(255), FILLED);
 	putText(frame, label, Point(left, top), FONT_HERSHEY_SIMPLEX, 0.5, Scalar());
+	*/
 }

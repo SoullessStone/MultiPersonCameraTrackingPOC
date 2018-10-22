@@ -76,6 +76,9 @@ std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModel
 	std::array<PointPair, 3> result = {
 		nearestPP1, nearestPP2, nearestPP3
 	};
+	//nearestPP1.print();
+	//nearestPP2.print();
+	//nearestPP3.print();
 	return result;
 }
 
@@ -141,6 +144,9 @@ void PerspectiveToModelMapper::initBannedConstellations() {
 	bannedConstellations.push_back(PointConstellation(19, 22, 35));
 	bannedConstellations.push_back(PointConstellation(15, 21, 29));
 	bannedConstellations.push_back(PointConstellation(24, 21, 8));
+	bannedConstellations.push_back(PointConstellation(27, 15, 9));
+	bannedConstellations.push_back(PointConstellation(26, 15, 9));
+	bannedConstellations.push_back(PointConstellation(46, 15, 9));
 }
 
 

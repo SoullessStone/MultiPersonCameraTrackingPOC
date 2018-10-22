@@ -17,6 +17,7 @@
 // Own Stuf
 #include <PlayerExtractor.h>
 #include <Camera.h>
+#include <TrackingModule.h>
 
 using namespace cv;
 using namespace dnn;
@@ -61,6 +62,8 @@ std::vector<PointPair> referencePointsMic;
 Camera cameraHud(1, "../resources/hudritsch_short.mp4", 140);
 Camera cameraMar(2, "../resources/marcos_short.mp4", 140);
 Camera cameraMic(3, "../resources/michel_short.mp4", 100);
+// Tracking module
+TrackingModule trackingModule;
 
 int main(int argc, char** argv)
 {
@@ -147,11 +150,13 @@ int main(int argc, char** argv)
 		cv::resize(frameMic,frameMic,Size((int)(((double)frameMic.cols / (double)3)),(int)(((double)frameMic.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameMic", frameMic);
 
+		trackingModule.handleInput(detectedPlayersHud, detectedPlayersMar, detectedPlayersMic);
+
 		//auto endTime = std::chrono::system_clock::now();
 		//std::chrono::duration<double> diff = endTime - startTime;
 		//cout << "Time since start: " << diff.count() << "s" << endl;
 		
-		//waitKey();
+		waitKey();
 
 	}
 	return 0;
