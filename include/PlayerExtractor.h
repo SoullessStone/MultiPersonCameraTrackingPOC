@@ -29,6 +29,5 @@ class PlayerExtractor {
 		std::vector<RecognizedPlayer> extract(Mat& frame, const std::vector<Mat>& outs, std::vector<PointPair> referencePoints);
 		std::vector<Mat> getOuts(Mat frame);
 	private:
-		void drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame);
 		std::vector<String> getOutputsNames(const Net& net);
 };

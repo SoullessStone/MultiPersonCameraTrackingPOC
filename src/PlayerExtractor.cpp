@@ -145,8 +145,6 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						Point bottomOfPlayer(centerX, bottom);
 						currentPlayer.setPositionInPerspective(bottomOfPlayer);
 
-						// Draw the players number near him
-						putText(frame, std::to_string(playerNumber), bottomOfPlayer, FONT_HERSHEY_COMPLEX_SMALL, 2, cvScalar(255,255,255), 2, CV_AA);
 						// Find the three nearest PointPairs in perspective
 						std::array<PointPair, 3> nearestPoints = perspectiveToModelMapper.findNearestThreePointsInModelSpace(bottomOfPlayer, referencePoints);
 						
@@ -171,19 +169,13 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 
 						// Add some things to be drawn later
 						PointPair playerPointPair(playerNumber, bottomOfPlayer.x, bottomOfPlayer.y, x_part, y_part);
-						playersToDraw.push_back(playerPointPair);
 
 						linesToDraw.push_back(PointPair(0, nearestPoints[0].p2.x, nearestPoints[0].p2.y, x_part, y_part));
 						linesToDraw.push_back(PointPair(0, nearestPoints[1].p2.x, nearestPoints[1].p2.y, x_part, y_part));
 						linesToDraw.push_back(PointPair(0, nearestPoints[2].p2.x, nearestPoints[2].p2.y, x_part, y_part));
-
-						// CNN-Stuff
-						classIds.push_back(classIdPoint.x);
-						confidences.push_back((float)confidence);
-						boxes.push_back(Rect(left, top, width, height));
 						
 						// TODO hier noch doppelte rausfiltern
-						cout << "player id " << playerNumber << endl;
+						//cout << "player id " << playerNumber << endl;
 						bool isDuplicate = false;
 						for(RecognizedPlayer& rPlayer: returnablePlayers) {
 							Point rPlayerPerspectivePosition = rPlayer.getPositionInPerspective();
@@ -193,17 +185,30 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 								diffX = diffX * -1;
 							if (diffY < 0)
 								diffY = diffY * -1;
-							cout << "diffX/diffY: " << diffX << "/" << diffY << endl;
+							//cout << "diffX/diffY: " << diffX << "/" << diffY << endl;
 							if (diffX + diffY < 30 && rPlayer.getIsRed() == currentPlayer.getIsRed()) {
 								isDuplicate = true;
 								cout << "Skipped dublicate - diffX/diffY: " << diffX << "/" << diffY << endl;
 								cout << "currentId/alreadyId: " << currentPlayer.getCamerasPlayerId() << "/" << rPlayer.getCamerasPlayerId() << endl;
+								break;
 							}
 						}
-						if (! isDuplicate)
+						if (! isDuplicate) {
 							returnablePlayers.push_back(currentPlayer);
-						else
-							cout << "Skipped dublicate: " << endl;
+							playersToDraw.push_back(playerPointPair);
+							// Draw the players number near him
+							putText(frame, std::to_string(playerNumber), bottomOfPlayer, FONT_HERSHEY_COMPLEX_SMALL, 2, cvScalar(255,255,255), 2, CV_AA);
+							rectangle(frame, Point(left, top), Point(left + width, bottom), Scalar(0, 255, 0));
+
+							// CNN-Stuff
+							classIds.push_back(classIdPoint.x);
+							confidences.push_back((float)confidence);
+							boxes.push_back(Rect(left, top, width, height));
+						} else {
+							putText(frame, std::to_string(playerNumber), bottomOfPlayer, FONT_HERSHEY_COMPLEX_SMALL, 2, cvScalar(0,255,255), 2, CV_AA);
+							rectangle(frame, Point(left, top), Point(left + width, bottom), Scalar(0, 0, 255));
+							//cout << "Skipped dublicate" << endl;
+						}
 					}
 				}
 			}
@@ -216,16 +221,6 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 			circle(frame, Point(pp.p1.x, pp.p1.y), 8, Scalar(0, 0, 255));
 			putText(frame, std::to_string(pp.id), cvPoint(pp.p1.x+15,pp.p1.y+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(200,200,250), 1, CV_AA);
 		}
-		// CNN-Stuff
-		std::vector<int> indices;
-		NMSBoxes(boxes, confidences, confThreshold, 0.4, indices);
-		for (size_t i = 0; i < indices.size(); ++i)
-		{
-			int idx = indices[i];
-			Rect box = boxes[idx];
-			drawPred(classIds[idx], confidences[idx], box.x, box.y,
-				box.x + box.width, box.y + box.height, frame);
-		}
 	}
 	else
 		CV_Error(Error::StsNotImplemented, "Unknown output layer type: " + outLayerType);
@@ -233,23 +228,5 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 	return returnablePlayers;
 }
 
-void PlayerExtractor::drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame)
-{
-	rectangle(frame, Point(left, top), Point(right, bottom), Scalar(0, 255, 0));
-	/*
-	std::string label = format("%.2f", conf);
-	if (!classes.empty())
-	{
-		CV_Assert(classId < (int)classes.size());
-		label = classes[classId] + ": " + label;
-	}
 
-	int baseLine;
-	Size labelSize = getTextSize(label, FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
 
-	top = max(top, labelSize.height);
-	rectangle(frame, Point(left, top - labelSize.height),
-		Point(left + labelSize.width, top + baseLine), Scalar::all(255), FILLED);
-	putText(frame, label, Point(left, top), FONT_HERSHEY_SIMPLEX, 0.5, Scalar());
-	*/
-}
