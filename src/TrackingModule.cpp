@@ -26,7 +26,7 @@ void TrackingModule::handleInput(std::vector<RecognizedPlayer> inputHud, std::ve
 				validPlayerA = true;
 				i = inputHud.erase(i);
 			}else {
-				cout << "a-------- " << "different" << endl;
+				//cout << "a-------- " << "different" << endl;
 				++i;
 			}
 		}
@@ -41,7 +41,7 @@ void TrackingModule::handleInput(std::vector<RecognizedPlayer> inputHud, std::ve
 				validPlayerB = true;
 				i = inputMar.erase(i);
 			}else {
-				cout << "b-------- " << "different" << endl;
+				//cout << "b-------- " << "different" << endl;
 				++i;
 			}
 		}
@@ -74,15 +74,32 @@ void TrackingModule::handleInput(std::vector<RecognizedPlayer> inputHud, std::ve
 			playersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));		
 		}
 	}
-	// TODO: Aktuell wird, was cameraMic nicht sieht, verworfen
-	cout << "inputMar.size() " << inputMar.size() << endl;
-	for (RecognizedPlayer& rp : inputMar) {
-		cout << "inputMar " << rp.getCamerasPlayerId() << endl;
-	}
 	cout << "inputHud.size() " << inputHud.size() << endl;
 	for (RecognizedPlayer& rp : inputHud) {
 		cout << "inputHud " << rp.getCamerasPlayerId() << endl;
+
+		auto i = std::begin(inputMar);
+
+		while (i != std::end(inputMar)) {
+			cout << "c-------- " << (*i).getCamerasPlayerId() << endl;
+			if (isPossiblySamePlayer(rp, *i)) {
+				cout << "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc-------- " << "same" << endl;	
+				RecognizedPlayer curPlayer;
+				curPlayer.setIsRed(rp.getIsRed(), true);
+				int x = (rp.getPositionInModel().x+(*i).getPositionInModel().x) / 2;
+				int y = (rp.getPositionInModel().y+(*i).getPositionInModel().y) / 2;
+				curPlayer.setPositionInModel(Point(x, y), true);
+				mergedPlayers.push_back(curPlayer);
+				playersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 300, -1, -1, x, y));
+				i = inputMar.erase(i);
+			}else {
+				//cout << "c-------- " << "different" << endl;
+				++i;
+			}
+		}
+
 	}
+	cout << "inputHud.size() " << inputHud.size() << endl;
 
 	std::vector<PointPair> referencePoints;
 	std::vector<PointPair> linesToDraw;
@@ -102,7 +119,7 @@ bool TrackingModule::isPossiblySamePlayer(RecognizedPlayer a, RecognizedPlayer b
 		diffX = diffX * -1;
 	if (diffY < 0)
 		diffY = diffY * -1;
-	cout << "--------- " << "diff: " << diffX + diffY << endl;
+	//cout << "--------- " << "diff: " << diffX + diffY << endl;
 	if (diffX + diffY < 200) {
 		if (a.getIsRed() == b.getIsRed()) {
 			return true;
