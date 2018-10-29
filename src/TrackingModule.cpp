@@ -13,23 +13,34 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 		history.insert(std::make_pair(frameId, curFrameInput));
 	} else {
 		for (RecognizedPlayer& histPlayer : history.find(frameId - 1)->second) {
+			// Try to find the previously known players
+			bool hasMatched = false;
 			cout << "History-Player #" << histPlayer.getCamerasPlayerId() << endl;
 			auto curFramePlayer = std::begin(curFrameInput);
 			while (curFramePlayer != std::end(curFrameInput)) {
 				cout << "+++++++++++++++++ Trying to match #" << (*curFramePlayer).getCamerasPlayerId() << endl;
 				if (isPossiblySamePlayer(histPlayer, *curFramePlayer, 300)) {
+					// We found the player again
 					cout << "+++++++++++++++++ wow, WOW, WOOOOOOOOOOOW!!!!" << endl;
 					// TODO evtl. den besten match finden
 					(*curFramePlayer).setCamerasPlayerId(histPlayer.getCamerasPlayerId());
 					newHistoryInput.push_back(*curFramePlayer);
 					curFramePlayer = curFrameInput.erase(curFramePlayer);
+					hasMatched = true;
 					break;
 				}else {
 					cout << "+++++++++++++++++ nope" << endl;
 					++curFramePlayer;
 				}
 			}
+			if (! hasMatched) {
+				// Histplayer was not found in new input. We fill the gap temporarly
+
+				// TODO: Nur einige Frames behalten, amsonsten leben Geister weiter bei uns
+				newHistoryInput.push_back(histPlayer);
+			}
 		}
+		history.insert(std::make_pair(frameId, newHistoryInput));
 	}
 
 	// Print them (Debug)
