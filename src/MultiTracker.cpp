@@ -150,7 +150,7 @@ int main(int argc, char** argv)
 		cv::resize(frameMic,frameMic,Size((int)(((double)frameMic.cols / (double)3)),(int)(((double)frameMic.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameMic", frameMic);
 
-		trackingModule.handleInput(detectedPlayersHud, detectedPlayersMar, detectedPlayersMic);
+		trackingModule.handleInput(i, detectedPlayersHud, detectedPlayersMar, detectedPlayersMic);
 
 		//auto endTime = std::chrono::system_clock::now();
 		//std::chrono::duration<double> diff = endTime - startTime;

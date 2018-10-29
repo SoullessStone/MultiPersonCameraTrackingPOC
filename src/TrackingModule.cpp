@@ -1,9 +1,46 @@
 #include <TrackingModule.h>
 
-void TrackingModule::handleInput(std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
+void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
+{
+	// Try to merge players from the three cameras
+	std::vector<RecognizedPlayer> curFrameInput = getMergedInput(inputHud, inputMar, inputMic);
+
+	std::vector<RecognizedPlayer> newHistoryInput;
+
+	if(history.find(frameId - 1) == history.end())
+	{
+		// First frame, no help from history
+		history.insert(std::make_pair(frameId, curFrameInput));
+	} else {
+		for (RecognizedPlayer& histPlayer : history.find(frameId - 1)->second) {
+			cout << "History-Player #" << histPlayer.getCamerasPlayerId() << endl;
+			auto curFramePlayer = std::begin(curFrameInput);
+			while (curFramePlayer != std::end(curFrameInput)) {
+				cout << "+++++++++++++++++ Trying to match #" << (*curFramePlayer).getCamerasPlayerId() << endl;
+				if (isPossiblySamePlayer(histPlayer, *curFramePlayer, 300)) {
+					cout << "+++++++++++++++++ wow, WOW, WOOOOOOOOOOOW!!!!" << endl;
+					// TODO evtl. den besten match finden
+					(*curFramePlayer).setCamerasPlayerId(histPlayer.getCamerasPlayerId());
+					newHistoryInput.push_back(*curFramePlayer);
+					curFramePlayer = curFrameInput.erase(curFramePlayer);
+					break;
+				}else {
+					cout << "+++++++++++++++++ nope" << endl;
+					++curFramePlayer;
+				}
+			}
+		}
+	}
+
+	// Print them (Debug)
+	printHistory();
+}
+
+std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
 {
 	std::vector<RecognizedPlayer> mergedPlayers;
 	std::vector<PointPair> playersToDraw;
+	int threshold = 200;
 
 	RecognizedPlayer rp2;
 	// Input: Confidence: Wenn alle Kameras sich einig sind: hoch, sonst tief. Anfang tief, Vergangenheit nicht viel einbeziehen
@@ -20,7 +57,7 @@ void TrackingModule::handleInput(std::vector<RecognizedPlayer> inputHud, std::ve
 
 		while (i != std::end(inputHud)) {
 			cout << "a-------- " << (*i).getCamerasPlayerId() << endl;
-			if (isPossiblySamePlayer(rp, *i)) {
+			if (isPossiblySamePlayer(rp, *i, threshold)) {
 				cout << "a-------- " << "same" << endl;	
 				resultingPlayerA = *i;
 				validPlayerA = true;
@@ -35,7 +72,7 @@ void TrackingModule::handleInput(std::vector<RecognizedPlayer> inputHud, std::ve
 
 		while (i != std::end(inputMar)) {
 			cout << "b-------- " << (*i).getCamerasPlayerId() << endl;
-			if (isPossiblySamePlayer(rp, *i)) {
+			if (isPossiblySamePlayer(rp, *i, threshold)) {
 				cout << "b-------- " << "same" << endl;	
 				resultingPlayerB = *i;
 				validPlayerB = true;
@@ -47,6 +84,7 @@ void TrackingModule::handleInput(std::vector<RecognizedPlayer> inputHud, std::ve
 		}
 		if (validPlayerA && !validPlayerB) {
 			RecognizedPlayer curPlayer;
+			curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId());
 			curPlayer.setIsRed(rp.getIsRed(), true);
 			int x = (rp.getPositionInModel().x+resultingPlayerA.getPositionInModel().x) / 2;
 			int y = (rp.getPositionInModel().y+resultingPlayerA.getPositionInModel().y) / 2;
@@ -56,6 +94,7 @@ void TrackingModule::handleInput(std::vector<RecognizedPlayer> inputHud, std::ve
 		}
 		if (!validPlayerA && validPlayerB) {
 			RecognizedPlayer curPlayer;
+			curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId());
 			curPlayer.setIsRed(rp.getIsRed(), true);
 			int x = (rp.getPositionInModel().x+resultingPlayerB.getPositionInModel().x) / 2;
 			int y = (rp.getPositionInModel().y+resultingPlayerB.getPositionInModel().y) / 2;
@@ -66,6 +105,7 @@ void TrackingModule::handleInput(std::vector<RecognizedPlayer> inputHud, std::ve
 		}
 		if (validPlayerA && validPlayerB) {
 			RecognizedPlayer curPlayer;
+			curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId());
 			curPlayer.setIsRed(rp.getIsRed(), true);
 			int x = (rp.getPositionInModel().x+resultingPlayerA.getPositionInModel().x+resultingPlayerB.getPositionInModel().x) / 3;
 			int y = (rp.getPositionInModel().y+resultingPlayerA.getPositionInModel().y+resultingPlayerB.getPositionInModel().y) / 3;
@@ -82,9 +122,10 @@ void TrackingModule::handleInput(std::vector<RecognizedPlayer> inputHud, std::ve
 
 		while (i != std::end(inputMar)) {
 			cout << "c-------- " << (*i).getCamerasPlayerId() << endl;
-			if (isPossiblySamePlayer(rp, *i)) {
+			if (isPossiblySamePlayer(rp, *i, threshold)) {
 				cout << "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc-------- " << "same" << endl;	
 				RecognizedPlayer curPlayer;
+				curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId() + 300);
 				curPlayer.setIsRed(rp.getIsRed(), true);
 				int x = (rp.getPositionInModel().x+(*i).getPositionInModel().x) / 2;
 				int y = (rp.getPositionInModel().y+(*i).getPositionInModel().y) / 2;
@@ -105,13 +146,23 @@ void TrackingModule::handleInput(std::vector<RecognizedPlayer> inputHud, std::ve
 	std::vector<PointPair> linesToDraw;
 	ModelImageGenerator::createFieldModel(referencePoints, linesToDraw, playersToDraw);
 	
-	for(RecognizedPlayer& player : mergedPlayers) {
-		cout << player.toString() << endl;
+	return mergedPlayers;
+}
+
+void TrackingModule::printHistory()
+{
+	std::map<int, std::vector<RecognizedPlayer>>::iterator it = history.begin();
+	while(it != history.end())
+	{
+		std::cout<<it->first<<" :: size -> "<<it->second.size() << std::endl;
+		//for(RecognizedPlayer& player : it->second) {
+		//	cout << player.toString() << endl;
+		//}
+		it++;
 	}
 }
 
-
-bool TrackingModule::isPossiblySamePlayer(RecognizedPlayer a, RecognizedPlayer b)
+bool TrackingModule::isPossiblySamePlayer(RecognizedPlayer a, RecognizedPlayer b, int threshold)
 {
 	int diffX = a.getPositionInModel().x - b.getPositionInModel().x;
 	int diffY = a.getPositionInModel().y - b.getPositionInModel().y;
@@ -120,7 +171,7 @@ bool TrackingModule::isPossiblySamePlayer(RecognizedPlayer a, RecognizedPlayer b
 	if (diffY < 0)
 		diffY = diffY * -1;
 	//cout << "--------- " << "diff: " << diffX + diffY << endl;
-	if (diffX + diffY < 200) {
+	if (diffX + diffY < threshold) {
 		if (a.getIsRed() == b.getIsRed()) {
 			return true;
 		}
