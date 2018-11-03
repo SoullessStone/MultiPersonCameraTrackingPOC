@@ -174,7 +174,6 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						linesToDraw.push_back(PointPair(0, nearestPoints[1].p2.x, nearestPoints[1].p2.y, x_part, y_part));
 						linesToDraw.push_back(PointPair(0, nearestPoints[2].p2.x, nearestPoints[2].p2.y, x_part, y_part));
 						
-						// TODO hier noch doppelte rausfiltern
 						//cout << "player id " << playerNumber << endl;
 						bool isDuplicate = false;
 						for(RecognizedPlayer& rPlayer: returnablePlayers) {
@@ -214,7 +213,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 			}
 		}
 		// Create the image of the model with some additional information (players, used reference points etc)
-		ModelImageGenerator::createFieldModel(referencePoints, linesToDraw, playersToDraw);
+		//ModelImageGenerator::createFieldModel(referencePoints, linesToDraw, playersToDraw);
 
 		// Draw some things on the frame
 		for(PointPair& pp: referencePoints) {
