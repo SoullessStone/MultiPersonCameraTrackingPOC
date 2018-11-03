@@ -1,7 +1,7 @@
 #include <TrackingModule.h>
 
 // TODO Verbesserungsideen
-	//  o Suchradius bei jedem nicht gefundenen Schritt erhöhen 10000
+	//  o Spieler, die lange nicht mehr gefunden wurden als letztes aus input auswählen lassen. So verhindert man einige falsche Wechsel
 	//  o Nicht den erstbesten Match nehmen, sondern über alle loopen und den besten nehmen 10001
 	//  o Geister nicht ewig behalten. Irgendwann löschen und neuen Spieler akzeptieren 10002
 	//  o Evtl. weniger mergen/ mehr Input zulassen.
@@ -44,7 +44,6 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 			// Loop over new input
 			while (curFramePlayer != std::end(curFrameInput)) {
 				cout << "+++++++++++++++++ Trying to match #" << (*curFramePlayer).getCamerasPlayerId() << endl;
-				// TODO: 10000 SUCHRADIUS MIT JEDEM DURCHLAUF VERGRÖSSERN
 				// TODO: 10001 evtl. den besten match finden
 				int multiplicator = 1;
 				std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId());
