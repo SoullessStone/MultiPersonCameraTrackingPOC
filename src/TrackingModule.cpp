@@ -5,6 +5,7 @@
 	//  o Nicht den erstbesten Match nehmen, sondern über alle loopen und den besten nehmen 10001
 	//  o Geister nicht ewig behalten. Irgendwann löschen und neuen Spieler akzeptieren 10002
 	//  o Evtl. weniger mergen/ mehr Input zulassen.
+	//  o Neuerfassung (nicht nur am Anfang) ermöglichen!
 
 void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
 {
@@ -24,8 +25,12 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 		cout << "++++++++++++++++++++++++++++++++++++++++ no history" << endl;
 		history.insert(std::make_pair(frameId, curFrameInput));
 
-		// Debug: add players for debug-image
+		
 		for (RecognizedPlayer& player : curFrameInput) {
+			// Initiate last used count
+			lastUpdatedPlayer.insert(std::make_pair(player.getCamerasPlayerId(), 1));
+
+			// Debug: add players for debug-image
 			changedPlayersToDraw.push_back(PointPair(player.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
 		}
 	} else {
@@ -41,7 +46,11 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 				cout << "+++++++++++++++++ Trying to match #" << (*curFramePlayer).getCamerasPlayerId() << endl;
 				// TODO: 10000 SUCHRADIUS MIT JEDEM DURCHLAUF VERGRÖSSERN
 				// TODO: 10001 evtl. den besten match finden
-				if (isPossiblySamePlayer(histPlayer, *curFramePlayer, 300)) {
+				int multiplicator = 1;
+				std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId());
+				if (it != lastUpdatedPlayer.end())
+					multiplicator = it->second;
+				if (isPossiblySamePlayer(histPlayer, *curFramePlayer, 300 + multiplicator * 50)) {
 					cout << "+++++++++++++++++ wow, WOW, WOOOOOOOOOOOW!!!!" << endl;
 					// We found the player again, add him/her to history
 					RecognizedPlayer player;
@@ -54,6 +63,12 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 					
 					// Flag to be used later
 					hasMatched = true;
+
+					// Reset last used counter
+					std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId()); 
+					if (it != lastUpdatedPlayer.end())
+						it->second = 1;
+
 					// Debug: add players for debug image
 					changedPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
 					playerMovement.push_back(PointPair(-1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y, player.getPositionInModel().x, player.getPositionInModel().y));
@@ -68,6 +83,11 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 				// Histplayer was not found in new input. We fill the gap temporarly
 				// TODO: 10002 Nur einige Frames behalten, amsonsten leben Geister weiter bei uns
 				newHistoryInput.push_back(histPlayer);
+
+				// Reset last used counter
+				std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId()); 
+				if (it != lastUpdatedPlayer.end())
+					it->second = it->second + 1;
 				
 				// Debug: add players for debug image
 				notChangedPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y));
@@ -81,7 +101,7 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 	ModelImageGenerator::createFieldModel("Tracking", notChangedPlayersToDraw, playerMovement, changedPlayersToDraw);
 
 	// Debug: print history
-	//printHistory();
+	printHistory();
 }
 
 std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
@@ -225,6 +245,12 @@ void TrackingModule::printHistory()
 		//	cout << player.toString() << endl;
 		//}
 		it++;
+	}
+	std::map<int, int>::iterator it2 = lastUpdatedPlayer.begin();
+	while(it2 != lastUpdatedPlayer.end())
+	{
+		std::cout<<it2->first<<" :: "<<it2->second << std::endl;
+		it2++;
 	}
 }
 
