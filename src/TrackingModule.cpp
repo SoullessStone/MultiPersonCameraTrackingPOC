@@ -1,94 +1,121 @@
 #include <TrackingModule.h>
 
+// TODO Verbesserungsideen
+	//  o Suchradius bei jedem nicht gefundenen Schritt erhöhen 10000
+	//  o Nicht den erstbesten Match nehmen, sondern über alle loopen und den besten nehmen 10001
+	//  o Geister nicht ewig behalten. Irgendwann löschen und neuen Spieler akzeptieren 10002
+	//  o Evtl. weniger mergen/ mehr Input zulassen.
+
 void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
 {
 	// Try to merge players from the three cameras
 	std::vector<RecognizedPlayer> curFrameInput = getMergedInput(inputHud, inputMar, inputMic);
 
+	// New input to be added to the "memory"
 	std::vector<RecognizedPlayer> newHistoryInput;
-	std::vector<PointPair> playersToDraw;
+	// Debug: Points to print in debug-image
+	std::vector<PointPair> changedPlayersToDraw;
+	std::vector<PointPair> notChangedPlayersToDraw;
+	std::vector<PointPair> playerMovement;
 
 	if(history.find(frameId - 1) == history.end())
 	{
-		cout << "++++++++++++++++++++++++++++++++++++++++ no history" << endl;
 		// First frame, no help from history
+		cout << "++++++++++++++++++++++++++++++++++++++++ no history" << endl;
 		history.insert(std::make_pair(frameId, curFrameInput));
 
+		// Debug: add players for debug-image
 		for (RecognizedPlayer& player : curFrameInput) {
-			playersToDraw.push_back(PointPair(player.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
+			changedPlayersToDraw.push_back(PointPair(player.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
 		}
 	} else {
+		// History is available
 		cout << "++++++++++++++++++++++++++++++++++++++++ history available" << endl;
+		// Try to find the previously known players
 		for (RecognizedPlayer& histPlayer : history.find(frameId - 1)->second) {
-			// Try to find the previously known players
 			bool hasMatched = false;
 			cout << "History-Player #" << histPlayer.getCamerasPlayerId() << endl;
 			auto curFramePlayer = std::begin(curFrameInput);
+			// Loop over new input
 			while (curFramePlayer != std::end(curFrameInput)) {
 				cout << "+++++++++++++++++ Trying to match #" << (*curFramePlayer).getCamerasPlayerId() << endl;
+				// TODO: 10000 SUCHRADIUS MIT JEDEM DURCHLAUF VERGRÖSSERN
+				// TODO: 10001 evtl. den besten match finden
 				if (isPossiblySamePlayer(histPlayer, *curFramePlayer, 300)) {
-					RecognizedPlayer player;
-					// We found the player again
 					cout << "+++++++++++++++++ wow, WOW, WOOOOOOOOOOOW!!!!" << endl;
-					// TODO evtl. den besten match finden
+					// We found the player again, add him/her to history
+					RecognizedPlayer player;
 					player.setCamerasPlayerId(histPlayer.getCamerasPlayerId());
 					player.setPositionInModel(Point((*curFramePlayer).getPositionInModel().x, (*curFramePlayer).getPositionInModel().y), true);
 					player.setIsRed((*curFramePlayer).getIsRed(), true);
 					newHistoryInput.push_back(player);
+					// Erase player from new input (we don't want to use him twice)
 					curFramePlayer = curFrameInput.erase(curFramePlayer);
+					
+					// Flag to be used later
 					hasMatched = true;
-					playersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
-					cout << player.toString() << endl;
+					// Debug: add players for debug image
+					changedPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
+					playerMovement.push_back(PointPair(-1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y, player.getPositionInModel().x, player.getPositionInModel().y));
 					break;
 				}else {
-					cout << "+++++++++++++++++ nope" << endl;
+					// Not the same player we searched in history
 					++curFramePlayer;
 				}
 			}
 			if (! hasMatched) {
-				// Histplayer was not found in new input. We fill the gap temporarly
 				cout << "+++++++++++++++++ did not find #" << histPlayer.getCamerasPlayerId() << endl;
-				// TODO: Nur einige Frames behalten, amsonsten leben Geister weiter bei uns
+				// Histplayer was not found in new input. We fill the gap temporarly
+				// TODO: 10002 Nur einige Frames behalten, amsonsten leben Geister weiter bei uns
 				newHistoryInput.push_back(histPlayer);
-				playersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y));
+				
+				// Debug: add players for debug image
+				notChangedPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y));
 			}
 		}
+		// Add everything to history (memory)
 		history.insert(std::make_pair(frameId, newHistoryInput));
 	}
-		
-	std::vector<PointPair> referencePoints;
-	std::vector<PointPair> linesToDraw;
-	ModelImageGenerator::createFieldModel("Tracking", referencePoints, linesToDraw, playersToDraw);
+	
+	// Debug: Create and show tracking result
+	ModelImageGenerator::createFieldModel("Tracking", notChangedPlayersToDraw, playerMovement, changedPlayersToDraw);
 
-	// Print them (Debug)
-	printHistory();
+	// Debug: print history
+	//printHistory();
 }
 
 std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
 {
+	// New list to save the merged players
 	std::vector<RecognizedPlayer> mergedPlayers;
-	std::vector<PointPair> playersToDraw;
+	// threshold for search
 	int threshold = 200;
+
+	// Debug: players to draw to debug-image
+	std::vector<PointPair> changedPlayersToDraw;
 
 	RecognizedPlayer rp2;
 	// Input: Confidence: Wenn alle Kameras sich einig sind: hoch, sonst tief. Anfang tief, Vergangenheit nicht viel einbeziehen
 	cout << "Start Loop InputMic" << endl;
+	// Loop over players seen by cameraMic. Try to match them with the players from other cameras
 	for (RecognizedPlayer& rp : inputMic) {
-		// TODO: Mit Abstand kleinest diff => same! auch wenn über 200px
+		// TODO: 10001 Mit Abstand kleinest diff => same! auch wenn über 200px
 		cout << "inputMic #" << rp.getCamerasPlayerId() << endl;
 		RecognizedPlayer resultingPlayerA;
-		bool validPlayerA = false;
+		bool matchingPlayerFromCameraHud = false;
 		RecognizedPlayer resultingPlayerB;
-		bool validPlayerB = false;
+		bool matchingPlayerFromCameraMar = false;
 
 		auto i = std::begin(inputHud);
-
+		// Try to match player of cameraMic (rp) with players seen by cameraHud
 		while (i != std::end(inputHud)) {
 			cout << "inputMic-------- hud #" << (*i).getCamerasPlayerId() << endl;
 			if (isPossiblySamePlayer(rp, *i, threshold)) {
+				// Likely the same player, be sure to save the result
 				cout << "inputMic-------- " << "!!!!!!! same" << endl;	
 				resultingPlayerA = *i;
-				validPlayerA = true;
+				matchingPlayerFromCameraHud = true;
+				// Remove player from list, so he is not used twice
 				i = inputHud.erase(i);
 			}else {
 				++i;
@@ -96,20 +123,25 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 		}
 
 		i = std::begin(inputMar);
-
+		// Try to match player of cameraMic (rp) with players seen by cameraMar
 		while (i != std::end(inputMar)) {
 			cout << "inputMic-------- mar #" << (*i).getCamerasPlayerId() << endl;
 			if (isPossiblySamePlayer(rp, *i, threshold)) {
+				// Likely the same player, be sure to save the result
 				cout << "inputMic-------- " << "!!!!!!! same" << endl;	
 				resultingPlayerB = *i;
-				validPlayerB = true;
+				matchingPlayerFromCameraMar = true;
+				// Remove player from list, so he is not used twice
 				i = inputMar.erase(i);
 			}else {
 				//cout << "b-------- " << "different" << endl;
 				++i;
 			}
 		}
-		if (validPlayerA && !validPlayerB) {
+
+		// See, if we matched something for this player of cameraMic (rp)
+		// If yes, we merge the positions, use the color and add it to the list
+		if (matchingPlayerFromCameraHud && !matchingPlayerFromCameraMar) {
 			RecognizedPlayer curPlayer;
 			curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId());
 			curPlayer.setIsRed(rp.getIsRed(), true);
@@ -117,9 +149,10 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 			int y = (rp.getPositionInModel().y+resultingPlayerA.getPositionInModel().y) / 2;
 			curPlayer.setPositionInModel(Point(x, y), true);
 			mergedPlayers.push_back(curPlayer);
-			playersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));
+			// Debug
+			changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));
 		}
-		if (!validPlayerA && validPlayerB) {
+		if (!matchingPlayerFromCameraHud && matchingPlayerFromCameraMar) {
 			RecognizedPlayer curPlayer;
 			curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId());
 			curPlayer.setIsRed(rp.getIsRed(), true);
@@ -127,29 +160,33 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 			int y = (rp.getPositionInModel().y+resultingPlayerB.getPositionInModel().y) / 2;
 			curPlayer.setPositionInModel(Point(x, y), true);
 			mergedPlayers.push_back(curPlayer);
-			playersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));
+			// Debug
+			changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));
 			
 		}
-		if (validPlayerA && validPlayerB) {
+		if (matchingPlayerFromCameraHud && matchingPlayerFromCameraMar) {
 			RecognizedPlayer curPlayer;
 			curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId());
 			curPlayer.setIsRed(rp.getIsRed(), true);
 			int x = (rp.getPositionInModel().x+resultingPlayerA.getPositionInModel().x+resultingPlayerB.getPositionInModel().x) / 3;
 			int y = (rp.getPositionInModel().y+resultingPlayerA.getPositionInModel().y+resultingPlayerB.getPositionInModel().y) / 3;
 			curPlayer.setPositionInModel(Point(x, y), true);
-			mergedPlayers.push_back(curPlayer);	
-			playersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));		
+			mergedPlayers.push_back(curPlayer);
+			// Debug
+			changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));		
 		}
 	}
+
 	cout << "Start Loop InputHud" << endl;
+	// Loop over players seen by cameraHud. Try to match them with the players from cameraMar
 	for (RecognizedPlayer& rp : inputHud) {
 		cout << "inputHud #" << rp.getCamerasPlayerId() << endl;
 
 		auto i = std::begin(inputMar);
-
 		while (i != std::end(inputMar)) {
 			cout << "inputHud-------- mar #" << (*i).getCamerasPlayerId() << endl;
 			if (isPossiblySamePlayer(rp, *i, threshold)) {
+				// Likely the same player, be sure to save the result
 				cout << "inputHud-------- " << "!!!!!!! same" << endl;	
 				RecognizedPlayer curPlayer;
 				curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId() + 300);
@@ -158,7 +195,8 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 				int y = (rp.getPositionInModel().y+(*i).getPositionInModel().y) / 2;
 				curPlayer.setPositionInModel(Point(x, y), true);
 				mergedPlayers.push_back(curPlayer);
-				playersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 300, -1, -1, x, y));
+				changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 300, -1, -1, x, y));
+				// Remove player from list, so he is not used twice
 				i = inputMar.erase(i);
 			}else {
 				//cout << "c-------- " << "different" << endl;
@@ -169,9 +207,10 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 	}
 	cout << "inputHud.size() " << inputHud.size() << endl;
 
+	// Debug: create image with all the players on the field
 	std::vector<PointPair> referencePoints;
 	std::vector<PointPair> linesToDraw;
-	ModelImageGenerator::createFieldModel("Tracking-Input", referencePoints, linesToDraw, playersToDraw);
+	ModelImageGenerator::createFieldModel("Tracking-Input", referencePoints, linesToDraw, changedPlayersToDraw);
 	
 	return mergedPlayers;
 }
