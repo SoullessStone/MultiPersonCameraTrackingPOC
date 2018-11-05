@@ -1,7 +1,6 @@
 #include <TrackingModule.h>
 
 // TODO Verbesserungsideen
-	//  o Spieler, die lange nicht mehr gefunden wurden als letztes aus input auswählen lassen. So verhindert man einige falsche Wechsel
 	//  o Nicht den erstbesten Match nehmen, sondern über alle loopen und den besten nehmen 10001
 	//  o Geister nicht ewig behalten. Irgendwann löschen und neuen Spieler akzeptieren 10002
 	//  o Evtl. weniger mergen/ mehr Input zulassen.
@@ -35,62 +34,31 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 		}
 	} else {
 		// History is available
-		cout << "++++++++++++++++++++++++++++++++++++++++ history available" << endl;
 		// Try to find the previously known players
+		cout << "++++++++++++++++++++++++++++++++++++++++ history available" << endl;
+
+		std::vector<int> usedHistoryPlayers;
+		// First loop: Try to recognize (in the input) the players we have seen in the last two frames
+		// That means we give the players we are currently tracking well priority over the ones we lost.
 		for (RecognizedPlayer& histPlayer : history.find(frameId - 1)->second) {
-			bool hasMatched = false;
-			cout << "History-Player #" << histPlayer.getCamerasPlayerId() << endl;
-			auto curFramePlayer = std::begin(curFrameInput);
-			// Loop over new input
-			while (curFramePlayer != std::end(curFrameInput)) {
-				cout << "+++++++++++++++++ Trying to match #" << (*curFramePlayer).getCamerasPlayerId() << endl;
-				// TODO: 10001 evtl. den besten match finden
-				int multiplicator = 1;
-				std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId());
-				if (it != lastUpdatedPlayer.end())
-					multiplicator = it->second;
-				if (isPossiblySamePlayer(histPlayer, *curFramePlayer, 300 + multiplicator * 50)) {
-					cout << "+++++++++++++++++ wow, WOW, WOOOOOOOOOOOW!!!!" << endl;
-					// We found the player again, add him/her to history
-					RecognizedPlayer player;
-					player.setCamerasPlayerId(histPlayer.getCamerasPlayerId());
-					player.setPositionInModel(Point((*curFramePlayer).getPositionInModel().x, (*curFramePlayer).getPositionInModel().y), true);
-					player.setIsRed((*curFramePlayer).getIsRed(), true);
-					newHistoryInput.push_back(player);
-					// Erase player from new input (we don't want to use him twice)
-					curFramePlayer = curFrameInput.erase(curFramePlayer);
-					
-					// Flag to be used later
-					hasMatched = true;
 
-					// Reset last used counter
-					std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId()); 
-					if (it != lastUpdatedPlayer.end())
-						it->second = 1;
-
-					// Debug: add players for debug image
-					changedPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
-					playerMovement.push_back(PointPair(-1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y, player.getPositionInModel().x, player.getPositionInModel().y));
-					break;
-				}else {
-					// Not the same player we searched in history
-					++curFramePlayer;
-				}
+			std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId());
+			if (it != lastUpdatedPlayer.end() && it->second <= 2) {
+				usedHistoryPlayers.push_back(histPlayer.getCamerasPlayerId());
+			} else {
+				continue;
 			}
-			if (! hasMatched) {
-				cout << "+++++++++++++++++ did not find #" << histPlayer.getCamerasPlayerId() << endl;
-				// Histplayer was not found in new input. We fill the gap temporarly
-				// TODO: 10002 Nur einige Frames behalten, amsonsten leben Geister weiter bei uns
-				newHistoryInput.push_back(histPlayer);
 
-				// Reset last used counter
-				std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId()); 
-				if (it != lastUpdatedPlayer.end())
-					it->second = it->second + 1;
-				
-				// Debug: add players for debug image
-				notChangedPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y));
-			}
+			createHistory(curFrameInput, newHistoryInput, histPlayer, notChangedPlayersToDraw, changedPlayersToDraw, playerMovement);
+		}
+
+		// Second loop: Try to match the history-players we did not see for some time
+		for (RecognizedPlayer& histPlayer : history.find(frameId - 1)->second) {
+			std::vector<int>::iterator it = find (usedHistoryPlayers.begin(), usedHistoryPlayers.end(), histPlayer.getCamerasPlayerId());
+			if (it != usedHistoryPlayers.end())
+				continue; // already used this history player
+
+			createHistory(curFrameInput, newHistoryInput, histPlayer, notChangedPlayersToDraw, changedPlayersToDraw, playerMovement);
 		}
 		// Add everything to history (memory)
 		history.insert(std::make_pair(frameId, newHistoryInput));
@@ -101,6 +69,62 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 
 	// Debug: print history
 	printHistory();
+}
+
+void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput, std::vector<RecognizedPlayer> &newHistoryInput, RecognizedPlayer histPlayer, std::vector<PointPair> &notChangedPlayersToDraw, std::vector<PointPair> &changedPlayersToDraw, std::vector<PointPair> &playerMovement) {
+	bool hasMatched = false;
+	cout << "History-Player #" << histPlayer.getCamerasPlayerId() << endl;
+	auto curFramePlayer = std::begin(curFrameInput);
+	// Loop over new input
+	while (curFramePlayer != std::end(curFrameInput)) {
+		cout << "+++++++++++++++++ Trying to match #" << (*curFramePlayer).getCamerasPlayerId() << endl;
+		// TODO: 10001 evtl. den besten match finden
+		int multiplicator = 1;
+		std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId());
+		if (it != lastUpdatedPlayer.end())
+			multiplicator = it->second;
+		if (isPossiblySamePlayer(histPlayer, *curFramePlayer, 300 + multiplicator * 50)) {
+			cout << "+++++++++++++++++ wow, WOW, WOOOOOOOOOOOW!!!!" << endl;
+			// We found the player again, add him/her to history
+			RecognizedPlayer player;
+			player.setCamerasPlayerId(histPlayer.getCamerasPlayerId());
+			player.setPositionInModel(Point((*curFramePlayer).getPositionInModel().x, (*curFramePlayer).getPositionInModel().y), true);
+			player.setIsRed((*curFramePlayer).getIsRed(), true);
+			newHistoryInput.push_back(player);
+			// Erase player from new input (we don't want to use him twice)
+			curFramePlayer = curFrameInput.erase(curFramePlayer);
+			
+			// Flag to be used later
+			hasMatched = true;
+
+			// Reset last used counter
+			std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId()); 
+			if (it != lastUpdatedPlayer.end())
+				it->second = 1;
+
+			// Debug: add players for debug image
+			changedPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
+			playerMovement.push_back(PointPair(-1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y, player.getPositionInModel().x, player.getPositionInModel().y));
+			break;
+		}else {
+			// Not the same player we searched in history
+			++curFramePlayer;
+		}
+	}
+	if (! hasMatched) {
+		cout << "+++++++++++++++++ did not find #" << histPlayer.getCamerasPlayerId() << endl;
+		// Histplayer was not found in new input. We fill the gap temporarly
+		// TODO: 10002 Nur einige Frames behalten, amsonsten leben Geister weiter bei uns
+		newHistoryInput.push_back(histPlayer);
+
+		// Reset last used counter
+		std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId()); 
+		if (it != lastUpdatedPlayer.end())
+			it->second = it->second + 1;
+		
+		// Debug: add players for debug image
+		notChangedPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y));
+	}
 }
 
 std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
