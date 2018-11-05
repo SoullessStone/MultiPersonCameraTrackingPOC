@@ -24,7 +24,6 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 		cout << "++++++++++++++++++++++++++++++++++++++++ no history" << endl;
 		history.insert(std::make_pair(frameId, curFrameInput));
 
-		
 		for (RecognizedPlayer& player : curFrameInput) {
 			// Initiate last used count
 			lastUpdatedPlayer.insert(std::make_pair(player.getCamerasPlayerId(), 1));
@@ -44,6 +43,7 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 
 			std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId());
 			if (it != lastUpdatedPlayer.end() && it->second <= 2) {
+				// Handle player now and remember to skip him in the second loop
 				usedHistoryPlayers.push_back(histPlayer.getCamerasPlayerId());
 			} else {
 				continue;
@@ -56,10 +56,12 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 		for (RecognizedPlayer& histPlayer : history.find(frameId - 1)->second) {
 			std::vector<int>::iterator it = find (usedHistoryPlayers.begin(), usedHistoryPlayers.end(), histPlayer.getCamerasPlayerId());
 			if (it != usedHistoryPlayers.end())
-				continue; // already used this history player
+				// Already handled this player in the first loop
+				continue;
 
 			createHistory(curFrameInput, newHistoryInput, histPlayer, notChangedPlayersToDraw, changedPlayersToDraw, playerMovement);
 		}
+
 		// Add everything to history (memory)
 		history.insert(std::make_pair(frameId, newHistoryInput));
 	}
