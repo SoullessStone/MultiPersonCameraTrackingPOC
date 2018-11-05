@@ -16,6 +16,7 @@ class TrackingModule {
 
 		void printHistory();
 		bool isPossiblySamePlayer(RecognizedPlayer a, RecognizedPlayer b, int threshold);
+		int getDistance(RecognizedPlayer a, RecognizedPlayer b);
 		std::vector<RecognizedPlayer> getMergedInput(std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic);
 		void createHistory(std::vector<RecognizedPlayer> &curFrameInput, std::vector<RecognizedPlayer> &newHistoryInput, RecognizedPlayer histPlayer, std::vector<PointPair> &notChangedPlayersToDraw, std::vector<PointPair> &changedPlayersToDraw, std::vector<PointPair> &playerMovement);
 };

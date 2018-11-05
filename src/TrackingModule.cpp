@@ -1,7 +1,7 @@
 #include <TrackingModule.h>
 
 // TODO Verbesserungsideen
-	//  o Nicht den erstbesten Match nehmen, sondern über alle loopen und den besten nehmen 10001
+	//  o Ideale Zuteilung von history-Spielern und input herausfinden (globales minimieren von distanz)
 	//  o Geister nicht ewig behalten. Irgendwann löschen und neuen Spieler akzeptieren 10002
 	//  o Evtl. weniger mergen/ mehr Input zulassen.
 	//  o Neuerfassung (nicht nur am Anfang) ermöglichen!
@@ -74,40 +74,36 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 }
 
 void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput, std::vector<RecognizedPlayer> &newHistoryInput, RecognizedPlayer histPlayer, std::vector<PointPair> &notChangedPlayersToDraw, std::vector<PointPair> &changedPlayersToDraw, std::vector<PointPair> &playerMovement) {
+	
 	bool hasMatched = false;
+	RecognizedPlayer nearestPlayer;
+	int nearestPlayerDistance = 9999;
+
 	cout << "History-Player #" << histPlayer.getCamerasPlayerId() << endl;
 	auto curFramePlayer = std::begin(curFrameInput);
 	// Loop over new input
 	while (curFramePlayer != std::end(curFrameInput)) {
 		cout << "+++++++++++++++++ Trying to match #" << (*curFramePlayer).getCamerasPlayerId() << endl;
-		// TODO: 10001 evtl. den besten match finden
 		int multiplicator = 1;
 		std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId());
 		if (it != lastUpdatedPlayer.end())
 			multiplicator = it->second;
 		if (isPossiblySamePlayer(histPlayer, *curFramePlayer, 300 + multiplicator * 50)) {
-			cout << "+++++++++++++++++ wow, WOW, WOOOOOOOOOOOW!!!!" << endl;
-			// We found the player again, add him/her to history
-			RecognizedPlayer player;
-			player.setCamerasPlayerId(histPlayer.getCamerasPlayerId());
-			player.setPositionInModel(Point((*curFramePlayer).getPositionInModel().x, (*curFramePlayer).getPositionInModel().y), true);
-			player.setIsRed((*curFramePlayer).getIsRed(), true);
-			newHistoryInput.push_back(player);
-			// Erase player from new input (we don't want to use him twice)
-			curFramePlayer = curFrameInput.erase(curFramePlayer);
-			
 			// Flag to be used later
 			hasMatched = true;
+			
+			//cout << "0000000000000000000000000000 MATCHED ";
+			
+			int distance = getDistance(histPlayer, *curFramePlayer);
+			if (distance < nearestPlayerDistance) {
+				nearestPlayerDistance = distance;
+				nearestPlayer = *curFramePlayer;
+				//cout << "AND NEW BEST" << endl;
+			} else {
+				//cout << "but not new Best" << endl;
+			}
 
-			// Reset last used counter
-			std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId()); 
-			if (it != lastUpdatedPlayer.end())
-				it->second = 1;
-
-			// Debug: add players for debug image
-			changedPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
-			playerMovement.push_back(PointPair(-1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y, player.getPositionInModel().x, player.getPositionInModel().y));
-			break;
+			++curFramePlayer;
 		}else {
 			// Not the same player we searched in history
 			++curFramePlayer;
@@ -126,6 +122,34 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 		
 		// Debug: add players for debug image
 		notChangedPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y));
+	} else {
+		// We found the player again, add him/her to history
+		RecognizedPlayer player;
+		player.setCamerasPlayerId(histPlayer.getCamerasPlayerId());
+		player.setPositionInModel(Point(nearestPlayer.getPositionInModel().x, nearestPlayer.getPositionInModel().y), true);
+		player.setIsRed(nearestPlayer.getIsRed(), true);
+		newHistoryInput.push_back(player);
+
+		// Erase player from new input (we don't want to use him twice)
+		curFramePlayer = std::begin(curFrameInput);
+		while (curFramePlayer != std::end(curFrameInput)) {
+			if ((*curFramePlayer).getCamerasPlayerId() == nearestPlayer.getCamerasPlayerId()) {
+				cout << "removed" << endl;
+				curFrameInput.erase(curFramePlayer);
+				break;
+			} else {
+				++curFramePlayer;
+			}
+		}
+
+		// Reset last used counter
+		std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId()); 
+		if (it != lastUpdatedPlayer.end())
+			it->second = 1;
+
+		// Debug: add players for debug image
+		changedPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
+		playerMovement.push_back(PointPair(-1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y, player.getPositionInModel().x, player.getPositionInModel().y));
 	}
 }
 
@@ -144,7 +168,6 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 	cout << "Start Loop InputMic" << endl;
 	// Loop over players seen by cameraMic. Try to match them with the players from other cameras
 	for (RecognizedPlayer& rp : inputMic) {
-		// TODO: 10001 Mit Abstand kleinest diff => same! auch wenn über 200px
 		cout << "inputMic #" << rp.getCamerasPlayerId() << endl;
 		RecognizedPlayer resultingPlayerA;
 		bool matchingPlayerFromCameraHud = false;
@@ -281,17 +304,23 @@ void TrackingModule::printHistory()
 
 bool TrackingModule::isPossiblySamePlayer(RecognizedPlayer a, RecognizedPlayer b, int threshold)
 {
+	int distance = getDistance(a, b);
+	cout << "--------- " << "distance: " << distance << endl;
+	if (distance < threshold) {
+		if (a.getIsRed() == b.getIsRed()) {
+			return true;
+		}
+	}
+	return false;
+}
+
+int TrackingModule::getDistance(RecognizedPlayer a, RecognizedPlayer b)
+{
 	int diffX = a.getPositionInModel().x - b.getPositionInModel().x;
 	int diffY = a.getPositionInModel().y - b.getPositionInModel().y;
 	if (diffX < 0)
 		diffX = diffX * -1;
 	if (diffY < 0)
 		diffY = diffY * -1;
-	//cout << "--------- " << "diff: " << diffX + diffY << endl;
-	if (diffX + diffY < threshold) {
-		if (a.getIsRed() == b.getIsRed()) {
-			return true;
-		}
-	}
-	return false;
+	return diffX + diffY;
 }
