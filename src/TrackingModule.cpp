@@ -1,7 +1,8 @@
 #include <TrackingModule.h>
 
 // TODO Verbesserungsideen
-	//  o Ideale Zuteilung von history-Spielern und input herausfinden (globales minimieren von distanz)
+// 3 Dinge: Löschen/Neu erstellen, Distanz minimieren, Merging anpassen/weniger restriktiv
+	//  o Ideale Zuteilung von history-Spielern und input herausfinden (globales minimieren von distanz, schwarz/rot trennen)
 	//  o Geister nicht ewig behalten. Irgendwann löschen und neuen Spieler akzeptieren 10002
 	//  o Evtl. weniger mergen/ mehr Input zulassen.
 	//  o Neuerfassung (nicht nur am Anfang) ermöglichen!
