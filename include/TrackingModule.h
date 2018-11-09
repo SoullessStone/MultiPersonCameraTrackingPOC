@@ -13,6 +13,7 @@ class TrackingModule {
 	private:
 		std::map<int, std::vector<RecognizedPlayer>> history;
 		std::map<int, int> lastUpdatedPlayer;
+		std::vector<RecognizedPlayer> lostPlayers;
 
 		void printHistory();
 		bool isPossiblySamePlayer(RecognizedPlayer a, RecognizedPlayer b, int threshold);

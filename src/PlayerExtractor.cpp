@@ -44,7 +44,7 @@ std::vector<String> PlayerExtractor::getOutputsNames(const Net& net)
 	return names;
 }
 
-std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::vector<Mat>& outs, std::vector<PointPair> referencePoints)
+std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::vector<Mat>& outs, std::vector<PointPair> referencePoints, int sizeThreshold)
 {
 	std::vector<RecognizedPlayer> returnablePlayers;
 	static std::vector<int> outLayers = net.getUnconnectedOutLayers();
@@ -90,6 +90,11 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						int left = centerX - width / 2;
 						int top = centerY - height / 2;
 						int bottom = centerY + height / 2;
+
+						if (width*height < sizeThreshold) {
+							cout << "Skipped because the patch is too small." << endl;
+							continue;
+						}
 
 						// Sometimes the result is out of bounds, we cannot allow that.
 						if(left + width >= frame.cols) {
