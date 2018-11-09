@@ -4,10 +4,10 @@
 // 3 Dinge: Löschen/Neu erstellen, Distanz minimieren, Merging anpassen/weniger restriktiv
 	//  o Ideale Zuteilung von history-Spielern und input herausfinden (globales minimieren von distanz, schwarz/rot trennen)
 	//  o Evtl. weniger mergen/ mehr Input zulassen.
+	//     x für kameras Gebiete der absoluten Macht definieren. Wenn camera1 meint, in dem bereich steht ein Spieler, dann steht da einer
 	//  o Neuerfassung (nicht nur am Anfang) ermöglichen!
 	//  o Lost Player durchdenken
 	//     x wiederfinden evtl. auch mit shirt-nummer?
-	//  o für kameras Gebiete der absoluten Macht definieren. Wenn camera1 mein, in dem bereich steht ein Spieler, dann steht da einer
 
 void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
 {
