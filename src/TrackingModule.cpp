@@ -6,6 +6,7 @@
 	//  o Evtl. weniger mergen/ mehr Input zulassen.
 	//  o Neuerfassung (nicht nur am Anfang) ermöglichen!
 	//  o Lost Player durchdenken
+	//     x wiederfinden evtl. auch mit shirt-nummer?
 
 void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
 {
