@@ -7,6 +7,7 @@
 	//  o Neuerfassung (nicht nur am Anfang) ermöglichen!
 	//  o Lost Player durchdenken
 	//     x wiederfinden evtl. auch mit shirt-nummer?
+	//  o für kameras Gebiete der absoluten Macht definieren. Wenn camera1 mein, in dem bereich steht ein Spieler, dann steht da einer
 
 void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
 {

@@ -16,7 +16,7 @@
 			// The real information
 			Point positionInModel;
 			bool isRed;
-			int shirtNumber;
+			int shirtNumber = -1;
 
 			// Information used by the Cameras, not to be used in TrackingModule
 			Point positionInPerspective;
