@@ -9,6 +9,7 @@
 	//  o Lost Player durchdenken
 	//     x wiederfinden evtl. auch mit shirt-nummer?
 	//  o Frequenz ändern
+	//     x Schon besser. Aber: Parameter noch anpassen, damit es akurater wird...
 	//  o Nicht möglich, aber in Fazit als Verbesserungsoption erwähnen: Neue Aufnahmen mit besserer Kameraposition. Jede Kamera hat Ausschnitt des Feldes. Mehr Kameras.
 
 void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
