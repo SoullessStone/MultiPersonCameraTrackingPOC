@@ -155,7 +155,7 @@ int main(int argc, char** argv)
 		//std::chrono::duration<double> diff = endTime - startTime;
 		//cout << "Time since start: " << diff.count() << "s" << endl;
 		
-		waitKey();
+		//waitKey();
 
 	}
 	return 0;

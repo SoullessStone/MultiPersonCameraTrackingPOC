@@ -319,9 +319,10 @@ void TrackingModule::printHistory()
 	while(it != history.end())
 	{
 		std::cout<<it->first<<" :: size -> "<<it->second.size() << std::endl;
-		//for(RecognizedPlayer& player : it->second) {
+		for(RecognizedPlayer& player : it->second) {
 		//	cout << player.toString() << endl;
-		//}
+			cout << it->first << ";" << player.getCamerasPlayerId() << ";" << player.getPositionInModel().x << ";" << player.getPositionInModel().y << endl;
+		}
 		it++;
 	}
 	std::map<int, int>::iterator it2 = lastUpdatedPlayer.begin();
