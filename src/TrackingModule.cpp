@@ -1,16 +1,21 @@
 #include <TrackingModule.h>
 
 // TODO Verbesserungsideen
-// 3 Dinge: Löschen/Neu erstellen, Distanz minimieren, Merging anpassen/weniger restriktiv
-	//  o Ideale Zuteilung von history-Spielern und input herausfinden (globales minimieren von distanz, schwarz/rot trennen)
-	//  o Evtl. weniger mergen/ mehr Input zulassen.
-	//     x für kameras Gebiete der absoluten Macht definieren. Wenn camera1 meint, in dem bereich steht ein Spieler, dann steht da einer
-	//  o Neuerfassung (nicht nur am Anfang) ermöglichen!
-	//  o Lost Player durchdenken
-	//     x wiederfinden evtl. auch mit shirt-nummer?
-	//  o Frequenz ändern
-	//     x Schon besser. Aber: Parameter noch anpassen, damit es akurater wird...
-	//  o Nicht möglich, aber in Fazit als Verbesserungsoption erwähnen: Neue Aufnahmen mit besserer Kameraposition. Jede Kamera hat Ausschnitt des Feldes. Mehr Kameras.
+//	- Frequenz von 2 fps auf 10 fps geändert: Wird besser, mann muss aber noch die Parameter etwas justieren.
+//	- 10 Spielerpunkte initial setzen vs Neuerfassen/Löschen von Spielern ausprobieren
+//	- Nummernerkennung schlecht. Optionen? Unzureichende Optionen: Siehe Week 0 im Excel, SIFT evtl. noch weiter verbessern?
+//		o Erkennung sehr gut, wenn man weiss, dass eine Nummer sichtbar ist (siehe Testtool Sift). Grosse Fehlerrate, wenn keine Nummer sichtbar
+//		o Wenn Nummernerkennung besser: Logik einbauen zum ändern der History
+//	- Ideale Zuteilung von history-Spielern und input herausfinden (globales minimieren von distanz, schwarz/rot trennen)
+//	- Evtl. weniger mergen/ mehr Input zulassen.
+//		o für kameras Gebiete der absoluten Macht definieren. Wenn camera1 meint, in dem bereich steht ein Spieler, dann steht da einer
+
+// Erkenntnisse
+//	- FPS sehr wichtig, das System der Europameisterschaft hatte 25fps
+//	- Bilddaten sind nicht so gut wie gedacht: Ecke unten links schlecht abgedeckt, CamHud verwendet zu viel des Bildes für Wände, CamMar zu wenig hoch platziert.
+//	- Mehr Kameras mit kleinem Feldanteil würde wohl helfen.
+//	- Komplexität wird sehr schnell sehr gross. Zum Vergleich: mit den GPS-Basierten Systemen ist Segmentation, Klassifizierung und Tracking hinfällig, man weiss, wer die Daten sendet und die Position ist gratis und sehr genau.
+//	- Um ein visuelles Trackingsystem aufzubauen braucht man meiner Meinung nach mehr Ressourcen
 
 void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
 {

@@ -134,6 +134,9 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 								currentPlayer.setShirtNumber(-1, false);
 							} else {
 								currentPlayer.setShirtNumber(result, true);
+								/*cout << result << endl;
+								imshow("player", player);
+								waitKey();*/
 							}
 
 							currentPlayer.setIsRed(true, true);
@@ -197,6 +200,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 								break;
 							}
 						}
+						// TODO Wir verändern das frame und arbeiten dann weiter, das muss man auslagern
 						if (! isDuplicate) {
 							returnablePlayers.push_back(currentPlayer);
 							playersToDraw.push_back(playerPointPair);

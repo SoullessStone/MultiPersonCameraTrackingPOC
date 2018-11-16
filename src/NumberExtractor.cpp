@@ -9,7 +9,7 @@ int NumberExtractor::getNumberForPlayer(Mat& player)
 	for(int& i: possibleNumbers) { 
 		int temp = NumberExtractor::getPossibilityForPlayerAndNumber(player, i);
 		//cout << "------ Possibility for " << i << ": " << temp << endl;
-		if (temp > maxNumber) {
+		if (temp > maxCount) {
 			maxNumber = i;
 			maxCount = temp;
 		}
