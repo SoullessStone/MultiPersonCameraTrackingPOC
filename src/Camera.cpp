@@ -31,7 +31,7 @@ Mat Camera::getNextFrame()
 			break;
 		}
 	}
-	wantedMs += 500;
+	wantedMs += 100;
 	//cout << "Camera #" << id << ": return frame at " << cap.get(CV_CAP_PROP_POS_MSEC ) << "ms" << endl;
 	lastUsedMs = cap.get(CV_CAP_PROP_POS_MSEC);
 	return frame;

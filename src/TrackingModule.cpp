@@ -43,7 +43,8 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 	// New input to be added to the "memory"
 	std::vector<RecognizedPlayer> newHistoryInput;
 	// Debug: Points to print in debug-image
-	std::vector<PointPair> changedPlayersToDraw;
+	std::vector<PointPair> redPlayersToDraw;
+	std::vector<PointPair> blackPlayersToDraw;
 	std::vector<PointPair> notChangedPlayersToDraw;
 	std::vector<PointPair> playerMovement;
 
@@ -58,7 +59,10 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 			lastUpdatedPlayer.insert(std::make_pair(player.getCamerasPlayerId(), 1));
 
 			// Debug: add players for debug-image
-			changedPlayersToDraw.push_back(PointPair(player.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
+			if (player.getIsRed() == true)
+				redPlayersToDraw.push_back(PointPair(player.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
+			else
+				blackPlayersToDraw.push_back(PointPair(player.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
 		}
 	} else {
 		// History is available
@@ -78,7 +82,7 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 				continue;
 			}
 
-			createHistory(curFrameInput, newHistoryInput, histPlayer, notChangedPlayersToDraw, changedPlayersToDraw, playerMovement);
+			createHistory(curFrameInput, newHistoryInput, histPlayer, notChangedPlayersToDraw, redPlayersToDraw, blackPlayersToDraw, playerMovement);
 		}
 
 		// Second loop: Try to match the history-players we did not see for some time
@@ -88,7 +92,7 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 				// Already handled this player in the first loop
 				continue;
 
-			createHistory(curFrameInput, newHistoryInput, histPlayer, notChangedPlayersToDraw, changedPlayersToDraw, playerMovement);
+			createHistory(curFrameInput, newHistoryInput, histPlayer, notChangedPlayersToDraw, redPlayersToDraw, blackPlayersToDraw, playerMovement);
 		}
 
 		// Handle players not used until now
@@ -100,13 +104,13 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 	}
 	
 	// Debug: Create and show tracking result
-	ModelImageGenerator::createFieldModel("Tracking", notChangedPlayersToDraw, playerMovement, changedPlayersToDraw);
+	ModelImageGenerator::createFieldModel("Tracking", redPlayersToDraw, playerMovement, blackPlayersToDraw, notChangedPlayersToDraw);
 
 	// Debug: print history
 	printHistory();
 }
 
-void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput, std::vector<RecognizedPlayer> &newHistoryInput, RecognizedPlayer histPlayer, std::vector<PointPair> &notChangedPlayersToDraw, std::vector<PointPair> &changedPlayersToDraw, std::vector<PointPair> &playerMovement) {
+void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput, std::vector<RecognizedPlayer> &newHistoryInput, RecognizedPlayer histPlayer, std::vector<PointPair> &notChangedPlayersToDraw, std::vector<PointPair> &redPlayersToDraw, std::vector<PointPair> &blackPlayersToDraw, std::vector<PointPair> &playerMovement) {
 	
 	bool hasMatched = false;
 	RecognizedPlayer nearestPlayer;
@@ -176,6 +180,10 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 		
 		// Debug: add players for debug image
 		notChangedPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y));
+		if (histPlayer.getIsRed() == true)
+			redPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y));
+		else
+			blackPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y));
 	} else {
 		// We found the player again, add him/her to history
 		RecognizedPlayer player;
@@ -202,7 +210,10 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 			it->second = 1;
 
 		// Debug: add players for debug image
-		changedPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
+		if (histPlayer.getIsRed() == true)
+			redPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
+		else
+			blackPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
 		playerMovement.push_back(PointPair(-1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y, player.getPositionInModel().x, player.getPositionInModel().y));
 	}
 }
@@ -215,7 +226,8 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 	int threshold = 200;
 
 	// Debug: players to draw to debug-image
-	std::vector<PointPair> changedPlayersToDraw;
+	std::vector<PointPair> redPlayersToDraw;
+	std::vector<PointPair> blackPlayersToDraw;
 
 	RecognizedPlayer rp2;
 	// Input: Confidence: Wenn alle Kameras sich einig sind: hoch, sonst tief. Anfang tief, Vergangenheit nicht viel einbeziehen
@@ -272,7 +284,10 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 			curPlayer.setPositionInModel(Point(x, y), true);
 			mergedPlayers.push_back(curPlayer);
 			// Debug
-			changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));
+			if (rp.getIsRed() == true)
+				redPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));
+			else
+				blackPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));
 		}
 		if (!matchingPlayerFromCameraHud && matchingPlayerFromCameraMar) {
 			RecognizedPlayer curPlayer;
@@ -283,7 +298,10 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 			curPlayer.setPositionInModel(Point(x, y), true);
 			mergedPlayers.push_back(curPlayer);
 			// Debug
-			changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));
+			if (rp.getIsRed() == true)
+				redPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));
+			else
+				blackPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));
 			
 		}
 		if (matchingPlayerFromCameraHud && matchingPlayerFromCameraMar) {
@@ -295,7 +313,10 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 			curPlayer.setPositionInModel(Point(x, y), true);
 			mergedPlayers.push_back(curPlayer);
 			// Debug
-			changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));		
+			if (rp.getIsRed() == true)
+				redPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));
+			else
+				blackPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId(), -1, -1, x, y));
 		}
 	}
 
@@ -317,7 +338,10 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 				int y = (rp.getPositionInModel().y+(*i).getPositionInModel().y) / 2;
 				curPlayer.setPositionInModel(Point(x, y), true);
 				mergedPlayers.push_back(curPlayer);
-				changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 300, -1, -1, x, y));
+				if (rp.getIsRed() == true)
+					redPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 300, -1, -1, x, y));
+				else
+					blackPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 300, -1, -1, x, y));
 				// Remove player from list, so he is not used twice
 				i = inputMar.erase(i);
 			}else {
@@ -330,9 +354,8 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 	Logger::log("inputHud.size() " + std::to_string(inputHud.size()), 0);
 
 	// Debug: create image with all the players on the field
-	std::vector<PointPair> referencePoints;
 	std::vector<PointPair> linesToDraw;
-	ModelImageGenerator::createFieldModel("Tracking-Input", referencePoints, linesToDraw, changedPlayersToDraw);
+	ModelImageGenerator::createFieldModel("Tracking-Input", redPlayersToDraw, linesToDraw, blackPlayersToDraw);
 	
 	return mergedPlayers;
 }
@@ -343,7 +366,8 @@ std::vector<RecognizedPlayer> TrackingModule::getFullInput(std::vector<Recognize
 	std::vector<RecognizedPlayer> inputPlayers;
 
 	// Debug: players to draw to debug-image
-	std::vector<PointPair> changedPlayersToDraw;
+	std::vector<PointPair> redPlayersToDraw;
+	std::vector<PointPair> blackPlayersToDraw;
 
 	for (RecognizedPlayer& rp : inputMic) {
 		RecognizedPlayer curPlayer;
@@ -354,7 +378,10 @@ std::vector<RecognizedPlayer> TrackingModule::getFullInput(std::vector<Recognize
 		curPlayer.setPositionInModel(Point(x, y), true);
 		inputPlayers.push_back(curPlayer);
 		// Debug
-		changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 1000, -1, -1, x, y));
+		if (rp.getIsRed() == true)
+			redPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 1000, -1, -1, x, y));
+		else
+			blackPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 1000, -1, -1, x, y));
 	}
 
 	for (RecognizedPlayer& rp : inputHud) {
@@ -366,10 +393,13 @@ std::vector<RecognizedPlayer> TrackingModule::getFullInput(std::vector<Recognize
 		curPlayer.setPositionInModel(Point(x, y), true);
 		inputPlayers.push_back(curPlayer);
 		// Debug
-		changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 2000, -1, -1, x, y));
+		if (rp.getIsRed() == true)
+			redPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 2000, -1, -1, x, y));
+		else
+			blackPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 2000, -1, -1, x, y));
 	}
 
-	/*for (RecognizedPlayer& rp : inputMar) {
+	for (RecognizedPlayer& rp : inputMar) {
 		RecognizedPlayer curPlayer;
 		curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId() + 3000);
 		curPlayer.setIsRed(rp.getIsRed(), true);
@@ -378,13 +408,15 @@ std::vector<RecognizedPlayer> TrackingModule::getFullInput(std::vector<Recognize
 		curPlayer.setPositionInModel(Point(x, y), true);
 		inputPlayers.push_back(curPlayer);
 		// Debug
-		changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 3000, -1, -1, x, y));
-	}*/
+		if (rp.getIsRed() == true)
+			redPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 3000, -1, -1, x, y));
+		else
+			blackPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 3000, -1, -1, x, y));
+	}
 
 	// Debug: create image with all the players on the field
-	std::vector<PointPair> referencePoints;
 	std::vector<PointPair> linesToDraw;
-	ModelImageGenerator::createFieldModel("Tracking-Input", referencePoints, linesToDraw, changedPlayersToDraw);
+	ModelImageGenerator::createFieldModel("Tracking-Input", redPlayersToDraw, linesToDraw, blackPlayersToDraw);
 	
 	return inputPlayers;
 }

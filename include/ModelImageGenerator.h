@@ -13,6 +13,7 @@
 	class ModelImageGenerator {
 	public:
 		static void createFieldModel(std::string title, std::vector<PointPair> additionalPointsRed, std::vector<PointPair> additionalPointsGreen, std::vector<PointPair> additionalPointsBlue);
+		static void createFieldModel(std::string title, std::vector<PointPair> additionalPointsRed, std::vector<PointPair> additionalPointsGreen, std::vector<PointPair> additionalPointsBlue, std::vector<PointPair> additionalPointsYellow);
 	};
 
 #endif

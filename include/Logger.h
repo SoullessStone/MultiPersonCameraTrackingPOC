@@ -11,7 +11,7 @@
 			static void log(std::string message, int level);
 			static void logWithoutNewLine(std::string message, int level);
 		private:
-			static const bool SHOW_DEBUG = false;
+			static const bool SHOW_DEBUG = true;
 	};
 
 #endif
