@@ -3,17 +3,18 @@
 // TODO Verbesserungsideen
 //	- Frequenz von 2 fps auf 10 fps geändert: Wird besser, mann muss aber noch die Parameter etwas justieren.
 //	- 10 Spielerpunkte initial setzen vs Neuerfassen/Löschen von Spielern ausprobieren
+
+//	- Neue Aufnahme: Framerate, mehr Kameras
+
+
+
+// Temporär Zurückgestellt:
 //	- Nummernerkennung schlecht. Optionen? Unzureichende Optionen: Siehe Week 0 im Excel, SIFT evtl. noch weiter verbessern?
 //		o Erkennung sehr gut, wenn man weiss, dass eine Nummer sichtbar ist (siehe Testtool Sift). Grosse Fehlerrate, wenn keine Nummer sichtbar
 //		o Wenn Nummernerkennung besser: Logik einbauen zum ändern der History
 //	- Ideale Zuteilung von history-Spielern und input herausfinden (globales minimieren von distanz, schwarz/rot trennen)
 
-
-//	- Neue Aufnahme: Framerate, mehr Kameras
-//	- Merging umbenennen und weniger radikal machen
-
-
-
+//Done:
 //	- Evtl. weniger mergen/ mehr Input zulassen.
 //		o für kameras Gebiete der absoluten Macht definieren. Wenn camera1 meint, in dem bereich steht ein Spieler, dann steht da einer
 
@@ -429,7 +430,7 @@ void TrackingModule::printHistory()
 		Logger::log(std::to_string(it->first) + " :: size -> " + std::to_string(it->second.size()), 0);
 		for(RecognizedPlayer& player : it->second) {
 		//	Logger::log(player.toString(), 0);
-			Logger::log(std::to_string(it->first) + ";" + std::to_string(player.getCamerasPlayerId()) + ";" + std::to_string(player.getPositionInModel().x) + ";" + std::to_string(player.getPositionInModel().y), 0);
+			Logger::log(std::to_string(it->first) + ";" + std::to_string(player.getCamerasPlayerId()) + ";" + std::to_string(player.getPositionInModel().x) + ";" + std::to_string(player.getPositionInModel().y), 1);
 		}
 		it++;
 	}

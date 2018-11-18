@@ -113,8 +113,10 @@ int main(int argc, char** argv)
 	// "Forever" - We quit, when no more frames are available
 	int i = 0;
 
-	Clock clock;
+	Clock overallClock;
 	Clock iterationClock;
+	Clock clock;
+	overallClock.tic();
 	while (true == true)
 	{
 		iterationClock.tic();
@@ -130,6 +132,7 @@ int main(int argc, char** argv)
 		} catch (int e)
 		{
 			Logger::log("No frames left, show is over", 1);
+			overallClock.toc("Everything took: ");
 			break;
 		}
 		clock.toc("Load all frames: ");

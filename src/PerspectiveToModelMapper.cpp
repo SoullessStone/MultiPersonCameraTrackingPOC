@@ -7,6 +7,13 @@ PerspectiveToModelMapper::PerspectiveToModelMapper()
 
 std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModelSpace(Point p, std::vector<PointPair> allPointPairs)
 {
+	Weitere Konfiguration: Dreiecke bestimmen. Wenn Punkt in Perspektive in Dreieck, diese Referenzpunkte nehmen. Sonst halt wie bisher. Das verbessert den Fall Baptiste und Dävu bei Frame 56+
+		* init: alle möglichen dreiecke in model erfassen, evtl. allPointPairs in Map abbilden
+		* hier: loop über dreiecke (etwa 70)
+			* hole punkte, schau ob der (perspektiven-)punkt drin ist
+				* wenn ja: auslesen und result setzen, wir berechnen basierend auf diesen punkten
+				* wenn nein: wie bisher
+				* wenn ein punkt nicht da: wie bisher
 	// Init nearest Pointpairs
 	PointPair nearestPP1(9999,9999,9999,9999,9999);
 	double pp1Distance = 9999.0;
@@ -119,6 +126,10 @@ void PerspectiveToModelMapper::initBannedConstellations() {
 	bannedConstellations.push_back(PointConstellation(9, 15, 44));
 	bannedConstellations.push_back(PointConstellation(9, 15, 45));
 	bannedConstellations.push_back(PointConstellation(9, 15, 16));
+	bannedConstellations.push_back(PointConstellation(9, 15, 28));
+	bannedConstellations.push_back(PointConstellation(9, 15, 34));
+	bannedConstellations.push_back(PointConstellation(9, 15, 42));
+	bannedConstellations.push_back(PointConstellation(9, 15, 41));
 	bannedConstellations.push_back(PointConstellation(15, 44, 26));
 	bannedConstellations.push_back(PointConstellation(44, 26, 40));
 	bannedConstellations.push_back(PointConstellation(36, 30, 24));
@@ -146,6 +157,7 @@ void PerspectiveToModelMapper::initBannedConstellations() {
 	bannedConstellations.push_back(PointConstellation(27, 15, 9));
 	bannedConstellations.push_back(PointConstellation(26, 15, 9));
 	bannedConstellations.push_back(PointConstellation(46, 15, 9));
+	bannedConstellations.push_back(PointConstellation(25, 31, 43));
 }
 
 
