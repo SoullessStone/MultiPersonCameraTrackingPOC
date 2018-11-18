@@ -18,6 +18,7 @@
 #include <PlayerExtractor.h>
 #include <Camera.h>
 #include <Logger.h>
+#include <Clock.h>
 #include <TrackingModule.h>
 
 using namespace cv;
@@ -112,10 +113,12 @@ int main(int argc, char** argv)
 	// "Forever" - We quit, when no more frames are available
 	int i = 0;
 
-	auto startTime = std::chrono::system_clock::now();
-
+	Clock clock;
+	Clock iterationClock;
 	while (true == true)
 	{
+		iterationClock.tic();
+		clock.tic();
 		i++;
 		Logger::log("Frame #" + std::to_string(i), 1);
 		try
@@ -129,33 +132,38 @@ int main(int argc, char** argv)
 			Logger::log("No frames left, show is over", 1);
 			break;
 		}
-		
+		clock.toc("Load all frames: ");
+
 		// Detect players for the three views
 		outs = playerExtractor.getOuts(frameHud);
+		clock.toc("Hud - Neuronal Network: ");
 		detectedPlayersHud = playerExtractor.extract(frameHud, outs, referencePointsHud, 350);
-		//printList(detectedPlayersHud);
+		clock.toc("Hud - Extract Players: ");
 		cv::resize(frameHud,frameHud,Size((int)(((double)frameHud.cols / (double)3)),(int)(((double)frameHud.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameHud", frameHud);
-		//waitKey();
+		clock.toc("Hud - Resizing and showing image: "); 
+
 		outs = playerExtractor.getOuts(frameMar);
+		clock.toc("Mar - Neuronal Network: ");
 		detectedPlayersMar = playerExtractor.extract(frameMar, outs, referencePointsMar, 350);
-		//printList(detectedPlayersMar);
+		clock.toc("Mar - Extract Players: ");
 		cv::resize(frameMar,frameMar,Size((int)(((double)frameMar.cols / (double)3)),(int)(((double)frameMar.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameMar", frameMar);
-		//waitKey();
+		clock.toc("Mar - Resizing and showing image: "); 
 
 		outs = playerExtractor.getOuts(frameMic);
+		clock.toc("Mic - Neuronal Network: ");
 		detectedPlayersMic = playerExtractor.extract(frameMic, outs, referencePointsMic, 1000);
-		//printList(detectedPlayersMic);
+		clock.toc("Mic - Extract Players: ");
 		cv::resize(frameMic,frameMic,Size((int)(((double)frameMic.cols / (double)3)),(int)(((double)frameMic.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameMic", frameMic);
+		clock.toc("Mic - Resizing and showing image: "); 
 
 		trackingModule.handleInput(i, detectedPlayersHud, detectedPlayersMar, detectedPlayersMic);
+		clock.toc("Handle Input for all frames (Tracking): ");
 
-		auto endTime = std::chrono::system_clock::now();
-		std::chrono::duration<double> diff = endTime - startTime;
-		Logger::log("Time since start: " + std::to_string(diff.count()) + "s", 1);
-		
+		iterationClock.toc("************************* Sum of all works: ");
+
 		//waitKey();
 
 	}

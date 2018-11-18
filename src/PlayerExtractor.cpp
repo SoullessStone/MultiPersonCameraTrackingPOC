@@ -125,7 +125,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						if (MainColorExtractor::getPlayerColor(0, 0, player) == 1) {
 							playerNumber += 100;
 
-							// Find number
+							/* Find number
 							Mat greyPlayer;
 							cv::cvtColor(player, greyPlayer, cv::COLOR_BGR2GRAY);
 							int result = NumberExtractor::getNumberForPlayer(greyPlayer);
@@ -133,10 +133,10 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 								currentPlayer.setShirtNumber(-1, false);
 							} else {
 								currentPlayer.setShirtNumber(result, true);
-								/*Loggercout << result << endl;
+								//Loggercout << result << endl;
 								imshow("player", player);
-								waitKey();*/
-							}
+								waitKey();
+							}*/
 
 							currentPlayer.setIsRed(true, true);
 						}
