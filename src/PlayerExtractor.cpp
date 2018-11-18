@@ -217,7 +217,11 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 			}
 		}
 		// Create the image of the model with some additional information (players, used reference points etc)
-		//ModelImageGenerator::createFieldModel(referencePoints, linesToDraw, playersToDraw);
+		/*ModelImageGenerator::createFieldModel("Extraction from image", referencePoints, linesToDraw, playersToDraw);
+		Mat frame2;
+		cv::resize(frame,frame2,Size((int)(((double)frame.cols / (double)3)),(int)(((double)frame.rows / (double)3))), 0, 0, cv::INTER_AREA);
+		imshow("Extraction Frame", frame2);
+		waitKey();*/
 
 		// Draw some things on the frame
 		for(PointPair& pp: referencePoints) {
