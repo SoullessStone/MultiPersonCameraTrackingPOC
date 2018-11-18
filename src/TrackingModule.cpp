@@ -7,8 +7,23 @@
 //		o Erkennung sehr gut, wenn man weiss, dass eine Nummer sichtbar ist (siehe Testtool Sift). Grosse Fehlerrate, wenn keine Nummer sichtbar
 //		o Wenn Nummernerkennung besser: Logik einbauen zum ändern der History
 //	- Ideale Zuteilung von history-Spielern und input herausfinden (globales minimieren von distanz, schwarz/rot trennen)
+
+
+//	- Neue Aufnahme: Framerate, mehr Kameras
+//	- Merging umbenennen und weniger radikal machen
+
+
+
 //	- Evtl. weniger mergen/ mehr Input zulassen.
 //		o für kameras Gebiete der absoluten Macht definieren. Wenn camera1 meint, in dem bereich steht ein Spieler, dann steht da einer
+
+
+
+
+
+
+
+
 
 // Erkenntnisse
 //	- FPS sehr wichtig, das System der Europameisterschaft hatte 25fps
@@ -19,8 +34,11 @@
 
 void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
 {
-	// Try to merge players from the three cameras
-	std::vector<RecognizedPlayer> curFrameInput = getMergedInput(inputHud, inputMar, inputMic);
+	std::vector<RecognizedPlayer> curFrameInput;
+	if (frameId == 1)
+		curFrameInput = getMergedInput(inputHud, inputMar, inputMic);
+	else
+		curFrameInput = getFullInput(inputHud, inputMar, inputMic);
 
 	// New input to be added to the "memory"
 	std::vector<RecognizedPlayer> newHistoryInput;
@@ -103,7 +121,7 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 		std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId());
 		if (it != lastUpdatedPlayer.end())
 			multiplicator = it->second;
-		if (isPossiblySamePlayer(histPlayer, *curFramePlayer, 300 + multiplicator * 70)) {
+		if (isPossiblySamePlayer(histPlayer, *curFramePlayer, 200 + multiplicator * 70)) {
 			// Flag to be used later
 			hasMatched = true;
 			
@@ -317,6 +335,58 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 	ModelImageGenerator::createFieldModel("Tracking-Input", referencePoints, linesToDraw, changedPlayersToDraw);
 	
 	return mergedPlayers;
+}
+
+std::vector<RecognizedPlayer> TrackingModule::getFullInput(std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
+{
+	// New list to save the merged players
+	std::vector<RecognizedPlayer> inputPlayers;
+
+	// Debug: players to draw to debug-image
+	std::vector<PointPair> changedPlayersToDraw;
+
+	for (RecognizedPlayer& rp : inputMic) {
+		RecognizedPlayer curPlayer;
+		curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId() + 1000);
+		curPlayer.setIsRed(rp.getIsRed(), true);
+		int x = rp.getPositionInModel().x;
+		int y = rp.getPositionInModel().y;
+		curPlayer.setPositionInModel(Point(x, y), true);
+		inputPlayers.push_back(curPlayer);
+		// Debug
+		changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 1000, -1, -1, x, y));
+	}
+
+	for (RecognizedPlayer& rp : inputHud) {
+		RecognizedPlayer curPlayer;
+		curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId() + 2000);
+		curPlayer.setIsRed(rp.getIsRed(), true);
+		int x = rp.getPositionInModel().x;
+		int y = rp.getPositionInModel().y;
+		curPlayer.setPositionInModel(Point(x, y), true);
+		inputPlayers.push_back(curPlayer);
+		// Debug
+		changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 2000, -1, -1, x, y));
+	}
+
+	/*for (RecognizedPlayer& rp : inputMar) {
+		RecognizedPlayer curPlayer;
+		curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId() + 3000);
+		curPlayer.setIsRed(rp.getIsRed(), true);
+		int x = rp.getPositionInModel().x;
+		int y = rp.getPositionInModel().y;
+		curPlayer.setPositionInModel(Point(x, y), true);
+		inputPlayers.push_back(curPlayer);
+		// Debug
+		changedPlayersToDraw.push_back(PointPair(rp.getCamerasPlayerId() + 3000, -1, -1, x, y));
+	}*/
+
+	// Debug: create image with all the players on the field
+	std::vector<PointPair> referencePoints;
+	std::vector<PointPair> linesToDraw;
+	ModelImageGenerator::createFieldModel("Tracking-Input", referencePoints, linesToDraw, changedPlayersToDraw);
+	
+	return inputPlayers;
 }
 
 void TrackingModule::printHistory()
