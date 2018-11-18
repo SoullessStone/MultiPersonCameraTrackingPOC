@@ -5,6 +5,7 @@
 
 	#include <iostream>
 	#include "opencv2/core.hpp"
+	#include <Logger.h>
 
 	using namespace std;
 	using namespace cv;

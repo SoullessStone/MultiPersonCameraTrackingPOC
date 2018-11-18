@@ -52,11 +52,11 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 
 	if (net.getLayer(0)->outputNameToIndex("im_info") != -1)  // Faster-RCNN or R-FCN
 	{
-		cout << "im_info" << endl;
+		Logger::log("im_info", 0);
 	}
 	else if (outLayerType == "DetectionOutput")
 	{
-		cout << "DetectionOutput" << endl;
+		Logger::log("DetectionOutput", 0);
 	}
 	else if (outLayerType == "Region")
 	{
@@ -92,26 +92,26 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						int bottom = centerY + height / 2;
 
 						if (width*height < sizeThreshold) {
-							cout << "Skipped because the patch is too small." << endl;
+							Logger::log("Skipped because the patch is too small.", 0);
 							continue;
 						}
 
 						// Sometimes the result is out of bounds, we cannot allow that.
 						if(left + width >= frame.cols) {
-							cout << "Trim player (width)" << endl;
+							Logger::log("Trim player (width)", 0);
 							width = frame.cols - left - 1;
 						}
 						if(top + height >= frame.rows) {
-							cout << "Trim player (height)" << endl;
+							Logger::log("Trim player (height)", 0);
 							height = frame.rows - top - 1;
 						}
 						// Sometimes the start point is also out of bounds, we have to fix that also
 						if (left < 0) {
-							cout << "Trim player (left)" << endl;
+							Logger::log("Trim player (left)", 0);
 							left = 0;
 						}
 						if (top < 0) {
-							cout << "Trim player (top)" << endl;
+							Logger::log("Trim player (top)", 0);
 							top = 0;
 						}
 						// Create container in which we store the information about the player
@@ -124,7 +124,6 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						bool isRed;
 						if (MainColorExtractor::getPlayerColor(0, 0, player) == 1) {
 							playerNumber += 100;
-							//cout << "Red Player" << endl;
 
 							// Find number
 							Mat greyPlayer;
@@ -134,7 +133,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 								currentPlayer.setShirtNumber(-1, false);
 							} else {
 								currentPlayer.setShirtNumber(result, true);
-								/*cout << result << endl;
+								/*Loggercout << result << endl;
 								imshow("player", player);
 								waitKey();*/
 							}
@@ -144,7 +143,6 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						else {
 							currentPlayer.setShirtNumber(-1, false);
 							currentPlayer.setIsRed(false, true);
-							//cout << "Black Player" << endl;
 						}
 
 						currentPlayer.setCamerasPlayerId(playerNumber);
@@ -182,7 +180,6 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						linesToDraw.push_back(PointPair(0, nearestPoints[1].p2.x, nearestPoints[1].p2.y, x_part, y_part));
 						linesToDraw.push_back(PointPair(0, nearestPoints[2].p2.x, nearestPoints[2].p2.y, x_part, y_part));
 						
-						//cout << "player id " << playerNumber << endl;
 						bool isDuplicate = false;
 						for(RecognizedPlayer& rPlayer: returnablePlayers) {
 							Point rPlayerPerspectivePosition = rPlayer.getPositionInPerspective();
@@ -192,11 +189,10 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 								diffX = diffX * -1;
 							if (diffY < 0)
 								diffY = diffY * -1;
-							//cout << "diffX/diffY: " << diffX << "/" << diffY << endl;
 							if (diffX + diffY < 30 && rPlayer.getIsRed() == currentPlayer.getIsRed()) {
 								isDuplicate = true;
-								cout << "Skipped dublicate - diffX/diffY: " << diffX << "/" << diffY << endl;
-								cout << "currentId/alreadyId: " << currentPlayer.getCamerasPlayerId() << "/" << rPlayer.getCamerasPlayerId() << endl;
+								Logger::log("Skipped dublicate - diffX/diffY: " + std::to_string(diffX) + "/" + std::to_string(diffY), 0);
+								Logger::log("currentId/alreadyId: " + std::to_string(currentPlayer.getCamerasPlayerId()) + "/" + std::to_string(rPlayer.getCamerasPlayerId()), 0);
 								break;
 							}
 						}
@@ -215,7 +211,6 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						} else {
 							putText(frame, std::to_string(playerNumber), bottomOfPlayer, FONT_HERSHEY_COMPLEX_SMALL, 2, cvScalar(0,255,255), 2, CV_AA);
 							rectangle(frame, Point(left, top), Point(left + width, bottom), Scalar(0, 0, 255));
-							//cout << "Skipped dublicate" << endl;
 						}
 					}
 				}

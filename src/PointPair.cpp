@@ -8,5 +8,5 @@ PointPair::PointPair(int inId, int x1, int y1, int x2, int y2)
 }
 
 void PointPair::print() {
-	cout << id << " {" << p1 << " " << p2 << "}" << endl;
+	Logger::log(std::to_string(id) + " {" + std::to_string(p1.x) + "/" + std::to_string(p1.y) + " " + std::to_string(p2.x) + "/" + std::to_string(p1.y) + "}", 0);
 }

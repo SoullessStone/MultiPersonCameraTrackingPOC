@@ -50,7 +50,7 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 	if(history.find(frameId - 1) == history.end())
 	{
 		// First frame, no help from history
-		cout << "++++++++++++++++++++++++++++++++++++++++ no history" << endl;
+		Logger::log("++++++++++++++++++++++++++++++++++++++++ no history", 0);
 		history.insert(std::make_pair(frameId, curFrameInput));
 
 		for (RecognizedPlayer& player : curFrameInput) {
@@ -63,7 +63,7 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 	} else {
 		// History is available
 		// Try to find the previously known players
-		cout << "++++++++++++++++++++++++++++++++++++++++ history available" << endl;
+		Logger::log("++++++++++++++++++++++++++++++++++++++++ history available", 0);
 
 		std::vector<int> usedHistoryPlayers;
 		// First loop: Try to recognize (in the input) the players we have seen in the last two frames
@@ -92,7 +92,7 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 		}
 
 		// Handle players not used until now
-		cout << "curFrameInput.size() = " << curFrameInput.size() << endl;
+		Logger::log("curFrameInput.size() = " + std::to_string(curFrameInput.size()), 0);
 		// TODO Try to find a lostPlayer in the unused input
 
 		// Add everything to history (memory)
@@ -112,11 +112,11 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 	RecognizedPlayer nearestPlayer;
 	int nearestPlayerDistance = 9999;
 
-	cout << "History-Player #" << histPlayer.getCamerasPlayerId() << endl;
+	Logger::log("History-Player #" + std::to_string(histPlayer.getCamerasPlayerId()), 0);
 	auto curFramePlayer = std::begin(curFrameInput);
 	// Loop over new input
 	while (curFramePlayer != std::end(curFrameInput)) {
-		cout << "+++++++++++++++++ Trying to match #" << (*curFramePlayer).getCamerasPlayerId() << endl;
+		Logger::log("+++++++++++++++++ Trying to match #" + std::to_string((*curFramePlayer).getCamerasPlayerId()), 0);
 		int multiplicator = 1;
 		std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId());
 		if (it != lastUpdatedPlayer.end())
@@ -125,15 +125,15 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 			// Flag to be used later
 			hasMatched = true;
 			
-			//cout << "0000000000000000000000000000 MATCHED ";
+			//Logger::log("0000000000000000000000000000 MATCHED ";
 			
 			int distance = getDistance(histPlayer, *curFramePlayer);
 			if (distance < nearestPlayerDistance) {
 				nearestPlayerDistance = distance;
 				nearestPlayer = *curFramePlayer;
-				//cout << "AND NEW BEST" << endl;
+				//Logger::log( << "AND NEW BEST", 0);
 			} else {
-				//cout << "but not new Best" << endl;
+				//Logger::log( << "but not new Best", 0);
 			}
 
 			++curFramePlayer;
@@ -143,7 +143,7 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 		}
 	}
 	if (! hasMatched) {
-		cout << "+++++++++++++++++ did not find #" << histPlayer.getCamerasPlayerId() << endl;
+		Logger::log("+++++++++++++++++ did not find #" + std::to_string(histPlayer.getCamerasPlayerId()), 0);
 
 		// Reset last used counter
 		std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId()); 
@@ -160,8 +160,8 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 				/*auto curPlayer = std::begin(lastUpdatedPlayer);
 
 				while (curPlayer != std::end(lastUpdatedPlayer)) {
-					cout << "Forget about player #" << histPlayer.getCamerasPlayerId() << endl;
-					cout << curPlayer->first << " - " << curPlayer->second << endl;
+					Logger::log( << "Forget about player #" << histPlayer.getCamerasPlayerId(), 0);
+					Logger::log( << curPlayer->first << " - " << curPlayer->second, 0);
 					if (histPlayer.getCamerasPlayerId() == curPlayer->first) {
 						// TODO in den Fällen curPlayer = erase???
 						lastUpdatedPlayer.erase(curPlayer);
@@ -219,10 +219,10 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 
 	RecognizedPlayer rp2;
 	// Input: Confidence: Wenn alle Kameras sich einig sind: hoch, sonst tief. Anfang tief, Vergangenheit nicht viel einbeziehen
-	cout << "Start Loop InputMic" << endl;
+	Logger::log("Start Loop InputMic", 0);
 	// Loop over players seen by cameraMic. Try to match them with the players from other cameras
 	for (RecognizedPlayer& rp : inputMic) {
-		cout << "inputMic #" << rp.getCamerasPlayerId() << endl;
+		Logger::log("inputMic #" + std::to_string(rp.getCamerasPlayerId()), 0);
 		RecognizedPlayer resultingPlayerA;
 		bool matchingPlayerFromCameraHud = false;
 		RecognizedPlayer resultingPlayerB;
@@ -231,10 +231,10 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 		auto i = std::begin(inputHud);
 		// Try to match player of cameraMic (rp) with players seen by cameraHud
 		while (i != std::end(inputHud)) {
-			cout << "inputMic-------- hud #" << (*i).getCamerasPlayerId() << endl;
+			Logger::log("inputMic-------- hud #" + std::to_string((*i).getCamerasPlayerId()), 0);
 			if (isPossiblySamePlayer(rp, *i, threshold)) {
 				// Likely the same player, be sure to save the result
-				cout << "inputMic-------- " << "!!!!!!! same" << endl;	
+				Logger::log("inputMic-------- !!!!!!! same", 0);	
 				resultingPlayerA = *i;
 				matchingPlayerFromCameraHud = true;
 				// Remove player from list, so he is not used twice
@@ -247,16 +247,16 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 		i = std::begin(inputMar);
 		// Try to match player of cameraMic (rp) with players seen by cameraMar
 		while (i != std::end(inputMar)) {
-			cout << "inputMic-------- mar #" << (*i).getCamerasPlayerId() << endl;
+			Logger::log("inputMic-------- mar #" + std::to_string((*i).getCamerasPlayerId()), 0);
 			if (isPossiblySamePlayer(rp, *i, threshold)) {
 				// Likely the same player, be sure to save the result
-				cout << "inputMic-------- " << "!!!!!!! same" << endl;	
+				Logger::log( "inputMic-------- !!!!!!! same", 0);	
 				resultingPlayerB = *i;
 				matchingPlayerFromCameraMar = true;
 				// Remove player from list, so he is not used twice
 				i = inputMar.erase(i);
 			}else {
-				//cout << "b-------- " << "different" << endl;
+				//Logger::log( << "b-------- " << "different", 0);
 				++i;
 			}
 		}
@@ -299,17 +299,17 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 		}
 	}
 
-	cout << "Start Loop InputHud" << endl;
+	Logger::log("Start Loop InputHud", 0);
 	// Loop over players seen by cameraHud. Try to match them with the players from cameraMar
 	for (RecognizedPlayer& rp : inputHud) {
-		cout << "inputHud #" << rp.getCamerasPlayerId() << endl;
+		Logger::log("inputHud #" + std::to_string(rp.getCamerasPlayerId()), 0);
 
 		auto i = std::begin(inputMar);
 		while (i != std::end(inputMar)) {
-			cout << "inputHud-------- mar #" << (*i).getCamerasPlayerId() << endl;
+			Logger::log("inputHud-------- mar #" + std::to_string((*i).getCamerasPlayerId()), 0);
 			if (isPossiblySamePlayer(rp, *i, threshold)) {
 				// Likely the same player, be sure to save the result
-				cout << "inputHud-------- " << "!!!!!!! same" << endl;	
+				Logger::log("inputHud-------- !!!!!!! same", 0);	
 				RecognizedPlayer curPlayer;
 				curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId() + 300);
 				curPlayer.setIsRed(rp.getIsRed(), true);
@@ -321,13 +321,13 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 				// Remove player from list, so he is not used twice
 				i = inputMar.erase(i);
 			}else {
-				//cout << "c-------- " << "different" << endl;
+				//Logger::log("c-------- " << "different", 0);
 				++i;
 			}
 		}
 
 	}
-	cout << "inputHud.size() " << inputHud.size() << endl;
+	Logger::log("inputHud.size() " + std::to_string(inputHud.size()), 0);
 
 	// Debug: create image with all the players on the field
 	std::vector<PointPair> referencePoints;
@@ -394,17 +394,17 @@ void TrackingModule::printHistory()
 	std::map<int, std::vector<RecognizedPlayer>>::iterator it = history.begin();
 	while(it != history.end())
 	{
-		std::cout<<it->first<<" :: size -> "<<it->second.size() << std::endl;
+		Logger::log(std::to_string(it->first) + " :: size -> " + std::to_string(it->second.size()), 0);
 		for(RecognizedPlayer& player : it->second) {
-		//	cout << player.toString() << endl;
-			cout << it->first << ";" << player.getCamerasPlayerId() << ";" << player.getPositionInModel().x << ";" << player.getPositionInModel().y << endl;
+		//	Logger::log(player.toString(), 0);
+			Logger::log(std::to_string(it->first) + ";" + std::to_string(player.getCamerasPlayerId()) + ";" + std::to_string(player.getPositionInModel().x) + ";" + std::to_string(player.getPositionInModel().y), 0);
 		}
 		it++;
 	}
 	std::map<int, int>::iterator it2 = lastUpdatedPlayer.begin();
 	while(it2 != lastUpdatedPlayer.end())
 	{
-		std::cout<<it2->first<<" :: "<<it2->second << std::endl;
+		Logger::log(std::to_string(it2->first) + " :: " + std::to_string(it2->second), 0);
 		it2++;
 	}
 }
@@ -412,7 +412,7 @@ void TrackingModule::printHistory()
 bool TrackingModule::isPossiblySamePlayer(RecognizedPlayer a, RecognizedPlayer b, int threshold)
 {
 	int distance = getDistance(a, b);
-	cout << "--------- " << "distance: " << distance << endl;
+	Logger::log("--------- distance: " + std::to_string(distance), 0);
 	if (distance < threshold) {
 		if (a.getIsRed() == b.getIsRed()) {
 			return true;

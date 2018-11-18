@@ -69,7 +69,7 @@ std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModel
 		}
 		if (!(pp1DistanceIsTheBiggest||pp2DistanceIsTheBiggest||pp3DistanceIsTheBiggest))
 		{
-			cout << "Funny state, look into it..." << endl;
+			Logger::log("Funny state, look into it...", 2);
 		}
 	}
 
@@ -103,7 +103,6 @@ bool PerspectiveToModelMapper::arePointsInLine(PointPair a, PointPair b, PointPa
 	// If the constellation of the three points is banned, they are "in a line"
 	for(PointConstellation& pc : bannedConstellations) {
 		if (pc.equals(a.id, b.id, c.id)) {
-			//cout << "killed: " << endl;
 			//a.print();
 			//b.print();
 			//c.print();

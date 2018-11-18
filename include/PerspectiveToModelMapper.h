@@ -1,4 +1,5 @@
 #include "opencv2/core.hpp"
+#include "Logger.h"
 #include "PointPair.h"
 #include <PointConstellation.h>
 

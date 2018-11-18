@@ -17,6 +17,7 @@
 // Own Stuf
 #include <PlayerExtractor.h>
 #include <Camera.h>
+#include <Logger.h>
 #include <TrackingModule.h>
 
 using namespace cv;
@@ -111,12 +112,12 @@ int main(int argc, char** argv)
 	// "Forever" - We quit, when no more frames are available
 	int i = 0;
 
-	//auto startTime = std::chrono::system_clock::now();
+	auto startTime = std::chrono::system_clock::now();
 
 	while (true == true)
 	{
 		i++;
-		cout << "Frame #" << i << endl;
+		Logger::log("Frame #" + std::to_string(i), 1);
 		try
 		{
 			// Get new frames
@@ -125,7 +126,7 @@ int main(int argc, char** argv)
 			frameMic = cameraMic.getNextFrame();
 		} catch (int e)
 		{
-			cout << "No frames left, show is over" << endl;
+			Logger::log("No frames left, show is over", 1);
 			break;
 		}
 		
@@ -151,18 +152,18 @@ int main(int argc, char** argv)
 
 		trackingModule.handleInput(i, detectedPlayersHud, detectedPlayersMar, detectedPlayersMic);
 
-		//auto endTime = std::chrono::system_clock::now();
-		//std::chrono::duration<double> diff = endTime - startTime;
-		//cout << "Time since start: " << diff.count() << "s" << endl;
+		auto endTime = std::chrono::system_clock::now();
+		std::chrono::duration<double> diff = endTime - startTime;
+		Logger::log("Time since start: " + std::to_string(diff.count()) + "s", 1);
 		
-		waitKey();
+		//waitKey();
 
 	}
 	return 0;
 }
 
 void printList(std::vector<RecognizedPlayer>& players) {
-	cout << "/////////////////////////////////////////////" << endl;
+	Logger::log("/////////////////////////////////////////////", 1);
 	for(RecognizedPlayer& player : players) {
 		cout << player.toString() << endl;
 	}

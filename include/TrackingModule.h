@@ -1,5 +1,6 @@
 #include <RecognizedPlayer.h>
 #include <ModelImageGenerator.h>
+#include <Logger.h>
 #include <PointPair.h>
 #include <iostream>
 #include <map>

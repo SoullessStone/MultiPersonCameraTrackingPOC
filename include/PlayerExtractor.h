@@ -7,6 +7,7 @@
 #include <NumberExtractor.h>
 #include <PerspectiveToModelMapper.h>
 #include <PointPair.h>
+#include <Logger.h>
 #include <ModelImageGenerator.h>
 
 using namespace std;
