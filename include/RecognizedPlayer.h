@@ -3,6 +3,7 @@
 
 	#define DO_NOT_DEFINE_RECOGNIZEDPLAYER_MULTIPLE_TIMES 
 	#include "opencv2/core.hpp"
+	#include "PointPair.h"
 	using namespace cv;
 
 	struct RecognizedPlayer
@@ -24,6 +25,8 @@
 			// Debug information
 			int camerasPlayerId;
 		public:
+			std::vector<PointPair> positionHistory;
+
 			// Constructor
 			RecognizedPlayer();
 

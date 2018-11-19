@@ -4,6 +4,9 @@
 //	- Frequenz von 2 fps auf 10 fps geändert: Wird besser, mann muss aber noch die Parameter etwas justieren.
 //	- 10 Spielerpunkte initial setzen vs Neuerfassen/Löschen von Spielern ausprobieren
 //	- Besprechung mit Hudritsch bei Gopro-Übergabe. 
+//		o Voraussage über Position treffen und von dort ausgehen.
+//		o 2/3 näheste Punkte nehmen und Mittelwert als neue Position nehmen
+//		o Die 2/3 nähesten Punkte löschen?
 
 //	- Neue Aufnahme: Framerate, mehr Kameras
 
@@ -192,6 +195,20 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 		player.setCamerasPlayerId(histPlayer.getCamerasPlayerId());
 		player.setPositionInModel(Point(nearestPlayer.getPositionInModel().x, nearestPlayer.getPositionInModel().y), true);
 		player.setIsRed(nearestPlayer.getIsRed(), true);
+
+		std::vector<PointPair> positionHistory = histPlayer.positionHistory;
+		PointPair newPP(-1, histPlayer.getPositionInModel().x,histPlayer.getPositionInModel().y, nearestPlayer.getPositionInModel().x, nearestPlayer.getPositionInModel().y);
+		positionHistory.insert(positionHistory.begin(), newPP);
+		player.positionHistory = positionHistory;
+
+		int i = 0;
+		for (PointPair& pp : player.positionHistory) {
+			if (i == 5)
+				break;
+			i++;
+			playerMovement.push_back(pp);
+		}
+
 		newHistoryInput.push_back(player);
 
 		// Erase player from new input (we don't want to use him twice)
@@ -216,7 +233,6 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 			redPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
 		else
 			blackPlayersToDraw.push_back(PointPair(histPlayer.getCamerasPlayerId(), -1, -1, player.getPositionInModel().x, player.getPositionInModel().y));
-		playerMovement.push_back(PointPair(-1, histPlayer.getPositionInModel().x, histPlayer.getPositionInModel().y, player.getPositionInModel().x, player.getPositionInModel().y));
 	}
 }
 

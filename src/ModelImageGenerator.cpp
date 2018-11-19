@@ -45,21 +45,21 @@ void ModelImageGenerator::createFieldModel(std::string title, std::vector<PointP
 	line(field, yellow_topright, yellow_bottomright, yellow_color, 2);
 	line(field, yellow_bottomleft, yellow_bottomright, yellow_color, 2);
 
-	for(PointPair& pp: additionalPointsRed) {
+	for(PointPair& pp : additionalPointsRed) {
 		circle(field, Point(pp.p2.x / 2, pp.p2.y / 2), 8, Scalar(0, 0, 255));
 		putText(field, std::to_string(pp.id), cvPoint(pp.p2.x / 2+15,pp.p2.y / 2+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(200,200,250), 1, CV_AA);
 	}
 
-	for(PointPair& pp: additionalPointsGreen) {
+	for(PointPair& pp : additionalPointsGreen) {
 		line(field, Point(pp.p1.x/2,pp.p1.y/2), Point(pp.p2.x/2,pp.p2.y/2), yellow_color, 1);
 	}
 
-	for(PointPair& pp: additionalPointsBlack) {
+	for(PointPair& pp : additionalPointsBlack) {
 		circle(field, Point(pp.p2.x / 2, pp.p2.y / 2), 8, Scalar(0, 0, 0));
 		putText(field, std::to_string(pp.id), cvPoint(pp.p2.x / 2+15,pp.p2.y / 2+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0,200,250), 1, CV_AA);
 	}
 
-	for(PointPair& pp: additionalPointsYellow) {
+	for(PointPair& pp : additionalPointsYellow) {
 		circle(field, Point(pp.p2.x / 2, pp.p2.y / 2), 6, yellow_color);
 	}
 
