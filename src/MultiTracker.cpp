@@ -293,7 +293,7 @@ void initPointPairsHudritsch() {
 	referencePointsHud.push_back(PointPair(44, 598, 398, 882, 590));
 	referencePointsHud.push_back(PointPair(45, 673, 416, 1182, 590));
 	referencePointsHud.push_back(PointPair(46, 774, 439, 1482, 590));
-	referencePointsHud.push_back(PointPair(47, 960, 486, 2082, 590));
+	referencePointsHud.push_back(PointPair(47, 960, 486, 1852, 590));
 }
 
 
@@ -342,7 +342,7 @@ void initPointPairsMichel() {
 	// Seventh line
 	// 36 not visible
 	// 37 not visible
-	referencePointsMic.push_back(PointPair(37, 1622, 2, 282, 1180));
+	//referencePointsMic.push_back(PointPair(37, 1622, 2, 282, 1180));
 	referencePointsMic.push_back(PointPair(38, 1166, 1078, 882, 1180));
 	referencePointsMic.push_back(PointPair(39, 1684, 930, 1182, 1180));
 	// 40 not visible

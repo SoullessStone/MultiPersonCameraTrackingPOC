@@ -151,8 +151,12 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						Point bottomOfPlayer(centerX, bottom);
 						currentPlayer.setPositionInPerspective(bottomOfPlayer);
 
+						Logger::log("-------------- Player #" + std::to_string(playerNumber), 0);
 						// Find the three nearest PointPairs in perspective
 						std::array<PointPair, 3> nearestPoints = perspectiveToModelMapper.findNearestThreePointsInModelSpace(bottomOfPlayer, referencePoints);
+						nearestPoints[0].print();
+						nearestPoints[1].print();
+						nearestPoints[2].print();
 						
 						// Describe bottomOfPlayer as baryzentric coordinates in relation to the three nearest points
 						float u = 0.0;

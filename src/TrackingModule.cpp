@@ -3,6 +3,7 @@
 // TODO Verbesserungsideen
 //	- Frequenz von 2 fps auf 10 fps geändert: Wird besser, mann muss aber noch die Parameter etwas justieren.
 //	- 10 Spielerpunkte initial setzen vs Neuerfassen/Löschen von Spielern ausprobieren
+//	- Besprechung mit Hudritsch bei Gopro-Übergabe. 
 
 //	- Neue Aufnahme: Framerate, mehr Kameras
 

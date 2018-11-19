@@ -3,17 +3,49 @@
 PerspectiveToModelMapper::PerspectiveToModelMapper()
 {
 	initBannedConstellations();
+	initTriangles();
 }
 
 std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModelSpace(Point p, std::vector<PointPair> allPointPairs)
 {
-	Weitere Konfiguration: Dreiecke bestimmen. Wenn Punkt in Perspektive in Dreieck, diese Referenzpunkte nehmen. Sonst halt wie bisher. Das verbessert den Fall Baptiste und Dävu bei Frame 56+
-		* init: alle möglichen dreiecke in model erfassen, evtl. allPointPairs in Map abbilden
-		* hier: loop über dreiecke (etwa 70)
-			* hole punkte, schau ob der (perspektiven-)punkt drin ist
-				* wenn ja: auslesen und result setzen, wir berechnen basierend auf diesen punkten
-				* wenn nein: wie bisher
-				* wenn ein punkt nicht da: wie bisher
+	/*
+		Weitere Konfiguration: Dreiecke bestimmen. Wenn Punkt in Perspektive in Dreieck, diese Referenzpunkte nehmen. Sonst halt wie bisher. Das verbessert den Fall Baptiste und Dävu bei Frame 56+
+			* check!	init: alle möglichen dreiecke in model erfassen, evtl. allPointPairs in Map abbilden
+			* hier: loop über dreiecke (etwa 70)
+				* hole punkte, schau ob der (perspektiven-)punkt drin ist
+					* wenn ja: auslesen und result setzen, wir berechnen basierend auf diesen punkten
+					* wenn nein: wie bisher
+					* wenn ein punkt nicht da: wie bisher
+
+	*/
+	// Loop over all triangles of the field
+	for(PointConstellation& triangle : triangles) {
+		// Try to find the points of the triangle (may not be there if out of the view of the camera)
+		PointPair pp1 = findPointPairById(triangle.id1, allPointPairs);
+		PointPair pp2 = findPointPairById(triangle.id2, allPointPairs);
+		PointPair pp3 = findPointPairById(triangle.id3, allPointPairs);
+		if (pp1.id == -1 || pp2.id == -1 || pp3.id == -1) {
+			// One or more points are out of camera view, cannot use this triangle.
+			Logger::log("Tried to find triangle: " + std::to_string(triangle.id1) + ", " + std::to_string(triangle.id2) + ", " + std::to_string(triangle.id3) + ", ", 0);
+			Logger::log("Not found the ones with -1: " + std::to_string(pp1.id) + ", " + std::to_string(pp2.id) + ", " + std::to_string(pp3.id) + ", ", 0);
+			continue;
+		}
+		// Check if current point in perspective is inside the current triangle
+		if (isPointInTriangle(p, pp1.p1, pp2.p1, pp3.p1) == true) {
+			// Yes, use this trinangle to define position of p
+			std::array<PointPair, 3> result = {
+				pp1, pp2, pp3
+			};
+			Logger::log("Found a triangle containing the player", 0);
+			return result;
+		}
+	}
+
+	Logger::log("Did not find a triangle containing the player. Doing the old procedure.", 0);
+	// Did not find a triangle containing p. Thats why we are looking for other combinations of the reference points
+	// based on perspective distance.
+
+
 	// Init nearest Pointpairs
 	PointPair nearestPP1(9999,9999,9999,9999,9999);
 	double pp1Distance = 9999.0;
@@ -89,6 +121,36 @@ std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModel
 	return result;
 }
 
+PointPair PerspectiveToModelMapper::findPointPairById(int id, std::vector<PointPair> allPointPairs)
+{
+	for(PointPair& curPP: allPointPairs) {
+		if (curPP.id == id) {
+			return curPP;
+		}
+	}
+	return PointPair(-1, -1, -1, -1, -1);
+}
+
+float PerspectiveToModelMapper::sign(Point p1, Point p2, Point p3)
+{
+	return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+}
+
+bool PerspectiveToModelMapper::isPointInTriangle(Point pt, Point v1, Point v2, Point v3)
+{
+	float d1, d2, d3;
+	bool has_neg, has_pos;
+
+	d1 = sign(pt, v1, v2);
+	d2 = sign(pt, v2, v3);
+	d3 = sign(pt, v3, v1);
+
+	has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+	has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+
+	return !(has_neg && has_pos);
+}
+
 void PerspectiveToModelMapper::barycentric(Point p, Point a, Point b, Point c, float &u, float &v, float &w)
 {
 	int v0[] = { b.x-a.x, b.y-a.y };
@@ -118,6 +180,82 @@ bool PerspectiveToModelMapper::arePointsInLine(PointPair a, PointPair b, PointPa
 	}
 	// More mathematical definition of "in a line"
 	return (a.p2.x == b.p2.x && b.p2.x == c.p2.x) || (a.p2.y == b.p2.y && b.p2.y == c.p2.y);
+}
+
+void PerspectiveToModelMapper::initTriangles() {
+	// Reference point constellations. These are not exactly on a line, but don't work that good
+	triangles.push_back(PointConstellation(1, 2, 8));
+	triangles.push_back(PointConstellation(2, 8, 9));
+	triangles.push_back(PointConstellation(2, 9, 10));
+	triangles.push_back(PointConstellation(2, 3, 10));
+	triangles.push_back(PointConstellation(3, 10, 11));
+	triangles.push_back(PointConstellation(3, 4, 11));
+	triangles.push_back(PointConstellation(4, 11, 12));
+	triangles.push_back(PointConstellation(4, 5, 12));
+	triangles.push_back(PointConstellation(5, 12, 13));
+	triangles.push_back(PointConstellation(5, 6, 13));
+	triangles.push_back(PointConstellation(6, 13, 14));
+	triangles.push_back(PointConstellation(6, 7, 14));
+	triangles.push_back(PointConstellation(8, 9, 20));
+	triangles.push_back(PointConstellation(9, 20, 21));
+	triangles.push_back(PointConstellation(10, 16, 17));
+	triangles.push_back(PointConstellation(10, 11, 17));
+	triangles.push_back(PointConstellation(11, 17, 18));
+	triangles.push_back(PointConstellation(11, 12, 18));
+	triangles.push_back(PointConstellation(13, 22, 23));
+	triangles.push_back(PointConstellation(13, 14, 23));
+	triangles.push_back(PointConstellation(20, 29, 30));
+	triangles.push_back(PointConstellation(20, 21, 30));
+	triangles.push_back(PointConstellation(25, 31, 32));
+	triangles.push_back(PointConstellation(25, 26, 32));
+	triangles.push_back(PointConstellation(26, 32, 33));
+	triangles.push_back(PointConstellation(26, 27, 33));
+	triangles.push_back(PointConstellation(22, 34, 35));
+	triangles.push_back(PointConstellation(22, 23, 35));
+	triangles.push_back(PointConstellation(29, 36, 37));
+	triangles.push_back(PointConstellation(29, 30, 37));
+	triangles.push_back(PointConstellation(30, 37, 38));
+	triangles.push_back(PointConstellation(30, 31, 38));
+	triangles.push_back(PointConstellation(31, 38, 39));
+	triangles.push_back(PointConstellation(31, 32, 39));
+	triangles.push_back(PointConstellation(32, 39, 40));
+	triangles.push_back(PointConstellation(32, 33, 40));
+	triangles.push_back(PointConstellation(33, 40, 41));
+	triangles.push_back(PointConstellation(33, 34, 41));
+	triangles.push_back(PointConstellation(34, 41, 42));
+	triangles.push_back(PointConstellation(34, 35, 42));
+	triangles.push_back(PointConstellation(15, 43, 44));
+	triangles.push_back(PointConstellation(15, 16, 44));
+	triangles.push_back(PointConstellation(16, 44, 45));
+	triangles.push_back(PointConstellation(16, 17, 45));
+	triangles.push_back(PointConstellation(17, 45, 46));
+	triangles.push_back(PointConstellation(17, 18, 46));
+	triangles.push_back(PointConstellation(18, 46, 47));
+	triangles.push_back(PointConstellation(18, 19, 47));
+	triangles.push_back(PointConstellation(43, 24, 25));
+	triangles.push_back(PointConstellation(43, 44, 25));
+	triangles.push_back(PointConstellation(44, 25, 26));
+	triangles.push_back(PointConstellation(44, 45, 26));
+	triangles.push_back(PointConstellation(45, 26, 27));
+	triangles.push_back(PointConstellation(45, 46, 27));
+	triangles.push_back(PointConstellation(46, 27, 28));
+	triangles.push_back(PointConstellation(46, 47, 28));
+	triangles.push_back(PointConstellation(9, 15, 10));
+	triangles.push_back(PointConstellation(10, 15, 16));
+	triangles.push_back(PointConstellation(9, 15, 21));
+	triangles.push_back(PointConstellation(15, 21, 43));
+	triangles.push_back(PointConstellation(21, 24, 43));
+	triangles.push_back(PointConstellation(21, 24, 30));
+	triangles.push_back(PointConstellation(24, 30, 31));
+	triangles.push_back(PointConstellation(24, 25, 31));
+	triangles.push_back(PointConstellation(12, 18, 19));
+	triangles.push_back(PointConstellation(12, 13, 19));
+	triangles.push_back(PointConstellation(13, 19, 22));
+	triangles.push_back(PointConstellation(19, 47, 22));
+	triangles.push_back(PointConstellation(47, 22, 28));
+	triangles.push_back(PointConstellation(22, 28, 34));
+	triangles.push_back(PointConstellation(27, 28, 33));
+	triangles.push_back(PointConstellation(28, 33, 34));
 }
 
 void PerspectiveToModelMapper::initBannedConstellations() {
