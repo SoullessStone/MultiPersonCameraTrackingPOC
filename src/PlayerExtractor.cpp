@@ -151,7 +151,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						Point bottomOfPlayer(centerX, bottom);
 						currentPlayer.setPositionInPerspective(bottomOfPlayer);
 
-						Logger::log("-------------- Player #" + std::to_string(playerNumber), 0);
+						Logger::log("-------------- Player #" + std::to_string(playerNumber), 1);
 						// Find the three nearest PointPairs in perspective
 						std::array<PointPair, 3> nearestPoints = perspectiveToModelMapper.findNearestThreePointsInModelSpace(bottomOfPlayer, referencePoints);
 						nearestPoints[0].print();
@@ -221,11 +221,12 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 			}
 		}
 		// Create the image of the model with some additional information (players, used reference points etc)
-		/*ModelImageGenerator::createFieldModel("Extraction from image", referencePoints, linesToDraw, playersToDraw);
-		Mat frame2;
-		cv::resize(frame,frame2,Size((int)(((double)frame.cols / (double)3)),(int)(((double)frame.rows / (double)3))), 0, 0, cv::INTER_AREA);
-		imshow("Extraction Frame", frame2);
-		waitKey();*/
+		if (referencePoints.size() == 37)
+			ModelImageGenerator::createFieldModel("Extraction from image Hud", referencePoints, linesToDraw, playersToDraw);
+		else if (referencePoints.size() == 28)
+			ModelImageGenerator::createFieldModel("Extraction from image Mar", referencePoints, linesToDraw, playersToDraw);
+		else
+			ModelImageGenerator::createFieldModel("Extraction from image Mic", referencePoints, linesToDraw, playersToDraw);
 
 		// Draw some things on the frame
 		for(PointPair& pp: referencePoints) {
