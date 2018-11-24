@@ -140,7 +140,7 @@ int main(int argc, char** argv)
 		// Detect players for the three views
 		outs = playerExtractor.getOuts(frameHud);
 		clock.toc("Hud - Neuronal Network: ");
-		detectedPlayersHud = playerExtractor.extract(frameHud, outs, referencePointsHud, 350);
+		detectedPlayersHud = playerExtractor.extract(frameHud, outs, referencePointsHud, 350, true);
 		clock.toc("Hud - Extract Players: ");
 		cv::resize(frameHud,frameHud,Size((int)(((double)frameHud.cols / (double)3)),(int)(((double)frameHud.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameHud", frameHud);
@@ -148,7 +148,7 @@ int main(int argc, char** argv)
 
 		outs = playerExtractor.getOuts(frameMar);
 		clock.toc("Mar - Neuronal Network: ");
-		detectedPlayersMar = playerExtractor.extract(frameMar, outs, referencePointsMar, 350);
+		detectedPlayersMar = playerExtractor.extract(frameMar, outs, referencePointsMar, 350, false);
 		clock.toc("Mar - Extract Players: ");
 		cv::resize(frameMar,frameMar,Size((int)(((double)frameMar.cols / (double)3)),(int)(((double)frameMar.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameMar", frameMar);
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
 
 		outs = playerExtractor.getOuts(frameMic);
 		clock.toc("Mic - Neuronal Network: ");
-		detectedPlayersMic = playerExtractor.extract(frameMic, outs, referencePointsMic, 1000);
+		detectedPlayersMic = playerExtractor.extract(frameMic, outs, referencePointsMic, 1000, true);
 		clock.toc("Mic - Extract Players: ");
 		cv::resize(frameMic,frameMic,Size((int)(((double)frameMic.cols / (double)3)),(int)(((double)frameMic.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameMic", frameMic);

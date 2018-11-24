@@ -1,5 +1,23 @@
 #include <PlayerExtractor.h>
 
+struct DrawObject
+{
+	int playerNumber;
+	Point textPosition;
+	Point rectanglePointA;
+	Point rectanglePointB;
+	bool isTypeA;
+
+	DrawObject(int number, Point a, Point b, Point c, bool type)
+	{
+		playerNumber = number;
+		textPosition = a;
+		rectanglePointA = b;
+		rectanglePointB = c;
+		isTypeA = type;
+	}
+};
+
 PlayerExtractor::PlayerExtractor(std::vector<std::string> classes, int confThreshold, Net& net, float scale, Scalar mean, bool swapRB, int inpWidth, int inpHeight) {
 	this->classes = classes;
 	this->confThreshold = confThreshold;
@@ -44,7 +62,7 @@ std::vector<String> PlayerExtractor::getOutputsNames(const Net& net)
 	return names;
 }
 
-std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::vector<Mat>& outs, std::vector<PointPair> referencePoints, int sizeThreshold)
+std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::vector<Mat>& outs, std::vector<PointPair> referencePoints, int sizeThreshold, bool isNormalFrame)
 {
 	std::vector<RecognizedPlayer> returnablePlayers;
 	static std::vector<int> outLayers = net.getUnconnectedOutLayers();
@@ -60,12 +78,10 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 	}
 	else if (outLayerType == "Region")
 	{
-		std::vector<int> classIds;
-		std::vector<float> confidences;
-		std::vector<Rect> boxes;
 		int counter = 0;
 		std::vector<PointPair> linesToDraw;
 		std::vector<PointPair> playersToDraw;
+		std::vector<DrawObject> drawObjectsFrame;
 		for (size_t i = 0; i < outs.size(); ++i)
 		{
 			// Network produces output blob with a shape NxC where N is a number of
@@ -122,7 +138,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						int playerNumber = counter;
 						// Check if red or black player
 						bool isRed;
-						if (MainColorExtractor::getPlayerColor(0, 0, player) == 1) {
+						if (MainColorExtractor::getPlayerColor(0, 0, player, isNormalFrame) == 1) {
 							playerNumber += 100;
 
 							/* Find number
@@ -200,26 +216,33 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 								break;
 							}
 						}
-						// TODO Wir verändern das frame und arbeiten dann weiter, das muss man auslagern
 						if (! isDuplicate) {
 							returnablePlayers.push_back(currentPlayer);
 							playersToDraw.push_back(playerPointPair);
 							// Draw the players number near him
-							putText(frame, std::to_string(playerNumber), bottomOfPlayer, FONT_HERSHEY_COMPLEX_SMALL, 2, cvScalar(255,255,255), 2, CV_AA);
-							rectangle(frame, Point(left, top), Point(left + width, bottom), Scalar(0, 255, 0));
-
-							// CNN-Stuff
-							classIds.push_back(classIdPoint.x);
-							confidences.push_back((float)confidence);
-							boxes.push_back(Rect(left, top, width, height));
+							drawObjectsFrame.push_back(DrawObject(playerNumber, bottomOfPlayer, Point(left, top), Point(left + width, bottom), true));
 						} else {
-							putText(frame, std::to_string(playerNumber), bottomOfPlayer, FONT_HERSHEY_COMPLEX_SMALL, 2, cvScalar(0,255,255), 2, CV_AA);
-							rectangle(frame, Point(left, top), Point(left + width, bottom), Scalar(0, 0, 255));
+							drawObjectsFrame.push_back(DrawObject(playerNumber, bottomOfPlayer, Point(left, top), Point(left + width, bottom), false));
 						}
 					}
 				}
 			}
 		}
+		// Draw to frame
+		for (DrawObject& drawObj : drawObjectsFrame) {
+			cv::Scalar textColor;
+			cv::Scalar rectColor;
+			if (drawObj.isTypeA == true) {
+				textColor = cvScalar(255,255,255);
+				rectColor = Scalar(0, 255, 0);
+			} else {
+				textColor = cvScalar(0,255,255);
+				rectColor = Scalar(0, 0, 255);
+			}
+			putText(frame, std::to_string(drawObj.playerNumber), drawObj.textPosition, FONT_HERSHEY_COMPLEX_SMALL, 2, textColor, 2, CV_AA);
+			rectangle(frame, drawObj.rectanglePointA, drawObj.rectanglePointB, rectColor);
+		}
+
 		// Create the image of the model with some additional information (players, used reference points etc)
 		if (referencePoints.size() == 37)
 			ModelImageGenerator::createFieldModel("Extraction from image Hud", referencePoints, linesToDraw, playersToDraw);
