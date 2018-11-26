@@ -93,175 +93,152 @@ int main( int argc, char** argv )
 		std::string arg2 = argv[2];
 		if (arg2 == "Marcos")
 		{
-			// PointPairs to Check
-			// 1 nicht sichtbar
-			testPointPairs.push_back(PointPair(2, 214, 1066, 282, 0));
-			testPointPairs.push_back(PointPair(3, 308, 715, 882, 0));
-			testPointPairs.push_back(PointPair(4, 323, 665, 1182, 0));
-			testPointPairs.push_back(PointPair(5, 336, 633, 1482, 0)); // 5
-			testPointPairs.push_back(PointPair(6, 348, 598, 2082, 0));
-			testPointPairs.push_back(PointPair(7, 355, 586, 2364, 0));
-			// Zweite Linie
-			// 8 nicht sichtbar
-			testPointPairs.push_back(PointPair(9, 584, 1026, 282, 140));
-			testPointPairs.push_back(PointPair(10, 440, 712, 882, 140)); // 10
-			testPointPairs.push_back(PointPair(11, 426, 664, 1182, 140));
-			testPointPairs.push_back(PointPair(12, 415, 632, 1482, 140));
-			testPointPairs.push_back(PointPair(13, 408, 598, 2082, 140));
-			testPointPairs.push_back(PointPair(14, 407, 588, 2364, 140));
-			// Dritte Linie
-			testPointPairs.push_back(PointPair(15, 727, 809, 512, 284)); // 15
-			testPointPairs.push_back(PointPair(16, 596, 702, 882, 284));
-			testPointPairs.push_back(PointPair(17, 544, 658, 1182, 284));
-			testPointPairs.push_back(PointPair(18, 514, 632, 1482, 284));
-			testPointPairs.push_back(PointPair(19, 490, 607, 1852, 284));
-			// Vierte Linie
-			testPointPairs.push_back(PointPair(20, 1732, 904, 0, 590)); // 20
-			testPointPairs.push_back(PointPair(21, 1267, 819, 282, 590));
-			testPointPairs.push_back(PointPair(22, 601, 595, 2082, 590)); // A
-			testPointPairs.push_back(PointPair(23, 582, 585, 2364, 590));
-			// Fünfte Linie
-			testPointPairs.push_back(PointPair(24, 1226, 709, 512, 896));
-			testPointPairs.push_back(PointPair(25, 1019, 664, 882, 896)); // 25
-			testPointPairs.push_back(PointPair(26, 912, 638, 1182, 896));
-			testPointPairs.push_back(PointPair(27, 833, 618, 1482, 896));
-			testPointPairs.push_back(PointPair(28, 764, 598, 1852, 896)); // B
-			// Sechste Linie
-			testPointPairs.push_back(PointPair(29, 1796, 777, 0, 1040));
-			testPointPairs.push_back(PointPair(30, 1483, 726, 282, 1040)); // 30
-			testPointPairs.push_back(PointPair(31, 1080, 656, 882, 1040));
-			testPointPairs.push_back(PointPair(32, 967, 633, 1182, 1040));
-			testPointPairs.push_back(PointPair(33, 890, 617, 1482, 1040));
-			testPointPairs.push_back(PointPair(34, 776, 590, 2082, 1040)); // C
-			testPointPairs.push_back(PointPair(35, 748, 580, 2364, 1040));
-			// Siebte Linie
-			testPointPairs.push_back(PointPair(36, 1804, 735, 0, 1180));
-			testPointPairs.push_back(PointPair(37, 1522, 708, 282, 1180));
-			testPointPairs.push_back(PointPair(38, 1127, 647, 882, 1180));
-			testPointPairs.push_back(PointPair(39, 1016, 627, 1182, 1180));
-			testPointPairs.push_back(PointPair(40, 938, 612, 1482, 1180)); // 40
-			// Zweiter Teil vierte Linie
-			testPointPairs.push_back(PointPair(41, 814, 586, 2082, 1180));
-			testPointPairs.push_back(PointPair(42, 776, 576, 2364, 1180));
-			testPointPairs.push_back(PointPair(43, 1037, 749, 512, 590)); // 43
-			testPointPairs.push_back(PointPair(44, 844, 681, 882, 590));
-			testPointPairs.push_back(PointPair(45, 756, 647, 1182, 590));
-			testPointPairs.push_back(PointPair(46, 690, 623, 1482, 590));
-			testPointPairs.push_back(PointPair(47, 639, 605, 1852, 590));
+			// top line
+			testPointPairs.push_back(PointPair(1, 1916, 956, 0, 0)); // 1
+			testPointPairs.push_back(PointPair(2, 1500, 1068, 282, 0));
+			testPointPairs.push_back(PointPair(3, 74, 1074, 882, 0));
+			// 4 - 7 not visible
+			// Second line
+			testPointPairs.push_back(PointPair(8, 1806, 764, 0, 140));
+			testPointPairs.push_back(PointPair(9, 1402, 834, 282, 140));
+			testPointPairs.push_back(PointPair(10, 176, 828, 882, 140)); // 10
+			// 11 - 14 not visible
+			// Third line
+			testPointPairs.push_back(PointPair(15, 952, 628, 512, 284)); // 15
+			testPointPairs.push_back(PointPair(16, 284, 616, 882, 284));
+			// 17 - 19 not visible
+			// Fourth line
+			testPointPairs.push_back(PointPair(20, 1502, 364, 0, 590)); // 20
+			testPointPairs.push_back(PointPair(21, 1190, 336, 282, 590));
+			// 22 - 23 not visible
+			// Fifth line
+			testPointPairs.push_back(PointPair(24, 928, 182, 512, 896));
+			testPointPairs.push_back(PointPair(25, 592, 176, 882, 896)); // 25
+			testPointPairs.push_back(PointPair(26, 318, 186, 1182, 896));
+			testPointPairs.push_back(PointPair(27, 78, 208, 1482, 896));
+			// 28 not visible
+			// Sixth line
+			testPointPairs.push_back(PointPair(29, 1312, 180, 0, 1040));
+			testPointPairs.push_back(PointPair(30, 1098, 156, 282, 1040)); // 30
+			testPointPairs.push_back(PointPair(31, 628, 134, 882, 1040));
+			testPointPairs.push_back(PointPair(32, 384, 148, 1182, 1040));
+			testPointPairs.push_back(PointPair(33, 158, 168, 1482, 1040));
+			// 34 & 35 not visible
+			// Seventh line
+			testPointPairs.push_back(PointPair(36, 1270, 144, 0, 1180));
+			testPointPairs.push_back(PointPair(37, 1076, 118, 282, 1180));
+			testPointPairs.push_back(PointPair(38, 666, 104, 882, 1180));
+			testPointPairs.push_back(PointPair(39, 436, 112, 1182, 1180));
+			testPointPairs.push_back(PointPair(40, 234, 128, 1482, 1180)); // 40
+			testPointPairs.push_back(PointPair(41, 0, 152, 2082, 1180));
+			// Second part Fourth line
+			// 42 not visible
+			testPointPairs.push_back(PointPair(43, 934, 320, 512, 590)); // 43
+			testPointPairs.push_back(PointPair(44, 470, 312, 882, 590));
+			testPointPairs.push_back(PointPair(45, 122, 326, 1182, 590));
+			// 46 & 47 not visible
 		} else if (arg2 == "Hudritsch")
 		{
-			// Oberste Linie
-			testPointPairs.push_back(PointPair(1, 646, 320, 0, 0)); // 1
-			testPointPairs.push_back(PointPair(2, 674, 320, 282, 0));
-			testPointPairs.push_back(PointPair(3, 808, 329, 882, 0));
-			testPointPairs.push_back(PointPair(4, 886, 335, 1182, 0));
-			testPointPairs.push_back(PointPair(5, 983, 345, 1482, 0)); // 5
-			testPointPairs.push_back(PointPair(6, 1281, 381, 2082, 0));
-			testPointPairs.push_back(PointPair(7, 1486, 418, 2364, 0));
-			// Zweite Linie
-			testPointPairs.push_back(PointPair(8, 615, 329, 0, 140));
-			testPointPairs.push_back(PointPair(9, 646, 334, 282, 140));
-			testPointPairs.push_back(PointPair(10, 762, 344, 882, 140)); // 10
-			testPointPairs.push_back(PointPair(11, 846, 351, 1182, 140));
-			testPointPairs.push_back(PointPair(12, 949, 363, 1482, 140));
-			testPointPairs.push_back(PointPair(13, 1257, 403, 2082, 140));
-			testPointPairs.push_back(PointPair(14, 1485, 444, 2364, 140));
-			// Dritte Linie
-			testPointPairs.push_back(PointPair(15, 643, 350, 512, 284)); // 15
-			testPointPairs.push_back(PointPair(16, 720, 359, 882, 284));
-			testPointPairs.push_back(PointPair(17, 801, 367, 1182, 284));
-			testPointPairs.push_back(PointPair(18, 905, 381, 1482, 284));
-			testPointPairs.push_back(PointPair(19, 1078, 410, 1852, 284));
-			// Vierte Linie
-			testPointPairs.push_back(PointPair(20, 479, 370, 0, 590)); // 20
-			testPointPairs.push_back(PointPair(21, 505, 375, 282, 590));
-			testPointPairs.push_back(PointPair(22, 1128, 531, 2082, 590)); // A
-			testPointPairs.push_back(PointPair(23, 1452, 610, 2364, 590));
-			// Fünfte Linie
-			testPointPairs.push_back(PointPair(24, 401, 426, 512, 896));
-			testPointPairs.push_back(PointPair(25, 447, 450, 882, 896)); // 25
-			testPointPairs.push_back(PointPair(26, 506, 479, 1182, 896));
-			testPointPairs.push_back(PointPair(27, 593, 522, 1482, 896));
-			testPointPairs.push_back(PointPair(28, 771, 614, 1852, 896)); // B
-			// Sechste Linie
-			testPointPairs.push_back(PointPair(29, 299, 422, 0, 1040));
-			testPointPairs.push_back(PointPair(30, 313, 438, 282, 1040)); // 30
-			testPointPairs.push_back(PointPair(31, 369, 482, 882, 1040));
-			testPointPairs.push_back(PointPair(32, 410, 517, 1182, 1040));
-			testPointPairs.push_back(PointPair(33, 481, 575, 1482, 1040));
-			testPointPairs.push_back(PointPair(34, 824, 819, 2082, 1040)); // C
-			testPointPairs.push_back(PointPair(35, 1276, 1040, 2364, 1040));
-			// Siebte Linie
-			testPointPairs.push_back(PointPair(36, 236, 439, 0, 1180));
-			testPointPairs.push_back(PointPair(37, 245, 461, 282, 1180));
-			testPointPairs.push_back(PointPair(38, 276, 520, 882, 1180));
-			testPointPairs.push_back(PointPair(39, 301, 566, 1182, 1180));
-			testPointPairs.push_back(PointPair(40, 351, 637, 1482, 1180)); // 40
-			testPointPairs.push_back(PointPair(41, 652, 970, 1482, 1180));
-			// Zweiter Teil vierte Linie
-			// 42 nicht sichtbar
-			testPointPairs.push_back(PointPair(43, 531, 384, 512, 590)); // 43
-			testPointPairs.push_back(PointPair(44, 598, 398, 882, 590));
-			testPointPairs.push_back(PointPair(45, 673, 416, 1182, 590));
-			testPointPairs.push_back(PointPair(46, 774, 439, 1482, 590));
-			testPointPairs.push_back(PointPair(47, 960, 486, 2082, 590));
+			// top line
+			testPointPairs.push_back(PointPair(1, 240, 192, 0, 0)); // 1
+			testPointPairs.push_back(PointPair(2, 386, 168, 282, 0));
+			testPointPairs.push_back(PointPair(3, 754, 118, 882, 0));
+			testPointPairs.push_back(PointPair(4, 950, 106, 1182, 0));
+			testPointPairs.push_back(PointPair(5, 1146, 108, 1482, 0)); // 5
+			testPointPairs.push_back(PointPair(6, 1554, 128, 2082, 0));
+			testPointPairs.push_back(PointPair(7, 1714, 150, 2364, 0));
+			// Second line
+			testPointPairs.push_back(PointPair(8, 182, 220, 0, 140));
+			testPointPairs.push_back(PointPair(9, 342, 200, 282, 140));
+			testPointPairs.push_back(PointPair(10, 734, 148, 882, 140)); // 10
+			testPointPairs.push_back(PointPair(11, 948, 140, 1182, 140));
+			testPointPairs.push_back(PointPair(12, 1164, 136, 1482, 140));
+			testPointPairs.push_back(PointPair(13, 1592, 162, 2082, 140));
+			testPointPairs.push_back(PointPair(14, 1772, 182, 2364, 140));
+			// Third line
+			testPointPairs.push_back(PointPair(15, 416, 214, 512, 284)); // 15
+			testPointPairs.push_back(PointPair(16, 708, 188, 882, 284));
+			testPointPairs.push_back(PointPair(17, 944, 174, 1182, 284));
+			testPointPairs.push_back(PointPair(18, 1188, 170, 1482, 284));
+			testPointPairs.push_back(PointPair(19, 1488, 188, 1852, 284));
+			// Fourth line
+			// 20 Not visible
+			testPointPairs.push_back(PointPair(21, 116, 358, 282, 590));
+			testPointPairs.push_back(PointPair(22, 1838, 322, 2082, 590)); // A
+			// 23 not visible
+			// Fifth line
+			testPointPairs.push_back(PointPair(24, 88, 560, 512, 896));
+			testPointPairs.push_back(PointPair(25, 494, 558, 882, 896)); // 25
+			testPointPairs.push_back(PointPair(26, 922, 548, 1182, 896));
+			testPointPairs.push_back(PointPair(27, 1372, 542, 1482, 896));
+			testPointPairs.push_back(PointPair(28, 1856, 530, 1852, 896)); // B
+			// Sixth line
+			// 29&30 not visible
+			testPointPairs.push_back(PointPair(31, 422, 732, 882, 1040));
+			testPointPairs.push_back(PointPair(32, 910, 750, 1182, 1040));
+			testPointPairs.push_back(PointPair(33, 1440, 732, 1482, 1040));
+			// 34 - 37 not visible
+			// Seventh line
+			testPointPairs.push_back(PointPair(38, 324, 968, 882, 1180));
+			testPointPairs.push_back(PointPair(39, 902, 1016, 1182, 1180));
+			testPointPairs.push_back(PointPair(40, 1532, 990, 1482, 1180)); // 40
+			// 41 not visible
+			// Second part Fourth line
+			// 42 not visible
+			testPointPairs.push_back(PointPair(43, 288, 346, 512, 590)); // 43
+			testPointPairs.push_back(PointPair(44, 628, 310, 882, 590));
+			testPointPairs.push_back(PointPair(45, 930, 296, 1182, 590));
+			testPointPairs.push_back(PointPair(46, 1258, 294, 1482, 590));
+			testPointPairs.push_back(PointPair(47, 1636, 310, 1852, 590));
 		}else if (arg2 == "Michel")
 		{
-			testPointPairs.push_back(PointPair(1, 292, 361, 0, 0)); // 1
-			testPointPairs.push_back(PointPair(2, 457, 342, 282, 0));
-			testPointPairs.push_back(PointPair(3, 884, 303, 882, 0));
-			testPointPairs.push_back(PointPair(4, 1063, 295, 1182, 0));
-			testPointPairs.push_back(PointPair(5, 1229, 293, 1482, 0)); // 5
-			testPointPairs.push_back(PointPair(6, 1527, 296, 2082, 0));
-			testPointPairs.push_back(PointPair(7, 1618, 297, 2364, 0));
-			// Zweite Linie
-			testPointPairs.push_back(PointPair(8, 263, 380, 0, 140));
-			testPointPairs.push_back(PointPair(9, 447, 367, 282, 140));
-			testPointPairs.push_back(PointPair(10, 892, 329, 882, 140)); // 10
-			testPointPairs.push_back(PointPair(11, 1087, 318, 1182, 140));
-			testPointPairs.push_back(PointPair(12, 1266, 312, 1482, 140));
-			testPointPairs.push_back(PointPair(13, 1559, 315, 2082, 140));
-			testPointPairs.push_back(PointPair(14, 1662, 315, 2364, 140));
-			// Dritte Linie
-			testPointPairs.push_back(PointPair(15, 601, 390, 512, 284)); // 15
-			testPointPairs.push_back(PointPair(16, 904, 363, 882, 284));
-			testPointPairs.push_back(PointPair(17, 1121, 352, 1182, 284));
-			testPointPairs.push_back(PointPair(18, 1316, 346, 1482, 284));
-			testPointPairs.push_back(PointPair(19, 1520, 340, 1852, 284));
-			// Vierte Linie
-			testPointPairs.push_back(PointPair(20, 5, 580, 0, 590)); // 20
-			testPointPairs.push_back(PointPair(21, 279, 555, 282, 590));
-			testPointPairs.push_back(PointPair(22, 1811, 424, 2082, 590)); // A
-			testPointPairs.push_back(PointPair(23, 1898, 419, 2364, 590));
-			// Fünfte Linie
-			testPointPairs.push_back(PointPair(24, 436, 794, 512, 896));
-			testPointPairs.push_back(PointPair(25, 1028, 728, 882, 896)); // 25
-			testPointPairs.push_back(PointPair(26, 1424, 664, 1182, 896));
-			testPointPairs.push_back(PointPair(27, 1705, 611, 1482, 896));
-			testPointPairs.push_back(PointPair(28, 1919, 561, 1852, 896)); // B
-			// Sechste Linie
-			// 29 nicht sichtbar
-			testPointPairs.push_back(PointPair(30, 2, 962, 282, 1040)); // 30
-			testPointPairs.push_back(PointPair(31, 1094, 914, 882, 1040));
-			testPointPairs.push_back(PointPair(32, 1558, 808, 1182, 1040));
-			testPointPairs.push_back(PointPair(33, 1860, 716, 1482, 1040));
-			// 34 nicht sichtbar
-			// 35 nicht sichtbar
-			// Siebte Linie
-			// 36 nicht sichtbar
-			// 37 nicht sichtbar
-			testPointPairs.push_back(PointPair(37, 1622, 2, 282, 1180));
-			testPointPairs.push_back(PointPair(38, 1166, 1078, 882, 1180));
-			testPointPairs.push_back(PointPair(39, 1684, 930, 1182, 1180));
-			// 40 nicht sichtbar
-			// Zweiter Teil vierte Linie
-			// 41 nicht sichtbar
-			// 42 nicht sichtbar
-			testPointPairs.push_back(PointPair(43, 536, 528, 512, 590)); // 43
-			testPointPairs.push_back(PointPair(44, 948, 490, 882, 590));
-			testPointPairs.push_back(PointPair(45, 1232, 460, 1182, 590));
-			testPointPairs.push_back(PointPair(46, 1472, 446, 1482, 590));
-			testPointPairs.push_back(PointPair(47, 1700, 428, 1852, 590));
+			// top line
+			testPointPairs.push_back(PointPair(1, 30, 94, 0, 0)); // 1
+			testPointPairs.push_back(PointPair(2, 138, 86, 282, 0));
+			testPointPairs.push_back(PointPair(3, 400, 74, 882, 0));
+			testPointPairs.push_back(PointPair(4, 560, 72, 1182, 0));
+			testPointPairs.push_back(PointPair(5, 742, 80, 1482, 0)); // 5
+			testPointPairs.push_back(PointPair(6, 1132, 126, 2082, 0));
+			testPointPairs.push_back(PointPair(7, 1338, 164, 2364, 0));
+			// Second line
+			// 8 not visible
+			testPointPairs.push_back(PointPair(9, 64, 110, 282, 140));
+			testPointPairs.push_back(PointPair(10, 348, 98, 882, 140)); // 10
+			testPointPairs.push_back(PointPair(11, 516, 96, 1182, 140));
+			testPointPairs.push_back(PointPair(12, 708, 106, 1482, 140));
+			testPointPairs.push_back(PointPair(13, 1130, 162, 2082, 140));
+			testPointPairs.push_back(PointPair(14, 1356, 204, 2364, 140));
+			// Third line
+			testPointPairs.push_back(PointPair(15, 80, 134, 512, 284)); // 15
+			testPointPairs.push_back(PointPair(16, 272, 130, 882, 284));
+			testPointPairs.push_back(PointPair(17, 454, 130, 1182, 284));
+			testPointPairs.push_back(PointPair(18, 666, 138, 1482, 284));
+			testPointPairs.push_back(PointPair(19, 944, 170, 1852, 284));
+			// Fourth line
+			// 20 & 21 not visible
+			testPointPairs.push_back(PointPair(22, 1126, 332, 2082, 590)); // A
+			testPointPairs.push_back(PointPair(23, 1450, 396, 2364, 590));
+			// Fifth line
+			// 24 & 25 not visible
+			testPointPairs.push_back(PointPair(26, 0, 388, 1182, 896));
+			testPointPairs.push_back(PointPair(27, 290, 436, 1482, 896));
+			testPointPairs.push_back(PointPair(28, 782, 526, 1852, 896)); // B
+			// Sixth line
+			// 29 - 32 not visible
+			testPointPairs.push_back(PointPair(33, 132, 596, 1482, 1040));
+			testPointPairs.push_back(PointPair(34, 1094, 790, 2082, 1040)); // C
+			testPointPairs.push_back(PointPair(35, 1590, 846, 2364, 1040));
+			// Seventh line
+			// 36 - 39 not visible
+			testPointPairs.push_back(PointPair(40, 0, 780, 1482, 1180)); // 40
+			testPointPairs.push_back(PointPair(41, 1074, 1052, 2082, 1180));
+			testPointPairs.push_back(PointPair(42, 1614, 1040, 2364, 1180));
+			// Second part Fourth line
+			// 43 not visible
+			testPointPairs.push_back(PointPair(44, 64, 220, 882, 590));
+			testPointPairs.push_back(PointPair(45, 266, 226, 1182, 590));
+			testPointPairs.push_back(PointPair(46, 518, 240, 1482, 590));
+			testPointPairs.push_back(PointPair(47, 890, 288, 1852, 590));
 		} else {
 			cout << "Bad params, check code for options" << endl;
 		}

@@ -9,7 +9,7 @@ struct Camera
 	VideoCapture cap;
 	Mat frame;
 	int wantedMs;
-	int maxMs = 70140;
+	int maxMs = 88140;
 	double lastUsedMs = 0;
 	int firstFrame = true;
 

@@ -33,6 +33,9 @@ Mat Camera::getNextFrame()
 	}
 	wantedMs += 100;
 	//cout << "Camera #" << id << ": return frame at " << cap.get(CV_CAP_PROP_POS_MSEC ) << "ms" << endl;
+	//cout << "Camera #" << id << " ratio: " << cap.get(CAP_PROP_POS_AVI_RATIO  ) << endl;
+	//cout << "Camera #" << id << " frame " << cap.get(CAP_PROP_POS_FRAMES   ) << endl;
+	//cout << "Camera #" << id << " framecount: " << cap.get(CAP_PROP_FRAME_COUNT    ) << endl;
 	lastUsedMs = cap.get(CV_CAP_PROP_POS_MSEC);
 	return frame;
 }

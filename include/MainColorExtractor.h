@@ -10,7 +10,7 @@
 
 	class MainColorExtractor {
 	public:
-		static int getPlayerColor(int, void*, Mat& playerImage);
+		static int getPlayerColor(int, void*, Mat& playerImage, bool normalFrame);
 	};
 
 #endif
