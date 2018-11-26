@@ -2,10 +2,16 @@
 
 void ModelImageGenerator::createFieldModel(std::string title, std::vector<PointPair> additionalPointsRed, std::vector<PointPair> additionalPointsGreen, std::vector<PointPair> additionalPointsBlack) {
 	std::vector<PointPair> emptyVector;
-	createFieldModel(title, additionalPointsRed, additionalPointsGreen, additionalPointsBlack, emptyVector);
+	std::vector<PointPair> emptyVector2;
+	createFieldModel(title, additionalPointsRed, additionalPointsGreen, additionalPointsBlack, emptyVector, emptyVector2);
 }
 
 void ModelImageGenerator::createFieldModel(std::string title, std::vector<PointPair> additionalPointsRed, std::vector<PointPair> additionalPointsGreen, std::vector<PointPair> additionalPointsBlack, std::vector<PointPair> additionalPointsYellow) {
+	std::vector<PointPair> emptyVector;
+	createFieldModel(title, additionalPointsRed, additionalPointsGreen, additionalPointsBlack, additionalPointsYellow, emptyVector);
+}
+
+void ModelImageGenerator::createFieldModel(std::string title, std::vector<PointPair> additionalPointsRed, std::vector<PointPair> additionalPointsGreen, std::vector<PointPair> additionalPointsBlack, std::vector<PointPair> additionalPointsYellow, std::vector<PointPair> basetruth) {
 	Mat field(650,1250, CV_8UC3, Scalar(153,136,119));
 	// white field
 	int white_x = 141;
@@ -61,6 +67,11 @@ void ModelImageGenerator::createFieldModel(std::string title, std::vector<PointP
 
 	for(PointPair& pp : additionalPointsYellow) {
 		circle(field, Point(pp.p2.x / 2, pp.p2.y / 2), 6, yellow_color);
+	}
+
+	for(PointPair& pp : basetruth) {
+		circle(field, Point(pp.p1.x, pp.p1.y), 6, Scalar(0, 255, 0));
+		putText(field, std::to_string(pp.id), Point(pp.p1.x, pp.p1.y), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0,200,250), 1, CV_AA);
 	}
 
 	imshow(title, field);

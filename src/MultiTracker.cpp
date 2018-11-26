@@ -166,8 +166,9 @@ int main(int argc, char** argv)
 		clock.toc("Handle Input for all frames (Tracking): ");
 
 		iterationClock.toc("************************* Sum of all works: ");
-
-		// waitKey();
+		
+		if ((i-1)%10 == 0)
+			waitKey();
 
 	}
 	return 0;

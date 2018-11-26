@@ -10,6 +10,9 @@ using namespace std;
 
 class TrackingModule {
 	public:
+		// Constructor
+		TrackingModule();
+
 		void handleInput(int frameId, std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic);
 	private:
 		std::map<int, std::vector<RecognizedPlayer>> history;
@@ -22,4 +25,8 @@ class TrackingModule {
 		std::vector<RecognizedPlayer> getMergedInput(std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic);
 		std::vector<RecognizedPlayer> getFullInput(std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic);
 		void createHistory(std::vector<RecognizedPlayer> &curFrameInput, std::vector<RecognizedPlayer> &newHistoryInput, RecognizedPlayer histPlayer, std::vector<PointPair> &notChangedPlayersToDraw, std::vector<PointPair> &redPlayersToDraw, std::vector<PointPair> &blackPlayersToDraw, std::vector<PointPair> &playerMovement);
+
+		// Debug
+		std::map<int, std::vector<PointPair>> basetruth;
+		void initBasetruth();
 };
