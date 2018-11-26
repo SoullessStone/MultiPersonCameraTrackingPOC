@@ -28,7 +28,7 @@ struct Camera
 	VideoCapture cap;
 	Mat frame;
 	int wantedMs;
-	int maxMs = 70140;
+	int maxMs = 88140;
 	double lastUsedMs = 0;
 	int firstFrame = true;
 
@@ -50,8 +50,12 @@ struct Camera
 
 	Mat getNextFrame()
 	{
-		// waiting for right frame
+	// waiting for right frame
 		for (;;) {
+			if (maxMs < wantedMs) {
+				// Video ends here
+				throw -1;
+			}
 			int upperThreshold = (int)cap.get(CV_CAP_PROP_POS_MSEC) + 20;
 			int lowerThreshold = (int)cap.get(CV_CAP_PROP_POS_MSEC) - 20;
 			cap >> frame;
@@ -59,12 +63,11 @@ struct Camera
 				break;
 			}
 		}
-		wantedMs += 500;
-		if (frame.empty())
-		{
-			cout << "Reached last frame..." << endl;
-		}
-		cout << "Camera #" << id << ": return frame at " << cap.get(CV_CAP_PROP_POS_MSEC ) << "ms" << endl;
+		wantedMs += 1000;
+		//cout << "Camera #" << id << ": return frame at " << cap.get(CV_CAP_PROP_POS_MSEC ) << "ms" << endl;
+		//cout << "Camera #" << id << " ratio: " << cap.get(CAP_PROP_POS_AVI_RATIO  ) << endl;
+		//cout << "Camera #" << id << " frame " << cap.get(CAP_PROP_POS_FRAMES   ) << endl;
+		//cout << "Camera #" << id << " framecount: " << cap.get(CAP_PROP_FRAME_COUNT    ) << endl;
 		lastUsedMs = cap.get(CV_CAP_PROP_POS_MSEC);
 		return frame;
 	}
@@ -83,9 +86,9 @@ struct PointPair
 	}
 };
 
-Camera cameraHud(1, "../../hudritsch_short.mp4", 140);
-Camera cameraMar(2, "../../marcos_short.mp4", 140);
-Camera cameraMic(3, "../../michel_short.mp4", 100);
+Camera cameraHud(1, "../../hudritsch_short2.mp4", 0);
+Camera cameraMar(2, "../../marcos_short2.mp4", 0);
+Camera cameraMic(3, "../../michel_short2.mp4", 0);
 std::vector<std::string> output;
 int playerId = 0;
 
@@ -113,11 +116,8 @@ void mouse_callback(int  event, int  x, int  y, int  flag, void *param)
 		";" +
 		std::to_string(y)
 		);
-	if (cameraHud.wantedMs == cameraHud.maxMs) {
-		for(auto i : output) {
-			cout << i << endl;
-		}
-		return;
+	for(auto i : output) {
+		cout << i << endl;
 	}
 	showNewFrames();
     }

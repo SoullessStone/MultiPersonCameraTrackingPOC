@@ -167,7 +167,7 @@ int main(int argc, char** argv)
 
 		iterationClock.toc("************************* Sum of all works: ");
 
-		waitKey();
+		// waitKey();
 
 	}
 	return 0;
