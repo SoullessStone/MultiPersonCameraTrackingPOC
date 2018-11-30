@@ -67,16 +67,55 @@ Camera cameraMic(3, "../resources/michel_short2.mp4", 0);
 // Tracking module
 TrackingModule trackingModule;
 // For the correction-logic
-Point correctionPoint(-1,-1);
+Point correctionPointA(-1,-1);
+Point correctionPointB(-1,-1);
+Point correctionPointC(-1,-1);
 bool newCorrectionCoords = false;
 
 void mouse_callback(int  event, int  x, int  y, int  flag, void *param)
 {
 	if (event == EVENT_LBUTTONDOWN)
 	{
-		correctionPoint.x = x*2;
-		correctionPoint.y = y*2;
+		if (correctionPointA.x == -1) {
+			correctionPointA.x = x*2;
+			correctionPointA.y = y*2;
+		} else if (correctionPointB.x == -1) {
+			correctionPointB.x = x*2;
+			correctionPointB.y = y*2;
+		} else {
+			correctionPointC.x = x*2;
+			correctionPointC.y = y*2;
+		}
 		newCorrectionCoords = true;
+	}
+}
+
+void handleCorrection(Point p, int frameId) {
+	cout << "-------------------------------> CORRECTION" << endl;
+	cout << p << endl;
+	std::vector<int> possibleIds = trackingModule.getHistoryPlayerIds();
+	int i = 1;
+	Logger::log("Press Escape to abort the correction.", 1);
+	for (int id : possibleIds) {
+		Logger::log("Press " + std::to_string(i) + " to assign the clicked point to player #" + std::to_string(id), 1);
+		i++;
+	}
+	int key = waitKey();
+	int numberPressed = key - 48;
+	while (numberPressed < 1 || numberPressed > 6) {
+		if (key == 27)
+			break;
+		Logger::log("Please click a number that is possible.", 1);
+		key = waitKey();
+		numberPressed = key - 48;
+	}
+	if (key != 27) {
+		cout << "key " << key << endl;
+		cout << "numberPressed " << numberPressed << endl;
+		cout << "possibleIds at " << possibleIds.at(numberPressed - 1) << endl;
+		trackingModule.applyCorrection(possibleIds.at(numberPressed - 1), frameId-1, p);
+	} else {
+		Logger::log("Aborted Correction.", 1);
 	}
 }
 
@@ -144,33 +183,15 @@ int main(int argc, char** argv)
 		// We provide a correction-method
 		if (newCorrectionCoords)
 		{
-			cout << "-------------------------------> CORRECTION" << endl;
-			cout << correctionPoint << endl;
-			std::vector<int> possibleIds = trackingModule.getHistoryPlayerIds();
-			int i = 1;
-			Logger::log("Press Escape to abort the correction.", 1);
-			for (int id : possibleIds) {
-				Logger::log("Press " + std::to_string(i) + " to assign the clicked point to player #" + std::to_string(id), 1);
-				i++;
-			}
-			int key = waitKey();
-			int numberPressed = key - 48;
-			while (numberPressed < 1 || numberPressed > 6) {
-				if (key == 27)
-					break;
-				Logger::log("Please click a number that is possible.", 1);
-				key = waitKey();
-				numberPressed = key - 48;
-			}
-			if (key != 27) {
-				cout << "key " << key << endl;
-				cout << "numberPressed " << numberPressed << endl;
-				cout << "possibleIds at " << possibleIds.at(numberPressed - 1) << endl;
-				trackingModule.applyCorrection(possibleIds.at(numberPressed - 1), frameId-1, correctionPoint);
-			} else {
-				Logger::log("Aborted Correction.", 1);
-			}
-			correctionPoint = Point(-1,-1);
+			if (correctionPointA.x != -1)
+				handleCorrection(correctionPointA, frameId);
+			if (correctionPointB.x != -1)
+				handleCorrection(correctionPointB, frameId);
+			if (correctionPointC.x != -1)
+				handleCorrection(correctionPointC, frameId);
+			correctionPointA = Point(-1,-1);
+			correctionPointB = Point(-1,-1);
+			correctionPointC = Point(-1,-1);
 			newCorrectionCoords = false;
 		}
 
@@ -218,8 +239,9 @@ int main(int argc, char** argv)
 
 		iterationClock.toc("************************* Sum of all works: ");
 		
-		//if ((frameId-1)%10 == 0)
+		if (frameId > 500 && (frameId-1)%10 == 0)
 			waitKey();
+		//if ((frameId-1)%10 == 0)
 
 	}
 	return 0;
