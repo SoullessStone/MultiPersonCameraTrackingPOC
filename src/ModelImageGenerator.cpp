@@ -51,6 +51,9 @@ void ModelImageGenerator::createFieldModel(std::string title, std::vector<PointP
 	line(field, yellow_topright, yellow_bottomright, yellow_color, 2);
 	line(field, yellow_bottomleft, yellow_bottomright, yellow_color, 2);
 
+	// Distance-Reference
+	line(field, Point(50, 20), Point(150, 20), yellow_color, 2);
+
 	for(PointPair& pp : additionalPointsRed) {
 		circle(field, Point(pp.p2.x / 2, pp.p2.y / 2), 8, Scalar(0, 0, 255));
 		putText(field, std::to_string(pp.id), cvPoint(pp.p2.x / 2+15,pp.p2.y / 2+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(200,200,250), 1, CV_AA);
