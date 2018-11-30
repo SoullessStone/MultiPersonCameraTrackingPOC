@@ -66,6 +66,19 @@ Camera cameraMar(2, "../resources/marcos_short2.mp4", 0);
 Camera cameraMic(3, "../resources/michel_short2.mp4", 0);
 // Tracking module
 TrackingModule trackingModule;
+// For the correction-logic
+Point correctionPoint(-1,-1);
+bool newCorrectionCoords = false;
+
+void mouse_callback(int  event, int  x, int  y, int  flag, void *param)
+{
+	if (event == EVENT_LBUTTONDOWN)
+	{
+		correctionPoint.x = x*2;
+		correctionPoint.y = y*2;
+		newCorrectionCoords = true;
+	}
+}
 
 int main(int argc, char** argv)
 {
@@ -103,6 +116,10 @@ int main(int argc, char** argv)
 	initPointPairsMarcos();
 	initPointPairsMichel();
 
+	// Window for correction logic
+	namedWindow("Tracking", 1);
+	setMouseCallback("Tracking", mouse_callback);
+
 	// Some things to be used in the loop
 	PlayerExtractor playerExtractor(classes, parser.get<float>("thr"), net, parser.get<float>("scale"), parser.get<Scalar>("mean"), parser.get<bool>("rgb"), parser.get<int>("width"), parser.get<int>("height"));
 	Mat frameHud, frameMar, frameMic;
@@ -111,7 +128,7 @@ int main(int argc, char** argv)
 	std::vector<RecognizedPlayer> detectedPlayersMic;
 	std::vector<Mat> outs;
 	// "Forever" - We quit, when no more frames are available
-	int i = 0;
+	int frameId = 0;
 
 	Clock overallClock;
 	Clock iterationClock;
@@ -121,8 +138,42 @@ int main(int argc, char** argv)
 	{
 		iterationClock.tic();
 		clock.tic();
-		i++;
-		Logger::log("Frame #" + std::to_string(i), 1);
+		frameId++;
+		Logger::log("Frame #" + std::to_string(frameId), 1);
+
+		// We provide a correction-method
+		if (newCorrectionCoords)
+		{
+			cout << "-------------------------------> CORRECTION" << endl;
+			cout << correctionPoint << endl;
+			std::vector<int> possibleIds = trackingModule.getHistoryPlayerIds();
+			int i = 1;
+			Logger::log("Press Escape to abort the correction.", 1);
+			for (int id : possibleIds) {
+				Logger::log("Press " + std::to_string(i) + " to assign the clicked point to player #" + std::to_string(id), 1);
+				i++;
+			}
+			int key = waitKey();
+			int numberPressed = key - 48;
+			while (numberPressed < 1 || numberPressed > 6) {
+				if (key == 27)
+					break;
+				Logger::log("Please click a number that is possible.", 1);
+				key = waitKey();
+				numberPressed = key - 48;
+			}
+			if (key != 27) {
+				cout << "key " << key << endl;
+				cout << "numberPressed " << numberPressed << endl;
+				cout << "possibleIds at " << possibleIds.at(numberPressed - 1) << endl;
+				trackingModule.applyCorrection(possibleIds.at(numberPressed - 1), frameId-1, correctionPoint);
+			} else {
+				Logger::log("Aborted Correction.", 1);
+			}
+			correctionPoint = Point(-1,-1);
+			newCorrectionCoords = false;
+		}
+
 		try
 		{
 			// Get new frames
@@ -162,12 +213,12 @@ int main(int argc, char** argv)
 		imshow("frameMic", frameMic);
 		clock.toc("Mic - Resizing and showing image: "); 
 
-		trackingModule.handleInput(i, detectedPlayersHud, detectedPlayersMar, detectedPlayersMic);
+		trackingModule.handleInput(frameId, detectedPlayersHud, detectedPlayersMar, detectedPlayersMic);
 		clock.toc("Handle Input for all frames (Tracking): ");
 
 		iterationClock.toc("************************* Sum of all works: ");
 		
-		if ((i-1)%10 == 0)
+		//if ((frameId-1)%10 == 0)
 			waitKey();
 
 	}
@@ -180,6 +231,7 @@ void printList(std::vector<RecognizedPlayer>& players) {
 		cout << player.toString() << endl;
 	}
 }
+
 /*
 First Recording
 void initPointPairsMarcos() {

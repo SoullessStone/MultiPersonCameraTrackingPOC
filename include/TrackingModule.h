@@ -14,6 +14,8 @@ class TrackingModule {
 		TrackingModule();
 
 		void handleInput(int frameId, std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic);
+		std::vector<int> getHistoryPlayerIds();
+		void applyCorrection(int playerId, int frameId, Point newPosition);
 	private:
 		std::map<int, std::vector<RecognizedPlayer>> history;
 		std::map<int, int> lastUpdatedPlayer;

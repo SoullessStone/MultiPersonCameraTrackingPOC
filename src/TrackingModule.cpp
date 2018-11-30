@@ -310,6 +310,34 @@ void TrackingModule::printHistory()
 	}
 }
 
+std::vector<int> TrackingModule::getHistoryPlayerIds() {
+	std::vector<int> result;
+	std::map<int, std::vector<RecognizedPlayer>>::iterator it = history.begin();
+	while(it != history.end())
+	{
+		for(RecognizedPlayer& player : it->second) {
+			result.push_back(player.getCamerasPlayerId());
+		}
+		// First Frame tells us everything
+		break;
+	}
+	return result;
+}
+
+void TrackingModule::applyCorrection(int playerId, int frameId, Point newPosition) {
+	if(history.find(frameId) != history.end())
+	{
+		for (RecognizedPlayer& histPlayer : history.find(frameId)->second) {
+			if (histPlayer.getCamerasPlayerId() == playerId) {
+				histPlayer.setPositionInModel(newPosition, true);
+				Logger::log("Applied correction: " + std::to_string(playerId) + ", " + std::to_string(frameId), 1);
+			}
+		}
+	} else {
+		Logger::log("Could not apply correction for " + std::to_string(frameId), 1);
+	}
+}
+
 bool TrackingModule::isPossiblySamePlayer(RecognizedPlayer a, RecognizedPlayer b, int threshold)
 {
 	int distance = getDistance(a, b);
