@@ -136,7 +136,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						counter += 1;
 						Mat player = frame(Rect(left, top, width, height));
 						int playerNumber = counter;
-						// Check if red or black player
+						// Check if red or yellow player
 						bool isRed;
 						if (MainColorExtractor::getPlayerColor(0, 0, player, isNormalFrame) == 1) {
 							playerNumber += 100;
@@ -200,6 +200,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						linesToDraw.push_back(PointPair(0, nearestPoints[1].p2.x, nearestPoints[1].p2.y, x_part, y_part));
 						linesToDraw.push_back(PointPair(0, nearestPoints[2].p2.x, nearestPoints[2].p2.y, x_part, y_part));
 						
+						// Sometimes, the NN detects a person as two. So we delete the copy
 						bool isDuplicate = false;
 						for(RecognizedPlayer& rPlayer: returnablePlayers) {
 							Point rPlayerPerspectivePosition = rPlayer.getPositionInPerspective();

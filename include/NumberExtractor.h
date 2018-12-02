@@ -5,6 +5,8 @@
 #include <opencv2/highgui.hpp>
 #include "opencv2/xfeatures2d.hpp"
 
+#include <Logger.h>
+
 using namespace cv;
 using namespace std;
 using namespace cv::xfeatures2d;

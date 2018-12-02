@@ -45,7 +45,7 @@ int NumberExtractor::countSiftMatches(Mat& player, Mat& number)
 	
 	if( !player.data || !number.data )
 	{
-		std::cout<< " --(!) Error reading images " << std::endl;
+		Logger::log("Could not read images", 1);
 		return -1; 
 	}
 	//-- Step 1: Detect the keypoints using SIFT Detector, compute the descriptors

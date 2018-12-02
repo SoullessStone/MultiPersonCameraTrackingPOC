@@ -72,6 +72,7 @@ Point correctionPointB(-1,-1);
 Point correctionPointC(-1,-1);
 bool newCorrectionCoords = false;
 
+// Used for correction
 void mouse_callback(int  event, int  x, int  y, int  flag, void *param)
 {
 	if (event == EVENT_LBUTTONDOWN)
@@ -90,9 +91,10 @@ void mouse_callback(int  event, int  x, int  y, int  flag, void *param)
 	}
 }
 
+// Correction logic
 void handleCorrection(Point p, int frameId) {
-	cout << "-------------------------------> CORRECTION" << endl;
-	cout << p << endl;
+	Logger::log("Correction started for point " + std::to_string(p.x) + "/" + std::to_string(p.y), 0);
+	// Get Possible PlayerIds
 	std::vector<int> possibleIds = trackingModule.getHistoryPlayerIds();
 	int i = 1;
 	Logger::log("Press Escape to abort the correction.", 1);
@@ -102,6 +104,7 @@ void handleCorrection(Point p, int frameId) {
 	}
 	int key = waitKey();
 	int numberPressed = key - 48;
+	// Loop until we have an input worth processing
 	while (numberPressed < 1 || numberPressed > 6) {
 		if (key == 27)
 			break;
@@ -110,9 +113,6 @@ void handleCorrection(Point p, int frameId) {
 		numberPressed = key - 48;
 	}
 	if (key != 27) {
-		cout << "key " << key << endl;
-		cout << "numberPressed " << numberPressed << endl;
-		cout << "possibleIds at " << possibleIds.at(numberPressed - 1) << endl;
 		trackingModule.applyCorrection(possibleIds.at(numberPressed - 1), frameId-1, p);
 	} else {
 		Logger::log("Aborted Correction.", 1);
@@ -183,12 +183,14 @@ int main(int argc, char** argv)
 		// We provide a correction-method
 		if (newCorrectionCoords)
 		{
+			// It is possible to change three points at a time. But two or only one is also doable
 			if (correctionPointA.x != -1)
 				handleCorrection(correctionPointA, frameId);
 			if (correctionPointB.x != -1)
 				handleCorrection(correctionPointB, frameId);
 			if (correctionPointC.x != -1)
 				handleCorrection(correctionPointC, frameId);
+			// Reset for next correction
 			correctionPointA = Point(-1,-1);
 			correctionPointB = Point(-1,-1);
 			correctionPointC = Point(-1,-1);
@@ -250,9 +252,162 @@ int main(int argc, char** argv)
 void printList(std::vector<RecognizedPlayer>& players) {
 	Logger::log("/////////////////////////////////////////////", 1);
 	for(RecognizedPlayer& player : players) {
-		cout << player.toString() << endl;
+		Logger::log(player.toString(), 0);
 	}
 }
+
+void initPointPairsHudritsch() {
+	// top line
+	referencePointsHud.push_back(PointPair(1, 240, 192, 0, 0)); // 1
+	referencePointsHud.push_back(PointPair(2, 386, 168, 282, 0));
+	referencePointsHud.push_back(PointPair(3, 754, 118, 882, 0));
+	referencePointsHud.push_back(PointPair(4, 950, 106, 1182, 0));
+	referencePointsHud.push_back(PointPair(5, 1146, 108, 1482, 0)); // 5
+	referencePointsHud.push_back(PointPair(6, 1554, 128, 2082, 0));
+	referencePointsHud.push_back(PointPair(7, 1714, 150, 2364, 0));
+	// Second line
+	referencePointsHud.push_back(PointPair(8, 182, 220, 0, 140));
+	referencePointsHud.push_back(PointPair(9, 342, 200, 282, 140));
+	referencePointsHud.push_back(PointPair(10, 734, 148, 882, 140)); // 10
+	referencePointsHud.push_back(PointPair(11, 948, 140, 1182, 140));
+	referencePointsHud.push_back(PointPair(12, 1164, 136, 1482, 140));
+	referencePointsHud.push_back(PointPair(13, 1592, 162, 2082, 140));
+	referencePointsHud.push_back(PointPair(14, 1772, 182, 2364, 140));
+	// Third line
+	referencePointsHud.push_back(PointPair(15, 416, 214, 512, 284)); // 15
+	referencePointsHud.push_back(PointPair(16, 708, 188, 882, 284));
+	referencePointsHud.push_back(PointPair(17, 944, 174, 1182, 284));
+	referencePointsHud.push_back(PointPair(18, 1188, 170, 1482, 284));
+	referencePointsHud.push_back(PointPair(19, 1488, 188, 1852, 284));
+	// Fourth line
+	// 20 Not visible
+	referencePointsHud.push_back(PointPair(21, 116, 358, 282, 590));
+	referencePointsHud.push_back(PointPair(22, 1838, 322, 2082, 590)); // A
+	// 23 not visible
+	// Fifth line
+	referencePointsHud.push_back(PointPair(24, 88, 560, 512, 896));
+	referencePointsHud.push_back(PointPair(25, 494, 558, 882, 896)); // 25
+	referencePointsHud.push_back(PointPair(26, 922, 548, 1182, 896));
+	referencePointsHud.push_back(PointPair(27, 1372, 542, 1482, 896));
+	referencePointsHud.push_back(PointPair(28, 1856, 530, 1852, 896)); // B
+	// Sixth line
+	// 29&30 not visible
+	referencePointsHud.push_back(PointPair(31, 422, 732, 882, 1040));
+	referencePointsHud.push_back(PointPair(32, 910, 750, 1182, 1040));
+	referencePointsHud.push_back(PointPair(33, 1440, 732, 1482, 1040));
+	// 34 - 37 not visible
+	// Seventh line
+	referencePointsHud.push_back(PointPair(38, 324, 968, 882, 1180));
+	referencePointsHud.push_back(PointPair(39, 902, 1016, 1182, 1180));
+	referencePointsHud.push_back(PointPair(40, 1532, 990, 1482, 1180)); // 40
+	// 41 not visible
+	// Second part Fourth line
+	// 42 not visible
+	referencePointsHud.push_back(PointPair(43, 288, 346, 512, 590)); // 43
+	referencePointsHud.push_back(PointPair(44, 628, 310, 882, 590));
+	referencePointsHud.push_back(PointPair(45, 930, 296, 1182, 590));
+	referencePointsHud.push_back(PointPair(46, 1258, 294, 1482, 590));
+	referencePointsHud.push_back(PointPair(47, 1636, 310, 1852, 590));
+}
+
+void initPointPairsMichel() {
+	// top line
+	referencePointsMic.push_back(PointPair(1, 30, 94, 0, 0)); // 1
+	referencePointsMic.push_back(PointPair(2, 138, 86, 282, 0));
+	referencePointsMic.push_back(PointPair(3, 400, 74, 882, 0));
+	referencePointsMic.push_back(PointPair(4, 560, 72, 1182, 0));
+	referencePointsMic.push_back(PointPair(5, 742, 80, 1482, 0)); // 5
+	referencePointsMic.push_back(PointPair(6, 1132, 126, 2082, 0));
+	referencePointsMic.push_back(PointPair(7, 1338, 164, 2364, 0));
+	// Second line
+	// 8 not visible
+	referencePointsMic.push_back(PointPair(9, 64, 110, 282, 140));
+	referencePointsMic.push_back(PointPair(10, 348, 98, 882, 140)); // 10
+	referencePointsMic.push_back(PointPair(11, 516, 96, 1182, 140));
+	referencePointsMic.push_back(PointPair(12, 708, 106, 1482, 140));
+	referencePointsMic.push_back(PointPair(13, 1130, 162, 2082, 140));
+	referencePointsMic.push_back(PointPair(14, 1356, 204, 2364, 140));
+	// Third line
+	referencePointsMic.push_back(PointPair(15, 80, 134, 512, 284)); // 15
+	referencePointsMic.push_back(PointPair(16, 272, 130, 882, 284));
+	referencePointsMic.push_back(PointPair(17, 454, 130, 1182, 284));
+	referencePointsMic.push_back(PointPair(18, 666, 138, 1482, 284));
+	referencePointsMic.push_back(PointPair(19, 944, 170, 1852, 284));
+	// Fourth line
+	// 20 & 21 not visible
+	referencePointsMic.push_back(PointPair(22, 1126, 332, 2082, 590)); // A
+	referencePointsMic.push_back(PointPair(23, 1450, 396, 2364, 590));
+	// Fifth line
+	// 24 & 25 not visible
+	referencePointsMic.push_back(PointPair(26, 0, 388, 1182, 896));
+	referencePointsMic.push_back(PointPair(27, 290, 436, 1482, 896));
+	referencePointsMic.push_back(PointPair(28, 782, 526, 1852, 896)); // B
+	// Sixth line
+	// 29 - 32 not visible
+	referencePointsMic.push_back(PointPair(33, 132, 596, 1482, 1040));
+	referencePointsMic.push_back(PointPair(34, 1094, 790, 2082, 1040)); // C
+	referencePointsMic.push_back(PointPair(35, 1590, 846, 2364, 1040));
+	// Seventh line
+	// 36 - 39 not visible
+	referencePointsMic.push_back(PointPair(40, 0, 780, 1482, 1180)); // 40
+	referencePointsMic.push_back(PointPair(41, 1074, 1052, 2082, 1180));
+	referencePointsMic.push_back(PointPair(42, 1614, 1040, 2364, 1180));
+	// Second part Fourth line
+	// 43 not visible
+	referencePointsMic.push_back(PointPair(44, 64, 220, 882, 590));
+	referencePointsMic.push_back(PointPair(45, 266, 226, 1182, 590));
+	referencePointsMic.push_back(PointPair(46, 518, 240, 1482, 590));
+	referencePointsMic.push_back(PointPair(47, 890, 288, 1852, 590));
+}
+
+void initPointPairsMarcos() {
+	// top line
+	referencePointsMar.push_back(PointPair(1, 1916, 956, 0, 0)); // 1
+	referencePointsMar.push_back(PointPair(2, 1500, 1068, 282, 0));
+	referencePointsMar.push_back(PointPair(3, 74, 1074, 882, 0));
+	// 4 - 7 not visible
+	// Second line
+	referencePointsMar.push_back(PointPair(8, 1806, 764, 0, 140));
+	referencePointsMar.push_back(PointPair(9, 1402, 834, 282, 140));
+	referencePointsMar.push_back(PointPair(10, 176, 828, 882, 140)); // 10
+	// 11 - 14 not visible
+	// Third line
+	referencePointsMar.push_back(PointPair(15, 952, 628, 512, 284)); // 15
+	referencePointsMar.push_back(PointPair(16, 284, 616, 882, 284));
+	// 17 - 19 not visible
+	// Fourth line
+	referencePointsMar.push_back(PointPair(20, 1502, 364, 0, 590)); // 20
+	referencePointsMar.push_back(PointPair(21, 1190, 336, 282, 590));
+	// 22 - 23 not visible
+	// Fifth line
+	referencePointsMar.push_back(PointPair(24, 928, 182, 512, 896));
+	referencePointsMar.push_back(PointPair(25, 592, 176, 882, 896)); // 25
+	referencePointsMar.push_back(PointPair(26, 318, 186, 1182, 896));
+	referencePointsMar.push_back(PointPair(27, 78, 208, 1482, 896));
+	// 28 not visible
+	// Sixth line
+	referencePointsMar.push_back(PointPair(29, 1312, 180, 0, 1040));
+	referencePointsMar.push_back(PointPair(30, 1098, 156, 282, 1040)); // 30
+	referencePointsMar.push_back(PointPair(31, 628, 134, 882, 1040));
+	referencePointsMar.push_back(PointPair(32, 384, 148, 1182, 1040));
+	referencePointsMar.push_back(PointPair(33, 158, 168, 1482, 1040));
+	// 34 & 35 not visible
+	// Seventh line
+	referencePointsMar.push_back(PointPair(36, 1270, 144, 0, 1180));
+	referencePointsMar.push_back(PointPair(37, 1076, 118, 282, 1180));
+	referencePointsMar.push_back(PointPair(38, 666, 104, 882, 1180));
+	referencePointsMar.push_back(PointPair(39, 436, 112, 1182, 1180));
+	referencePointsMar.push_back(PointPair(40, 234, 128, 1482, 1180)); // 40
+	referencePointsMar.push_back(PointPair(41, 0, 152, 2082, 1180));
+	// Second part Fourth line
+	// 42 not visible
+	referencePointsMar.push_back(PointPair(43, 934, 320, 512, 590)); // 43
+	referencePointsMar.push_back(PointPair(44, 470, 312, 882, 590));
+	referencePointsMar.push_back(PointPair(45, 122, 326, 1182, 590));
+	// 46 & 47 not visible
+}
+
+
 
 /*
 First Recording
@@ -431,159 +586,6 @@ void initPointPairsMichel() {
 	referencePointsMic.push_back(PointPair(47, 1700, 428, 1852, 590));
 }
 */
-
-void initPointPairsHudritsch() {
-	// top line
-	referencePointsHud.push_back(PointPair(1, 240, 192, 0, 0)); // 1
-	referencePointsHud.push_back(PointPair(2, 386, 168, 282, 0));
-	referencePointsHud.push_back(PointPair(3, 754, 118, 882, 0));
-	referencePointsHud.push_back(PointPair(4, 950, 106, 1182, 0));
-	referencePointsHud.push_back(PointPair(5, 1146, 108, 1482, 0)); // 5
-	referencePointsHud.push_back(PointPair(6, 1554, 128, 2082, 0));
-	referencePointsHud.push_back(PointPair(7, 1714, 150, 2364, 0));
-	// Second line
-	referencePointsHud.push_back(PointPair(8, 182, 220, 0, 140));
-	referencePointsHud.push_back(PointPair(9, 342, 200, 282, 140));
-	referencePointsHud.push_back(PointPair(10, 734, 148, 882, 140)); // 10
-	referencePointsHud.push_back(PointPair(11, 948, 140, 1182, 140));
-	referencePointsHud.push_back(PointPair(12, 1164, 136, 1482, 140));
-	referencePointsHud.push_back(PointPair(13, 1592, 162, 2082, 140));
-	referencePointsHud.push_back(PointPair(14, 1772, 182, 2364, 140));
-	// Third line
-	referencePointsHud.push_back(PointPair(15, 416, 214, 512, 284)); // 15
-	referencePointsHud.push_back(PointPair(16, 708, 188, 882, 284));
-	referencePointsHud.push_back(PointPair(17, 944, 174, 1182, 284));
-	referencePointsHud.push_back(PointPair(18, 1188, 170, 1482, 284));
-	referencePointsHud.push_back(PointPair(19, 1488, 188, 1852, 284));
-	// Fourth line
-	// 20 Not visible
-	referencePointsHud.push_back(PointPair(21, 116, 358, 282, 590));
-	referencePointsHud.push_back(PointPair(22, 1838, 322, 2082, 590)); // A
-	// 23 not visible
-	// Fifth line
-	referencePointsHud.push_back(PointPair(24, 88, 560, 512, 896));
-	referencePointsHud.push_back(PointPair(25, 494, 558, 882, 896)); // 25
-	referencePointsHud.push_back(PointPair(26, 922, 548, 1182, 896));
-	referencePointsHud.push_back(PointPair(27, 1372, 542, 1482, 896));
-	referencePointsHud.push_back(PointPair(28, 1856, 530, 1852, 896)); // B
-	// Sixth line
-	// 29&30 not visible
-	referencePointsHud.push_back(PointPair(31, 422, 732, 882, 1040));
-	referencePointsHud.push_back(PointPair(32, 910, 750, 1182, 1040));
-	referencePointsHud.push_back(PointPair(33, 1440, 732, 1482, 1040));
-	// 34 - 37 not visible
-	// Seventh line
-	referencePointsHud.push_back(PointPair(38, 324, 968, 882, 1180));
-	referencePointsHud.push_back(PointPair(39, 902, 1016, 1182, 1180));
-	referencePointsHud.push_back(PointPair(40, 1532, 990, 1482, 1180)); // 40
-	// 41 not visible
-	// Second part Fourth line
-	// 42 not visible
-	referencePointsHud.push_back(PointPair(43, 288, 346, 512, 590)); // 43
-	referencePointsHud.push_back(PointPair(44, 628, 310, 882, 590));
-	referencePointsHud.push_back(PointPair(45, 930, 296, 1182, 590));
-	referencePointsHud.push_back(PointPair(46, 1258, 294, 1482, 590));
-	referencePointsHud.push_back(PointPair(47, 1636, 310, 1852, 590));
-}
-
-void initPointPairsMichel() {
-	// top line
-	referencePointsMic.push_back(PointPair(1, 30, 94, 0, 0)); // 1
-	referencePointsMic.push_back(PointPair(2, 138, 86, 282, 0));
-	referencePointsMic.push_back(PointPair(3, 400, 74, 882, 0));
-	referencePointsMic.push_back(PointPair(4, 560, 72, 1182, 0));
-	referencePointsMic.push_back(PointPair(5, 742, 80, 1482, 0)); // 5
-	referencePointsMic.push_back(PointPair(6, 1132, 126, 2082, 0));
-	referencePointsMic.push_back(PointPair(7, 1338, 164, 2364, 0));
-	// Second line
-	// 8 not visible
-	referencePointsMic.push_back(PointPair(9, 64, 110, 282, 140));
-	referencePointsMic.push_back(PointPair(10, 348, 98, 882, 140)); // 10
-	referencePointsMic.push_back(PointPair(11, 516, 96, 1182, 140));
-	referencePointsMic.push_back(PointPair(12, 708, 106, 1482, 140));
-	referencePointsMic.push_back(PointPair(13, 1130, 162, 2082, 140));
-	referencePointsMic.push_back(PointPair(14, 1356, 204, 2364, 140));
-	// Third line
-	referencePointsMic.push_back(PointPair(15, 80, 134, 512, 284)); // 15
-	referencePointsMic.push_back(PointPair(16, 272, 130, 882, 284));
-	referencePointsMic.push_back(PointPair(17, 454, 130, 1182, 284));
-	referencePointsMic.push_back(PointPair(18, 666, 138, 1482, 284));
-	referencePointsMic.push_back(PointPair(19, 944, 170, 1852, 284));
-	// Fourth line
-	// 20 & 21 not visible
-	referencePointsMic.push_back(PointPair(22, 1126, 332, 2082, 590)); // A
-	referencePointsMic.push_back(PointPair(23, 1450, 396, 2364, 590));
-	// Fifth line
-	// 24 & 25 not visible
-	referencePointsMic.push_back(PointPair(26, 0, 388, 1182, 896));
-	referencePointsMic.push_back(PointPair(27, 290, 436, 1482, 896));
-	referencePointsMic.push_back(PointPair(28, 782, 526, 1852, 896)); // B
-	// Sixth line
-	// 29 - 32 not visible
-	referencePointsMic.push_back(PointPair(33, 132, 596, 1482, 1040));
-	referencePointsMic.push_back(PointPair(34, 1094, 790, 2082, 1040)); // C
-	referencePointsMic.push_back(PointPair(35, 1590, 846, 2364, 1040));
-	// Seventh line
-	// 36 - 39 not visible
-	referencePointsMic.push_back(PointPair(40, 0, 780, 1482, 1180)); // 40
-	referencePointsMic.push_back(PointPair(41, 1074, 1052, 2082, 1180));
-	referencePointsMic.push_back(PointPair(42, 1614, 1040, 2364, 1180));
-	// Second part Fourth line
-	// 43 not visible
-	referencePointsMic.push_back(PointPair(44, 64, 220, 882, 590));
-	referencePointsMic.push_back(PointPair(45, 266, 226, 1182, 590));
-	referencePointsMic.push_back(PointPair(46, 518, 240, 1482, 590));
-	referencePointsMic.push_back(PointPair(47, 890, 288, 1852, 590));
-}
-
-void initPointPairsMarcos() {
-	// top line
-	referencePointsMar.push_back(PointPair(1, 1916, 956, 0, 0)); // 1
-	referencePointsMar.push_back(PointPair(2, 1500, 1068, 282, 0));
-	referencePointsMar.push_back(PointPair(3, 74, 1074, 882, 0));
-	// 4 - 7 not visible
-	// Second line
-	referencePointsMar.push_back(PointPair(8, 1806, 764, 0, 140));
-	referencePointsMar.push_back(PointPair(9, 1402, 834, 282, 140));
-	referencePointsMar.push_back(PointPair(10, 176, 828, 882, 140)); // 10
-	// 11 - 14 not visible
-	// Third line
-	referencePointsMar.push_back(PointPair(15, 952, 628, 512, 284)); // 15
-	referencePointsMar.push_back(PointPair(16, 284, 616, 882, 284));
-	// 17 - 19 not visible
-	// Fourth line
-	referencePointsMar.push_back(PointPair(20, 1502, 364, 0, 590)); // 20
-	referencePointsMar.push_back(PointPair(21, 1190, 336, 282, 590));
-	// 22 - 23 not visible
-	// Fifth line
-	referencePointsMar.push_back(PointPair(24, 928, 182, 512, 896));
-	referencePointsMar.push_back(PointPair(25, 592, 176, 882, 896)); // 25
-	referencePointsMar.push_back(PointPair(26, 318, 186, 1182, 896));
-	referencePointsMar.push_back(PointPair(27, 78, 208, 1482, 896));
-	// 28 not visible
-	// Sixth line
-	referencePointsMar.push_back(PointPair(29, 1312, 180, 0, 1040));
-	referencePointsMar.push_back(PointPair(30, 1098, 156, 282, 1040)); // 30
-	referencePointsMar.push_back(PointPair(31, 628, 134, 882, 1040));
-	referencePointsMar.push_back(PointPair(32, 384, 148, 1182, 1040));
-	referencePointsMar.push_back(PointPair(33, 158, 168, 1482, 1040));
-	// 34 & 35 not visible
-	// Seventh line
-	referencePointsMar.push_back(PointPair(36, 1270, 144, 0, 1180));
-	referencePointsMar.push_back(PointPair(37, 1076, 118, 282, 1180));
-	referencePointsMar.push_back(PointPair(38, 666, 104, 882, 1180));
-	referencePointsMar.push_back(PointPair(39, 436, 112, 1182, 1180));
-	referencePointsMar.push_back(PointPair(40, 234, 128, 1482, 1180)); // 40
-	referencePointsMar.push_back(PointPair(41, 0, 152, 2082, 1180));
-	// Second part Fourth line
-	// 42 not visible
-	referencePointsMar.push_back(PointPair(43, 934, 320, 512, 590)); // 43
-	referencePointsMar.push_back(PointPair(44, 470, 312, 882, 590));
-	referencePointsMar.push_back(PointPair(45, 122, 326, 1182, 590));
-	// 46 & 47 not visible
-}
-
-
 
 
 

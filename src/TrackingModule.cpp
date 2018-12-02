@@ -6,7 +6,6 @@
 //		o 2/3 näheste Punkte nehmen und Mittelwert als neue Position nehmen
 //		o Die 2/3 nähesten Punkte löschen?
 //	- Pro Kamera: Ausschluss ungenauer Bereiche
-//	- Manuelle Korrekturmöglichkeit einführen?
 
 
 
@@ -22,6 +21,7 @@
 //	- Frequenz von 2 fps auf 10 fps geändert: Wird besser, mann muss aber noch die Parameter etwas justieren.
 //	- 6 Spielerpunkte initial setzen vs Neuerfassen/Löschen von Spielern ausprobieren
 //		- Die neuen Aufnahmen haben nur 6 Spieler. Diese sind auch, mit 1-3s Unterbrüchen, immer sichtbar. Löschen ist also nicht nötig.
+//	- Manuelle Korrekturmöglichkeit einführen?
 
 
 // Erkenntnisse
@@ -131,6 +131,7 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 	// Loop over new input
 	while (curFramePlayer != std::end(curFrameInput)) {
 		Logger::log("+++++++++++++++++ Trying to match #" + std::to_string((*curFramePlayer).getCamerasPlayerId()), 0);
+		// When we did not see the player for some frames, we widen the search radius with a multiplicator
 		int multiplicator = 1;
 		std::map<int, int>::iterator it = lastUpdatedPlayer.find(histPlayer.getCamerasPlayerId());
 		if (it != lastUpdatedPlayer.end())
@@ -318,7 +319,7 @@ std::vector<int> TrackingModule::getHistoryPlayerIds() {
 		for(RecognizedPlayer& player : it->second) {
 			result.push_back(player.getCamerasPlayerId());
 		}
-		// First Frame tells us everything
+		// One Frame tells us everything
 		break;
 	}
 	return result;
@@ -368,6 +369,7 @@ std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<Recogni
 
 void TrackingModule::initBasetruth()
 {
+	// Dev Info: You generated that with the excel file in the documentation folder :)
 	std::vector<PointPair> vector1;
 	std::vector<PointPair> vector11;
 	std::vector<PointPair> vector21;
