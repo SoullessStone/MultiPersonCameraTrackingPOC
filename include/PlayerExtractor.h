@@ -25,6 +25,7 @@ class PlayerExtractor {
 	int inpWidth;
 	int inpHeight;
 	Mat tempBlob;
+	int counterForExport = 0;
 	public:
 		PlayerExtractor(std::vector<std::string> classes, int confThreshold, Net& net, float scale, Scalar mean, bool swapRB, int inpWidth, int inpHeight);
 		std::vector<RecognizedPlayer> extract(Mat& frame, const std::vector<Mat>& outs, std::vector<PointPair> referencePoints, int sizeThreshold, bool isNormalFrame);

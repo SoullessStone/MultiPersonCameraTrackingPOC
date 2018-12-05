@@ -135,6 +135,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 
 						counter += 1;
 						Mat player = frame(Rect(left, top, width, height));
+						
 						int playerNumber = counter;
 						// Check if red or yellow player
 						bool isRed;
@@ -162,6 +163,8 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						}
 
 						currentPlayer.setCamerasPlayerId(playerNumber);
+						//imwrite("players/" + std::to_string(counterForExport) + "_" + std::to_string(playerNumber) + ".jpg", player);
+						counterForExport++;
 
 						// Find the bottom part of the player
 						Point bottomOfPlayer(centerX, bottom);

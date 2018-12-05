@@ -241,8 +241,9 @@ int main(int argc, char** argv)
 
 		iterationClock.toc("************************* Sum of all works: ");
 		
+		if (frameId > 200)
 		//if (frameId > 500 && (frameId-1)%10 == 0)
-		if ((frameId-1)%10 == 0)
+		//if ((frameId-1)%10 == 0)
 		{
 			trackingModule.createVideo();
 			waitKey();
