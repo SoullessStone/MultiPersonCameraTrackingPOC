@@ -16,10 +16,12 @@ class TrackingModule {
 		void handleInput(int frameId, std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic);
 		std::vector<int> getHistoryPlayerIds();
 		void applyCorrection(int playerId, int frameId, Point newPosition);
+		void createVideo();
 	private:
 		std::map<int, std::vector<RecognizedPlayer>> history;
 		std::map<int, int> lastUpdatedPlayer;
 		std::vector<RecognizedPlayer> lostPlayers;
+		std::vector<Mat> trackingResult;
 
 		void printHistory();
 		bool isPossiblySamePlayer(RecognizedPlayer a, RecognizedPlayer b, int threshold);

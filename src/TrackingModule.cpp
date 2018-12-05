@@ -111,9 +111,11 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 	// Debug: Create and show tracking result
 	cout << frameId << endl;
 	if ((frameId - 1) % 10 == 0) {
-		ModelImageGenerator::createFieldModel("Tracking", redPlayersToDraw, playerMovement, blackPlayersToDraw, notChangedPlayersToDraw, basetruth.find(frameId)->second);
+		Mat fieldModel = ModelImageGenerator::createFieldModel("Tracking", redPlayersToDraw, playerMovement, blackPlayersToDraw, notChangedPlayersToDraw, basetruth.find(frameId)->second);
+		trackingResult.push_back(fieldModel);
 	} else {
-		ModelImageGenerator::createFieldModel("Tracking", redPlayersToDraw, playerMovement, blackPlayersToDraw, notChangedPlayersToDraw);
+		Mat fieldModel = ModelImageGenerator::createFieldModel("Tracking", redPlayersToDraw, playerMovement, blackPlayersToDraw, notChangedPlayersToDraw);
+		trackingResult.push_back(fieldModel);
 	}
 
 	// Debug: print history
@@ -337,6 +339,25 @@ void TrackingModule::applyCorrection(int playerId, int frameId, Point newPositio
 	} else {
 		Logger::log("Could not apply correction for " + std::to_string(frameId), 1);
 	}
+}
+
+void TrackingModule::createVideo() {
+	Size size = trackingResult.at(0).size();
+
+	VideoWriter writer;
+	int codec = VideoWriter::fourcc('M', 'J', 'P', 'G');	// select desired codec (must be available at runtime)
+	double fps = 10.0;					// framerate of the created video stream
+	string filename = "./live.avi";				// name of the output video file
+	writer.open(filename, codec, fps, size, true);
+	// check if we succeeded
+	if (!writer.isOpened()) {
+		cerr << "Could not open the output video file for write\n";
+	}
+
+	for(int i=0; i<trackingResult.size(); i++){
+		writer.write(trackingResult.at(i));
+	}
+	cout << "Finished writing" << endl;
 }
 
 bool TrackingModule::isPossiblySamePlayer(RecognizedPlayer a, RecognizedPlayer b, int threshold)
