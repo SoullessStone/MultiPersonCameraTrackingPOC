@@ -1,6 +1,10 @@
 # Fat MP4
 *.MP4
 *.mp4
+*.avi
+
+# Build Folder
+build/
 
 # Yolo weights
 *.weights
