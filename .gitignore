@@ -5,7 +5,6 @@
 
 # Build Folder & binary
 build/
-build/MultiTracker
 
 # Yolo weights
 *.weights
