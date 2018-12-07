@@ -29,7 +29,45 @@ PlayerExtractor::PlayerExtractor(std::vector<std::string> classes, int confThres
 	this->inpHeight = inpHeight;
 }
 
-std::vector<Mat> PlayerExtractor::getOuts(Mat frame) {
+std::vector<Mat> PlayerExtractor::getOutsHud(Mat frame) {
+		// Create a 4D blob from a frame.
+		Size inpSize(inpWidth > 0 ? inpWidth : frame.cols,
+			inpHeight > 0 ? inpHeight : frame.rows);
+		blobFromImage(frame, tempBlob, scale, inpSize, mean, swapRB, false);
+
+		// Run a model.
+		net.setInput(tempBlob);
+		if (net.getLayer(0)->outputNameToIndex("im_info") != -1)  // Faster-RCNN or R-FCN
+		{
+			resize(frame, frame, inpSize);
+			Mat imInfo = (Mat_<float>(1, 3) << inpSize.height, inpSize.width, 1.6f);
+			net.setInput(imInfo, "im_info");
+		}
+		std::vector<Mat> outs;
+		net.forward(outs, getOutputsNames(net));
+		return outs;
+}
+
+std::vector<Mat> PlayerExtractor::getOutsMar(Mat frame) {
+		// Create a 4D blob from a frame.
+		Size inpSize(inpWidth > 0 ? inpWidth : frame.cols,
+			inpHeight > 0 ? inpHeight : frame.rows);
+		blobFromImage(frame, tempBlob, scale, inpSize, mean, swapRB, false);
+
+		// Run a model.
+		net.setInput(tempBlob);
+		if (net.getLayer(0)->outputNameToIndex("im_info") != -1)  // Faster-RCNN or R-FCN
+		{
+			resize(frame, frame, inpSize);
+			Mat imInfo = (Mat_<float>(1, 3) << inpSize.height, inpSize.width, 1.6f);
+			net.setInput(imInfo, "im_info");
+		}
+		std::vector<Mat> outs;
+		net.forward(outs, getOutputsNames(net));
+		return outs;
+}
+
+std::vector<Mat> PlayerExtractor::getOutsMic(Mat frame) {
 		// Create a 4D blob from a frame.
 		Size inpSize(inpWidth > 0 ? inpWidth : frame.cols,
 			inpHeight > 0 ? inpHeight : frame.rows);

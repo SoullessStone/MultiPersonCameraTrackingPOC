@@ -29,7 +29,9 @@ class PlayerExtractor {
 	public:
 		PlayerExtractor(std::vector<std::string> classes, int confThreshold, Net& net, float scale, Scalar mean, bool swapRB, int inpWidth, int inpHeight);
 		std::vector<RecognizedPlayer> extract(Mat& frame, const std::vector<Mat>& outs, std::vector<PointPair> referencePoints, int sizeThreshold, bool isNormalFrame);
-		std::vector<Mat> getOuts(Mat frame);
+		std::vector<Mat> getOutsHud(Mat frame);
+		std::vector<Mat> getOutsMar(Mat frame);
+		std::vector<Mat> getOutsMic(Mat frame);
 	private:
 		std::vector<String> getOutputsNames(const Net& net);
 };
