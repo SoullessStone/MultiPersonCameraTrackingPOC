@@ -2,7 +2,6 @@
 #include <sstream>
 #include <iostream>
 #include <chrono>
-#include <thread>
 
 #include "opencv2/core.hpp"
 #include <opencv2/imgproc.hpp>
@@ -57,10 +56,6 @@ void initPointPairsHudritsch();
 void initPointPairsMichel();
 void printList(std::vector<RecognizedPlayer>& players);
 
-// Outs
-std::vector<Mat> outsHud;
-std::vector<Mat> outsMar;
-std::vector<Mat> outsMic;
 // Reference points for the three views
 std::vector<PointPair> referencePointsHud;
 std::vector<PointPair> referencePointsMar;
@@ -124,27 +119,6 @@ void handleCorrection(Point p, int frameId) {
 	}
 }
 
-void getOutsHud(Mat frame, PlayerExtractor playerExtractor) {
-	Clock c;
-	c.tic();
-	outsHud = playerExtractor.getOutsHud(frame);
-	c.toc("--------------------Hud-dnn: ");
-}
-
-void getOutsMar(Mat frame, PlayerExtractor playerExtractor) {
-	Clock c;
-	c.tic();
-	outsMar = playerExtractor.getOutsMar(frame);
-	c.toc("--------------------Mar-dnn: ");
-}
-
-void getOutsMic(Mat frame, PlayerExtractor playerExtractor) {
-	Clock c;
-	c.tic();
-	outsMic = playerExtractor.getOutsMic(frame);
-	c.toc("--------------------Mic-dnn: ");
-}
-
 int main(int argc, char** argv)
 {
 	CommandLineParser parser(argc, argv, keys);
@@ -175,15 +149,6 @@ int main(int argc, char** argv)
 	Net net = readNet(parser.get<String>("model"), parser.get<String>("config"), parser.get<String>("framework"));
 	net.setPreferableBackend(parser.get<int>("backend"));
 	net.setPreferableTarget(parser.get<int>("target"));
-	Net net2 = readNet(parser.get<String>("model"), parser.get<String>("config"), parser.get<String>("framework"));
-	net2.setPreferableBackend(parser.get<int>("backend"));
-	net2.setPreferableTarget(parser.get<int>("target"));
-	Net net3 = readNet(parser.get<String>("model"), parser.get<String>("config"), parser.get<String>("framework"));
-	net3.setPreferableBackend(parser.get<int>("backend"));
-	net3.setPreferableTarget(parser.get<int>("target"));
-	Net net4 = readNet(parser.get<String>("model"), parser.get<String>("config"), parser.get<String>("framework"));
-	net4.setPreferableBackend(parser.get<int>("backend"));
-	net4.setPreferableTarget(parser.get<int>("target"));
 
 	// initiate the reference points
 	initPointPairsHudritsch();
@@ -196,9 +161,6 @@ int main(int argc, char** argv)
 
 	// Some things to be used in the loop
 	PlayerExtractor playerExtractor(classes, parser.get<float>("thr"), net, parser.get<float>("scale"), parser.get<Scalar>("mean"), parser.get<bool>("rgb"), parser.get<int>("width"), parser.get<int>("height"));
-	PlayerExtractor playerExtractorHud(classes, parser.get<float>("thr"), net2, parser.get<float>("scale"), parser.get<Scalar>("mean"), parser.get<bool>("rgb"), parser.get<int>("width"), parser.get<int>("height"));
-	PlayerExtractor playerExtractorMar(classes, parser.get<float>("thr"), net3, parser.get<float>("scale"), parser.get<Scalar>("mean"), parser.get<bool>("rgb"), parser.get<int>("width"), parser.get<int>("height"));
-	PlayerExtractor playerExtractorMic(classes, parser.get<float>("thr"), net4, parser.get<float>("scale"), parser.get<Scalar>("mean"), parser.get<bool>("rgb"), parser.get<int>("width"), parser.get<int>("height"));
 	Mat frameHud, frameMar, frameMic;
 	std::vector<RecognizedPlayer> detectedPlayersHud;
 	std::vector<RecognizedPlayer> detectedPlayersMar;
@@ -249,32 +211,26 @@ int main(int argc, char** argv)
 		}
 		clock.toc("Load all frames: ");
 
-		std::thread tHud(getOutsHud, frameHud, playerExtractorHud), tMar(getOutsMar, frameMar, playerExtractorMar), tMic(getOutsMic, frameMic, playerExtractorMic);
-
-		tHud.join();
-		tMar.join();
-		tMic.join();
-
 		// Detect players for the three views
-		//outs = playerExtractor.getOuts(frameHud);
+		outs = playerExtractor.getOuts(frameHud);
 		clock.toc("Hud - Neuronal Network: ");
-		detectedPlayersHud = playerExtractor.extract(frameHud, outsHud, referencePointsHud, 350, true);
+		detectedPlayersHud = playerExtractor.extract(frameHud, outs, referencePointsHud, 350, true);
 		clock.toc("Hud - Extract Players: ");
 		cv::resize(frameHud,frameHud,Size((int)(((double)frameHud.cols / (double)3)),(int)(((double)frameHud.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameHud", frameHud);
 		clock.toc("Hud - Resizing and showing image: "); 
 
-		//outs = playerExtractor.getOuts(frameMar);
+		outs = playerExtractor.getOuts(frameMar);
 		clock.toc("Mar - Neuronal Network: ");
-		detectedPlayersMar = playerExtractor.extract(frameMar, outsMar, referencePointsMar, 350, false);
+		detectedPlayersMar = playerExtractor.extract(frameMar, outs, referencePointsMar, 350, false);
 		clock.toc("Mar - Extract Players: ");
 		cv::resize(frameMar,frameMar,Size((int)(((double)frameMar.cols / (double)3)),(int)(((double)frameMar.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameMar", frameMar);
 		clock.toc("Mar - Resizing and showing image: "); 
 
-		//outs = playerExtractor.getOuts(frameMic);
+		outs = playerExtractor.getOuts(frameMic);
 		clock.toc("Mic - Neuronal Network: ");
-		detectedPlayersMic = playerExtractor.extract(frameMic, outsMic, referencePointsMic, 1000, true);
+		detectedPlayersMic = playerExtractor.extract(frameMic, outs, referencePointsMic, 1000, true);
 		clock.toc("Mic - Extract Players: ");
 		cv::resize(frameMic,frameMic,Size((int)(((double)frameMic.cols / (double)3)),(int)(((double)frameMic.rows / (double)3))), 0, 0, cv::INTER_AREA);
 		imshow("frameMic", frameMic);
@@ -285,13 +241,13 @@ int main(int argc, char** argv)
 
 		iterationClock.toc("************************* Sum of all works: ");
 		
-		//if (frameId > 200)
+		if (frameId > 200)
 		//if (frameId > 500 && (frameId-1)%10 == 0)
 		//if ((frameId-1)%10 == 0)
-		//{
-		//	trackingModule.createVideo();
+		{
+			trackingModule.createVideo();
 			waitKey();
-		//}
+		}
 
 	}
 	return 0;
