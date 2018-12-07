@@ -112,10 +112,10 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 	cout << frameId << endl;
 	if ((frameId - 1) % 10 == 0) {
 		Mat fieldModel = ModelImageGenerator::createFieldModel("Tracking", redPlayersToDraw, playerMovement, blackPlayersToDraw, notChangedPlayersToDraw, basetruth.find(frameId)->second);
-		trackingResult.push_back(fieldModel);
+		//trackingResult.push_back(fieldModel);
 	} else {
 		Mat fieldModel = ModelImageGenerator::createFieldModel("Tracking", redPlayersToDraw, playerMovement, blackPlayersToDraw, notChangedPlayersToDraw);
-		trackingResult.push_back(fieldModel);
+		//trackingResult.push_back(fieldModel);
 	}
 
 	// Debug: print history

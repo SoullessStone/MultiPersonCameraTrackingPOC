@@ -1,0 +1,7 @@
+set (CMAKE_CXX_STANDARD 11)
+cmake_minimum_required(VERSION 2.8)
+project( PlayerImageOrganizer )
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( PlayerImageOrganizer PlayerImageOrganizer.cpp )
+target_link_libraries( PlayerImageOrganizer ${OpenCV_LIBS} )
