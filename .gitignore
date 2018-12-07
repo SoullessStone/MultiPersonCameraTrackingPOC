@@ -3,8 +3,9 @@
 *.mp4
 *.avi
 
-# Build Folder
+# Build Folder & binary
 build/
+build/MultiTracker
 
 # Yolo weights
 *.weights
