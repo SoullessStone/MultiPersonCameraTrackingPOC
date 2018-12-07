@@ -1,4 +1,7 @@
 #include <Logger.h>
+// For Windows...
+#include <string>
+// End for Windows...
 
 void Logger::log(std::string message, int level)
 {

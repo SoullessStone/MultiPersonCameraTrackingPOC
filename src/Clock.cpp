@@ -1,4 +1,7 @@
 #include <Clock.h>
+// For Windows...
+#include <string>
+// End for Windows...
 
 void Clock::tic()
 {

@@ -1,5 +1,15 @@
 #include <PerspectiveToModelMapper.h>
 
+// For Windows...
+#include <string>
+#include <numeric>
+#include <iostream>
+#include <vector>
+#include <functional>
+
+using namespace std;
+// End for Windows...
+
 PerspectiveToModelMapper::PerspectiveToModelMapper()
 {
 	initBannedConstellations();
