@@ -42,7 +42,7 @@ int NumberExtractor::getPossibilityForPlayerAndNumber(Mat& player, int number)
 
 int NumberExtractor::countSiftMatches(Mat& player, Mat& number)
 {
-	
+	/*
 	if( !player.data || !number.data )
 	{
 		Logger::log("Could not read images", 1);
@@ -76,5 +76,6 @@ int NumberExtractor::countSiftMatches(Mat& player, Mat& number)
 			good_matches.push_back( matches[i]); 
 		}
 	}
-	return (int)good_matches.size();
+	return (int)good_matches.size();*/
+	return 1;
 }

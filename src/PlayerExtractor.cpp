@@ -237,13 +237,13 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 			cv::Scalar textColor;
 			cv::Scalar rectColor;
 			if (drawObj.isTypeA == true) {
-				textColor = cvScalar(255,255,255);
+				textColor = Scalar(255,255,255);
 				rectColor = Scalar(0, 255, 0);
 			} else {
-				textColor = cvScalar(0,255,255);
+				textColor = Scalar(0,255,255);
 				rectColor = Scalar(0, 0, 255);
 			}
-			putText(frame, std::to_string(drawObj.playerNumber), drawObj.textPosition, FONT_HERSHEY_COMPLEX_SMALL, 2, textColor, 2, CV_AA);
+			putText(frame, std::to_string(drawObj.playerNumber), drawObj.textPosition, FONT_HERSHEY_COMPLEX_SMALL, 2, textColor, 2, cv::LINE_AA);
 			rectangle(frame, drawObj.rectanglePointA, drawObj.rectanglePointB, rectColor);
 		}
 
@@ -258,7 +258,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 		// Draw some things on the frame
 		for(PointPair& pp: referencePoints) {
 			circle(frame, Point(pp.p1.x, pp.p1.y), 8, Scalar(0, 0, 255));
-			putText(frame, std::to_string(pp.id), cvPoint(pp.p1.x+15,pp.p1.y+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(200,200,250), 1, CV_AA);
+			putText(frame, std::to_string(pp.id), Point(pp.p1.x+15,pp.p1.y+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, Scalar(200,200,250), 1, cv::LINE_AA);
 		}
 	}
 	else
