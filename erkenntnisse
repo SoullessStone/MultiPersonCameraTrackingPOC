@@ -1,6 +1,23 @@
 GeForce GTX 1080/PCIe/SSE2
 Intel® Core™ i7-7700K CPU @ 4.20GHz × 8 
 
+opencv-stand:
+commit b571f030163121f2eb39302d67a29691a312cc39 (HEAD -> 3.4, origin/3.4)
+Merge: 4f9c1da80 5736bf5dd
+Author: Alexander Alekhin <alexander.a.alekhin@gmail.com>
+Date:   Sun Dec 16 10:16:19 2018 +0000
+
+    Merge pull request #13455 from alalek:issue_13454
+contrib-stand:
+commit 7292df62624ded8af8035231435dfd17c93e1a80 (HEAD -> 3.4, origin/3.4)
+Merge: d0198e50 264615b5
+Author: Alexander Alekhin <alexander.a.alekhin@gmail.com>
+Date:   Thu Dec 13 11:21:21 2018 +0000
+
+    Merge pull request #1922 from sturkmen72:upd_tracking_module_doc
+
+
+
 
 -> standard: 0,75s pro Durchgang
 
