@@ -1,0 +1,32 @@
+Unsupported OS
+Detected operating system is not supported. Supported operating systems for this release are: 
+CentOS* 7 (Intel(R) 64)
+Ubuntu* 16.04 (Intel(R) 64)
+Yocto (Intel(R) 64)
+
+
+Intel® Graphics Compute Runtime for OpenCL™ Driver is missing but you will be prompted to install later
+You will be prompted later to install the required Intel® Graphics Compute Runtime for OpenCL™ Driver For applications that offload computation to your Intel® GPU, the Intel® Graphics Compute Runtime for OpenCL™ Driver package for Linux is required.
+
+CMake* 2.8 or higher is not installed
+The CMake 2.8 is required. After completing this part of the installation, use the installation guide to install this dependency.
+
+Intel® GPU is not detected on this machine
+Installation can continue; however, GPU optimization will not be available for the product.
+
+Missing required libraries or packages
+Install the following libraries or packages required for Intel-optimized OpenCV 3.4, the Inference Engine, and the Model Optimizer tools: 
+libpng12-dev
+libcairo2-dev
+libpango1.0-dev
+libglib2.0-dev
+libgtk2.0-dev
+libswscale-dev
+libavcodec-dev
+libavformat-dev
+After completing this part of the installation, use the installation guide to install this dependency.
+
+Non root installation
+You are running the installation as a regular Linux user. Installation of the Intel(R) Media SDK requires privileges escalation. To install the component, restart the installation script in root/sudo mode.
+
+
