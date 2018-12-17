@@ -119,6 +119,11 @@ void handleCorrection(Point p, int frameId) {
 
 int main(int argc, char** argv)
 {
+
+	cout << "OpenCV version : " << CV_VERSION << endl;
+  cout << "Major version : " << CV_MAJOR_VERSION << endl;
+  cout << "Minor version : " << CV_MINOR_VERSION << endl;
+  cout << "Subminor version : " << CV_SUBMINOR_VERSION << endl;
 	CommandLineParser parser(argc, argv, keys);
 	parser.about("Showcase of a multiperson tracking algorithm");
 	if (argc == 1 || parser.has("help"))
@@ -146,9 +151,9 @@ int main(int argc, char** argv)
 	CV_Assert(parser.has("model"));
 	Net net = readNet(parser.get<String>("model"), parser.get<String>("config"), parser.get<String>("framework"));
 	net.setPreferableBackend(parser.get<int>("backend"));
-	//net.setPreferableTarget(parser.get<int>("target"));
+	net.setPreferableTarget(parser.get<int>("target"));
 	//net.setPreferableBackend(DNN_BACKEND_HALIDE);
-	net.setPreferableTarget(DNN_TARGET_OPENCL);
+	//net.setPreferableTarget(DNN_TARGET_OPENCL);
 
 
 	// initiate the reference points
@@ -243,8 +248,8 @@ int main(int argc, char** argv)
 		iterationClock.toc("************************* Sum of all works: ");
 		
 		//if (frameId > 200)
-		//if (frameId > 500 && (frameId-1)%10 == 0)
-		if ((frameId-1)%10 == 0)
+		if (frameId > 500 && (frameId-1)%10 == 0)
+		///if ((frameId-1)%10 == 0)
 		{
 			waitKey();
 		}

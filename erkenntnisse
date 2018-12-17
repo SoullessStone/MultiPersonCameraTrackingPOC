@@ -18,8 +18,13 @@ Date:   Thu Dec 13 11:21:21 2018 +0000
 
 
 
-
+standard auf cpu
+	net.setPreferableBackend(parser.get<int>("backend"));
+	net.setPreferableTarget(parser.get<int>("target"));
+	//net.setPreferableBackend(DNN_BACKEND_HALIDE);
+	//net.setPreferableTarget(DNN_TARGET_OPENCL);
 -> standard: 0,75s pro Durchgang
+auch in 3.4.1
 
 ------------------------------------------------------------------------------------------------------------
 
@@ -35,7 +40,7 @@ halide auf CPU
 	Gtk-Message: 16:30:40.471: Failed to load module "canberra-gtk-module"
 
 -> 1,75s, GPU: etwas memory, geringe auslastung (5%)
-
+auch in 3.4.1
 
 ------------------------------------------------------------------------------------------------------------
 
@@ -51,6 +56,7 @@ standard auf gpu
 	Gtk-Message: 16:32:02.834: Failed to load module "canberra-gtk-module"
 
 -> 1.2s
+in 3.4.1 dauert es sogar 3,8s. gpu auch voll ausgelastet
 
 utzum1@cpvrlab-GT51CH:~$ nvidia-smi 
 Mon Dec 17 16:33:38 2018       
@@ -98,4 +104,4 @@ Halide mit GPU
 	Aborted (core dumped)
 
 -> stirbt
-
+auch in 3.4.1
