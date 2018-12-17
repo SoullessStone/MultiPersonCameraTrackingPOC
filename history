@@ -1,0 +1,328 @@
+utzum1@cpvrlab-GT51CH:~/MultiPersonCameraTrackingPOC$ history
+    1  exit
+    2  cd ~/Downloads/
+    3  tar -zxf l_openvino_toolkit_p_2018.4.420.tgz 
+    4  cd l_openvino_toolkit_p_2018.4.420/
+    5  ls
+    6  ./install_GUI.sh 
+    7  cd /opt/intel/computer_vision_sdk/install_dependencies
+    8  cd /home/
+    9  ls
+   10  cd utzum1/
+   11  cd intel/
+   12  cd computer_vision_sdk
+   13  cd install_dependencies/
+   14  sudo -E ./install_cv_sdk_dependencies.sh 
+   15  cd ..
+   16  cd bin/
+   17  source setupvars.sh 
+   18  source /opt/intel/computer_vision_sdk/bin/setupvars.sh
+   19  source ~/intel/computer_vision_sdk/bin/setupvars.sh
+   20  cd ~/
+   21  ls
+   22  vi .bashrc
+   23  git 
+   24  git clone https://github.com/SoullessStone/MultiPersonCameraTrackingPOC.git
+   25  git branches
+   26  git branch
+   27  cd MultiPersonCameraTrackingPOC/
+   28  git checkout opencv4-openvino 
+   29  cd /home/
+   30  cd utzum1/
+   31  cd /home/utzum1/intel/computer_vision_sdk/
+   32  cd deployment_tools/model_optimizer/install_prerequisites/
+   33  ls
+   34  sudo ./install_prerequisites.sh 
+   35  cd ../..
+   36  cd ..
+   37  cd deployment_tools/
+   38  cd demo/
+   39  ./demo_squeezenet_download_convert_run.sh 
+   40  cd .
+   41  cd ..
+   42  ls
+   43  cd ..
+   44  ls
+   45  cd deployment_tools/inference_engine/lib/
+   46  ls
+   47  mkdir ubuntu_18.04
+   48  cp -r ubuntu_16.04/ ubuntu_18.04/
+   49  cd ubuntu_18
+   50  cd ubuntu_18.04/
+   51  ls
+   52  cd ..
+   53  cd demo/
+   54  ls
+   55  ./demo_squeezenet_download_convert_run.sh 
+   56  env
+   57  git status
+   58  git branch
+   59  git add ..
+   60  git add .
+   61  git commit -m "added links for unsuccessfull openvino install on mega-machine"
+   62  git config --global user.email "micheldc@windowslive.com"
+   63  git config --global user.name "Michel Utz"
+   64  git commit -m "added links for unsuccessfull openvino install on mega-machine"
+   65  git push
+   66  cd ..
+   67  ls
+   68  cd Documents/
+   69  ls
+   70  cd llvm-4.0.0.src/
+   71  mkdir build
+   72  cd build/
+   73  cmake -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE=Release ..
+   74  make -j4
+   75  git clone https://github.com/halide/Halide.git
+   76  cd ..
+   77  cd ~/Documents/Halide/
+   78  git status
+   79  ls
+   80  mkdir build
+   81  cd build/
+   82  cd ~/Documents/llvm-4.0.0.src/build/lib/cmake/llvm
+   83  cmake -DLLVM_DIR=~/Documents/llvm-4.0.0.src/build/lib/cmake/llvm -DCMAKE_BUILD_TYPE=Release -DLLVM_VERSION=40 -DWITH_TESTS=OFF -DWITH_APPS=OFF -DWITH_TUTORIALS=OFF ..
+   84  cd ~/Documents/Halide/build
+   85  ls
+   86  cd ..
+   87  ls
+   88  cd build/
+   89  cmake -DLLVM_DIR=~/Documents/llvm-4.0.0.src/build/lib/cmake/llvm -DCMAKE_BUILD_TYPE=Release -DLLVM_VERSION=40 -DWITH_TESTS=OFF -DWITH_APPS=OFF -DWITH_TUTORIALS=OFF ..
+   90  cd ../..
+   91  ls
+   92  cd llvm-6.0.0.src/
+   93  mkdir build
+   94  cd build/
+   95  cmake -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE=Release ..
+   96  make -j8
+   97  cd ../..
+   98  ls
+   99  cd Halide/
+  100  cd build/
+  101  ls
+  102  cmake -DLLVM_DIR=~/Documents/llvm-6.0.0.src/build/lib/cmake/llvm -DCMAKE_BUILD_TYPE=Release -DLLVM_VERSION=40 -DWITH_TESTS=OFF -DWITH_APPS=OFF -DWITH_TUTORIALS=OFF ..
+  103  cd ..
+  104  cd .
+  105  cd ..
+  106  cd llvm-6.0.0.src/
+  107  cd build/
+  108  cmake -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE=Release ..
+  109  make -j8
+  110  cd ../../Halide/
+  111  cd build/
+  112  cmake -DLLVM_DIR=~/Documents/llvm-6.0.0.src/build/lib/cmake/llvm -DCMAKE_BUILD_TYPE=Release -DLLVM_VERSION=40 -DWITH_TESTS=OFF -DWITH_APPS=OFF -DWITH_TUTORIALS=OFF ..
+  113  make -j4
+  114  cd ..
+  115  cd opencv_contrib/
+  116  cd modules/
+  117  pwd
+  118  cd ../../Halide/build/
+  119  ls
+  120  pwd
+  121  cd /home/utzum1/intel//computer_vision_sdk_2018.4.420/opencv/cmake
+  122  ls
+  123  pwd
+  124  git clone https://github.com/opencv/opencv.git
+  125  git branch
+  126  ls
+  127  cd opencv/
+  128  git branch
+  129  git checkout 3.4
+  130  cd ..
+  131  git clone https://github.com/opencv/opencv_contrib.git
+  132  git checkout 3.4
+  133  cd opencv_contrib/
+  134  git checkout 3.4
+  135  sudo apt-get install build-essential
+  136  sudo apt-get install cmake git libgtk2.0-dev-pkg-config libavcodec-dev libavformat-dev libswscale-dev
+  137  sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+  138  sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
+  139  sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev
+  140  cd ..
+  141  cd opencv
+  142  mkdir build
+  143  cd build/
+  144  cmake -D CMAKE_BUILD_TYPE=Release -D ENABLE_CXX11=1 -D CMAKE_INSTALL_PREFIX=/usr/local -D OPENCV_EXTRA_MODULES_PATH=/home/utzum1/Documents/opencv_contrib/modules -D WITH_HALIDE=1 -D HALIDE_ROOT_DIR=/home/utzum1/Documents/Halide/build ..
+  145  make -j4
+  146  cd ..
+  147  cd Mulo
+  148  ls
+  149  cd ..
+  150  cd MultiPersonCameraTrackingPOC/
+  151  cd bui
+  152  ls
+  153  mkdir build
+  154  git branch
+  155  git checkout master
+  156  ls
+  157  cd build/
+  158  ls
+  159  cmake ..
+  160  make
+  161  git status
+  162  git reset --hard
+  163  git checkout master
+  164  git checkout opencv4-openvino 
+  165  make
+  166  git checkout master
+  167  make
+  168  env
+  169  make
+  170  env
+  171  export OpenCV_DIR=/home/utzum1/Documents/opencv/build
+  172  env
+  173  make
+  174  cmake ..
+  175  make
+  176  pwd
+  177  nvidia-smi 
+  178  nvidia-smi
+  179  git checkout ab2c21e7c14bd99a83628be1ac88c0345634a446
+  180  git checkout c818de992e512eb7858c751c7d8200cedebcb40a
+  181  git status
+  182  git pull
+  183  git checkout c818de992e512eb7858c751c7d8200cedebcb40a
+  184  git log
+  185  cd ..
+  186  cd opencv
+  187  git checkout ab2c21e7c14bd99a83628be1ac88c0345634a446
+  188  git log
+  189  history
+  190  cmake -D CMAKE_BUILD_TYPE=Release -D ENABLE_CXX11=1 -D CMAKE_INSTALL_PREFIX=/usr/local -D OPENCV_EXTRA_MODULES_PATH=/home/utzum1/Documents/opencv_contrib/modules -D WITH_HALIDE=1 -D HALIDE_ROOT_DIR=/home/utzum1/Documents/Halide/build ..
+  191  cd build/
+  192  cmake -D CMAKE_BUILD_TYPE=Release -D ENABLE_CXX11=1 -D CMAKE_INSTALL_PREFIX=/usr/local -D OPENCV_EXTRA_MODULES_PATH=/home/utzum1/Documents/opencv_contrib/modules -D WITH_HALIDE=1 -D HALIDE_ROOT_DIR=/home/utzum1/Documents/Halide/build ..
+  193  make -j4
+  194  cmake ..
+  195  env
+  196  printenv OpenCv_dir
+  197  printenv OpenCV_DIR
+  198  OpenCV_DIR=/home/utzum1/Documents/opencv/build
+  199  printenv OpenCV_DIR
+  200  cmake ..
+  201  make
+  202  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  203  cd ..
+  204  git status
+  205  git checkout -b opencv3.4.4
+  206  git status
+  207  make
+  208  cd build/
+  209  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  210  make
+  211  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  212  cd ..
+  213  touch erkenntnisse
+  214  cd build/
+  215  make
+  216  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  217  make
+  218  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  219  clinfo
+  220  sudo apt install clinfo
+  221  clinfo 
+  222  export HL_GPU_DEVICE=1
+  223  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  224  export HL_GPU_DEVICE=2
+  225  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  226  export HL_GPU_DEVICE=0
+  227  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  228  export HL_GPU_DEVICE=-1
+  229  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  230  env -u HL_GPU_DEVICE
+  231  env HL_GPU_DEVICE
+  232  env
+  233  unset HL_GPU_DEVICE
+  234  env
+  235  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  236  make
+  237  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  238  make
+  239  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  240  make
+  241  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  242  sudo apt install nvidia-smi
+  243  nvidia-smi
+  244  make
+  245  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  246  make
+  247  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  248  sudo apt-get install libcanberra-gtk-module:i386
+  249  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  250  cd /usr/lib/x86_64-linux-gnu
+  251  ls
+  252  env
+  253  export GTK_PATH=/usr/lib/x86_64-linux-gnu/gtk-3.0
+  254  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  255  cd /home/utzum1/MultiPersonCameraTrackingPOC/build
+  256  make
+  257  cd /home/utzum1/MultiPersonCameraTrackingPOC/build
+  258  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  259  export OPENCV_DNN_OPENCL_ALLOW_ALL_DEVICES=1
+  260  make
+  261  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  262  make
+  263  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  264  make
+  265  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  266  make
+  267  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  268  make
+  269  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  270  make
+  271  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  272  make
+  273  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  274  make
+  275  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  276  make
+  277  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  278  cd ..
+  279  git diff
+  280  git status
+  281  git add .
+  282  git branch
+  283  git commit -m "auf besserer maschine laufen gelassen, auch auf gpu"
+  284  git push
+  285  git add .
+  286  git status
+  287  git commit -m "opencv-stand dokumentiert"
+  288  git push
+  289  env
+  290  history
+  291  cd build/
+  292  git pull
+  293  cmake ..
+  294  make
+  295  cmake ..
+  296  make
+  297  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  298  make
+  299  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  300  make
+  301  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  302  make
+  303  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  304  make
+  305  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  306  make
+  307  ./MultiTracker -c=../resources/yolov3.cfg -m=../resources/yolov3.weights -classes=../resources/coco.names --scale=0.00392 --width=416 --height=416
+  308  git status
+  309  git add .
+  310  git commit -m "auf 3.4.1 umgestellt und erkenntnisse dokumentiert"
+  311  git push
+  312  git branch
+  313  git status
+  314  git add ../.
+  315  git commit -m "auf 3.4.1 umgestellt und erkenntnisse dokumentiert"
+  316  git push
+  317  make
+  318  git status
+  319  git log
+  320  cd ..
+  321  cd opencv_contrib/
+  322  git log
+  323  nvidia-smi
+  324  touch history
+  325  history
+utzum1@cpvrlab-GT51CH:~/MultiPersonCameraTrackingPOC$ 
+
