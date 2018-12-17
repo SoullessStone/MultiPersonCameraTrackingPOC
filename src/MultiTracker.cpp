@@ -9,7 +9,6 @@
 #include <opencv2/highgui.hpp>
 #include "opencv2/features2d.hpp"
 #include "opencv2/imgcodecs.hpp"
-#include "opencv2/xfeatures2d.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +23,6 @@
 using namespace cv;
 using namespace dnn;
 using namespace std;
-using namespace cv::xfeatures2d;
 
 // Roughly based on: https://github.com/opencv/opencv/blob/master/samples/dnn/object_detection.cpp
 const char* keys =
@@ -148,7 +146,10 @@ int main(int argc, char** argv)
 	CV_Assert(parser.has("model"));
 	Net net = readNet(parser.get<String>("model"), parser.get<String>("config"), parser.get<String>("framework"));
 	net.setPreferableBackend(parser.get<int>("backend"));
-	net.setPreferableTarget(parser.get<int>("target"));
+	//net.setPreferableTarget(parser.get<int>("target"));
+	//net.setPreferableBackend(DNN_BACKEND_HALIDE);
+	net.setPreferableTarget(DNN_TARGET_OPENCL);
+
 
 	// initiate the reference points
 	initPointPairsHudritsch();
@@ -242,8 +243,8 @@ int main(int argc, char** argv)
 		iterationClock.toc("************************* Sum of all works: ");
 		
 		//if (frameId > 200)
-		if (frameId > 500 && (frameId-1)%10 == 0)
-		//if ((frameId-1)%10 == 0)
+		//if (frameId > 500 && (frameId-1)%10 == 0)
+		if ((frameId-1)%10 == 0)
 		{
 			waitKey();
 		}

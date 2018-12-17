@@ -1,7 +1,7 @@
 set (CMAKE_CXX_STANDARD 11)
 cmake_minimum_required(VERSION 2.8)
 project( MultiTracker )
-find_package( OpenCV REQUIRED )
+find_package( OpenCV 3.4.4 REQUIRED )
 file(GLOB SOURCES "src/*.cpp")
 include_directories( ${OpenCV_INCLUDE_DIRS}, include )
 add_executable( MultiTracker ${SOURCES} )

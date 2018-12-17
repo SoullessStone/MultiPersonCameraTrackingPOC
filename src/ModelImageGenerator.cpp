@@ -56,7 +56,7 @@ Mat ModelImageGenerator::createFieldModel(std::string title, std::vector<PointPa
 
 	for(PointPair& pp : additionalPointsRed) {
 		circle(field, Point(pp.p2.x / 2, pp.p2.y / 2), 8, Scalar(0, 0, 255));
-		putText(field, std::to_string(pp.id), cvPoint(pp.p2.x / 2+15,pp.p2.y / 2+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(200,200,250), 1, CV_AA);
+		putText(field, std::to_string(pp.id), cv::Point(pp.p2.x / 2+15,pp.p2.y / 2+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cv::Scalar(200,200,250), 1, cv::LINE_AA);
 	}
 
 	for(PointPair& pp : additionalPointsGreen) {
@@ -65,7 +65,7 @@ Mat ModelImageGenerator::createFieldModel(std::string title, std::vector<PointPa
 
 	for(PointPair& pp : additionalPointsBlack) {
 		circle(field, Point(pp.p2.x / 2, pp.p2.y / 2), 8, Scalar(0, 0, 0));
-		putText(field, std::to_string(pp.id), cvPoint(pp.p2.x / 2+15,pp.p2.y / 2+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0,200,250), 1, CV_AA);
+		putText(field, std::to_string(pp.id), cv::Point(pp.p2.x / 2+15,pp.p2.y / 2+15), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cv::Scalar(0,200,250), 1, cv::LINE_AA);
 	}
 
 	for(PointPair& pp : additionalPointsYellow) {
@@ -74,7 +74,7 @@ Mat ModelImageGenerator::createFieldModel(std::string title, std::vector<PointPa
 
 	for(PointPair& pp : basetruth) {
 		circle(field, Point(pp.p1.x, pp.p1.y), 6, Scalar(0, 255, 0));
-		putText(field, std::to_string(pp.id), Point(pp.p1.x, pp.p1.y), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0,200,250), 1, CV_AA);
+		putText(field, std::to_string(pp.id), Point(pp.p1.x, pp.p1.y), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cv::Scalar(0,200,250), 1, cv::LINE_AA);
 	}
 
 	imshow(title, field);

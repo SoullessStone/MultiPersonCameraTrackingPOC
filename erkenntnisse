@@ -1,0 +1,84 @@
+GeForce GTX 1080/PCIe/SSE2
+Intel® Core™ i7-7700K CPU @ 4.20GHz × 8 
+
+
+-> standard: 0,75s pro Durchgang
+
+------------------------------------------------------------------------------------------------------------
+
+halide auf CPU
+
+	//net.setPreferableBackend(parser.get<int>("backend"));
+	net.setPreferableTarget(parser.get<int>("target"));
+	net.setPreferableBackend(DNN_BACKEND_HALIDE);
+	//net.setPreferableTarget(DNN_TARGET_OPENCL);
+
+	(Tracking:2147): Gtk-WARNING **: 16:30:40.471: GTK+ module /usr/lib/x86_64-linux-gnu/gtk-3.0/modules/libcanberra-gtk-module.so cannot be loaded.
+	GTK+ 2.x symbols detected. Using GTK+ 2.x and GTK+ 3 in the same process is not supported.
+	Gtk-Message: 16:30:40.471: Failed to load module "canberra-gtk-module"
+
+-> 1,75s, GPU: etwas memory, geringe auslastung (5%)
+
+
+------------------------------------------------------------------------------------------------------------
+
+standard auf gpu
+
+	net.setPreferableBackend(parser.get<int>("backend"));
+	//net.setPreferableTarget(parser.get<int>("target"));
+	//net.setPreferableBackend(DNN_BACKEND_HALIDE);
+	net.setPreferableTarget(DNN_TARGET_OPENCL);
+
+	(Tracking:2280): Gtk-WARNING **: 16:32:02.834: GTK+ module /usr/lib/x86_64-linux-gnu/gtk-3.0/modules/libcanberra-gtk-module.so cannot be loaded.
+	GTK+ 2.x symbols detected. Using GTK+ 2.x and GTK+ 3 in the same process is not supported.
+	Gtk-Message: 16:32:02.834: Failed to load module "canberra-gtk-module"
+
+-> 1.2s
+
+utzum1@cpvrlab-GT51CH:~$ nvidia-smi 
+Mon Dec 17 16:33:38 2018       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 390.77                 Driver Version: 390.77                    |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  GeForce GTX 1080    Off  | 00000000:01:00.0  On |                  N/A |
+| 37%   59C    P2    56W / 180W |    780MiB /  8116MiB |     92%      Default |
++-------------------------------+----------------------+----------------------+
+|   1  GeForce GTX 1080    Off  | 00000000:02:00.0 Off |                  N/A |
+| 27%   30C    P8     9W / 180W |     12MiB /  8119MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|=============================================================================|
+|    0      1324      G   /usr/lib/xorg/Xorg                            18MiB |
+|    0      1372      G   /usr/bin/gnome-shell                          48MiB |
+|    0      1774      G   /usr/lib/firefox/firefox                       2MiB |
+|    0      2338      C   ./MultiTracker                               425MiB |
+|    0      3509      G   /usr/lib/xorg/Xorg                           133MiB |
+|    0      3668      G   /usr/bin/gnome-shell                         139MiB |
++-----------------------------------------------------------------------------+
+
+
+
+------------------------------------------------------------------------------------------------------------
+
+Halide mit GPU
+	//net.setPreferableBackend(parser.get<int>("backend"));
+	//net.setPreferableTarget(parser.get<int>("target"));
+	net.setPreferableBackend(DNN_BACKEND_HALIDE);
+	net.setPreferableTarget(DNN_TARGET_OPENCL);
+
+	Frame #1
+	Load all frames: 0.111659s
+	Error: CL: clBuildProgram failed: <Unknown error>
+	Build Log:
+
+
+	Aborted (core dumped)
+
+-> stirbt
+

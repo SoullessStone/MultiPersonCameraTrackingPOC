@@ -24,8 +24,8 @@ Mat Camera::getNextFrame()
 			// Video ends here
 			throw -1;
 		}
-		int upperThreshold = (int)cap.get(CV_CAP_PROP_POS_MSEC) + 20;
-		int lowerThreshold = (int)cap.get(CV_CAP_PROP_POS_MSEC) - 20;
+		int upperThreshold = (int)cap.get(cv::CAP_PROP_POS_MSEC) + 20;
+		int lowerThreshold = (int)cap.get(cv::CAP_PROP_POS_MSEC) - 20;
 		cap >> frame;
 		if  (wantedMs < upperThreshold && wantedMs > lowerThreshold) {
 			break;
@@ -36,6 +36,6 @@ Mat Camera::getNextFrame()
 	//cout << "Camera #" << id << " ratio: " << cap.get(CAP_PROP_POS_AVI_RATIO  ) << endl;
 	//cout << "Camera #" << id << " frame " << cap.get(CAP_PROP_POS_FRAMES   ) << endl;
 	//cout << "Camera #" << id << " framecount: " << cap.get(CAP_PROP_FRAME_COUNT    ) << endl;
-	lastUsedMs = cap.get(CV_CAP_PROP_POS_MSEC);
+	lastUsedMs = cap.get(cv::CAP_PROP_POS_MSEC);
 	return frame;
 }
