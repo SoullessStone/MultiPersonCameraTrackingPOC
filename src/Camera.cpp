@@ -31,6 +31,7 @@ Mat Camera::getNextFrame()
 			break;
 		}
 	}
+	// Define the time to wait
 	wantedMs += 100;
 	//cout << "Camera #" << id << ": return frame at " << cap.get(CV_CAP_PROP_POS_MSEC ) << "ms" << endl;
 	//cout << "Camera #" << id << " ratio: " << cap.get(CAP_PROP_POS_AVI_RATIO  ) << endl;

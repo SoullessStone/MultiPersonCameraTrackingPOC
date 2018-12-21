@@ -16,7 +16,10 @@ PerspectiveToModelMapper::PerspectiveToModelMapper()
 	initTriangles();
 }
 
-std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModelSpace(Point p, std::vector<PointPair> allPointPairs)
+std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModelSpace(
+	Point p,				// Point in Perspective, Method tries to find the nearest referencPoints to that point
+	std::vector<PointPair> allPointPairs	// Referencepoints to chose from (camera-specific)
+)
 {
 	/*
 		Weitere Konfiguration: Dreiecke bestimmen. Wenn Punkt in Perspektive in Dreieck, diese Referenzpunkte nehmen. Sonst halt wie bisher. Das verbessert den Fall Baptiste und Dävu bei Frame 56+
@@ -131,6 +134,7 @@ std::array<PointPair, 3> PerspectiveToModelMapper::findNearestThreePointsInModel
 	return result;
 }
 
+// Try to find a PointPair with the param id in the list allPointPairs
 PointPair PerspectiveToModelMapper::findPointPairById(int id, std::vector<PointPair> allPointPairs)
 {
 	for(PointPair& curPP: allPointPairs) {
@@ -141,11 +145,13 @@ PointPair PerspectiveToModelMapper::findPointPairById(int id, std::vector<PointP
 	return PointPair(-1, -1, -1, -1, -1);
 }
 
+// Thanks to: https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle
 float PerspectiveToModelMapper::sign(Point p1, Point p2, Point p3)
 {
 	return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
 }
 
+// Thanks to: https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle
 bool PerspectiveToModelMapper::isPointInTriangle(Point pt, Point v1, Point v2, Point v3)
 {
 	float d1, d2, d3;
@@ -161,6 +167,7 @@ bool PerspectiveToModelMapper::isPointInTriangle(Point pt, Point v1, Point v2, P
 	return !(has_neg && has_pos);
 }
 
+// Thanks to: https://gist.github.com/m1el/53582d6bc952c5bbbec6bf36947400b
 void PerspectiveToModelMapper::barycentric(Point p, Point a, Point b, Point c, float &u, float &v, float &w)
 {
 	int v0[] = { b.x-a.x, b.y-a.y };

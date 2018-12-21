@@ -1,5 +1,7 @@
 #include <NumberExtractor.h>
 
+// Never mind this class, we should redo all of that.
+
 int NumberExtractor::getNumberForPlayer(Mat& player)
 {
 	std::array<int, 7> possibleNumbers = {1,3,4,5,6,8,9};

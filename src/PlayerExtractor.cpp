@@ -29,6 +29,8 @@ PlayerExtractor::PlayerExtractor(std::vector<std::string> classes, int confThres
 	this->inpHeight = inpHeight;
 }
 
+// As seen here: https://github.com/opencv/opencv/blob/3.4/samples/dnn/object_detection.cpp
+// Prepares the input frame and gets the results from DNN
 std::vector<Mat> PlayerExtractor::getOuts(Mat frame) {
 		// Create a 4D blob from a frame.
 		Size inpSize(inpWidth > 0 ? inpWidth : frame.cols,
@@ -62,7 +64,13 @@ std::vector<String> PlayerExtractor::getOutputsNames(const Net& net)
 	return names;
 }
 
-std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::vector<Mat>& outs, std::vector<PointPair> referencePoints, int sizeThreshold, bool isNormalFrame)
+std::vector<RecognizedPlayer> PlayerExtractor::extract(
+	Mat& frame,					// Frame to work with
+	const std::vector<Mat>& outs,			// DNN-Results for this frame
+	std::vector<PointPair> referencePoints,		// Referencepoints for the camera that produced the frame
+	int sizeThreshold,				// Filter players smaller than the threshold
+	bool isNormalFrame				// <Deprecated> Flag to chose between color-detection-algorithms
+)
 {
 	std::vector<RecognizedPlayer> returnablePlayers;
 	static std::vector<int> outLayers = net.getUnconnectedOutLayers();
@@ -96,9 +104,9 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 				minMaxLoc(scores, 0, &confidence, 0, &classIdPoint);
 				if (confidence > confThreshold)
 				{					
-					// Handle Players
+					// Handle Players (Label==0 stands for Person)
 					if (classIdPoint.x == 0) {
-						
+						// Get information about detected person
 						int centerX = (int)(data[0] * frame.cols);
 						int centerY = (int)(data[1] * frame.rows);
 						int width = (int)(data[2] * frame.cols);
@@ -107,6 +115,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						int top = centerY - height / 2;
 						int bottom = centerY + height / 2;
 
+						// Skip detection, if too small
 						if (width*height < sizeThreshold) {
 							Logger::log("Skipped because the patch is too small.", 0);
 							continue;
@@ -130,6 +139,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 							Logger::log("Trim player (top)", 0);
 							top = 0;
 						}
+
 						// Create container in which we store the information about the player
 						RecognizedPlayer currentPlayer;
 
@@ -138,10 +148,11 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 						
 						int playerNumber = counter;
 						// Check if red or yellow player
-						bool isRed;
 						if (MainColorExtractor::getPlayerColor(0, 0, player, isNormalFrame) == 1) {
+							// Add 100 to the playerNumber. The color is better distinguishable
 							playerNumber += 100;
 
+							// Removed Numberdetection because it is slow and not worth the time
 							/* Find number
 							Mat greyPlayer;
 							cv::cvtColor(player, greyPlayer, cv::COLOR_BGR2GRAY);
@@ -221,6 +232,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(Mat& frame, const std::ve
 							}
 						}
 						if (! isDuplicate) {
+							// If it not a duplicate, we add it to the resulting list
 							returnablePlayers.push_back(currentPlayer);
 							playersToDraw.push_back(playerPointPair);
 							// Draw the players number near him

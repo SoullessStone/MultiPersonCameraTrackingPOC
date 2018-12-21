@@ -77,6 +77,7 @@ void mouse_callback(int  event, int  x, int  y, int  flag, void *param)
 {
 	if (event == EVENT_LBUTTONDOWN)
 	{
+		// We allow three corrections per frame
 		if (correctionPointA.x == -1) {
 			correctionPointA.x = x*2;
 			correctionPointA.y = y*2;
@@ -94,7 +95,7 @@ void mouse_callback(int  event, int  x, int  y, int  flag, void *param)
 // Correction logic
 void handleCorrection(Point p, int frameId) {
 	Logger::log("Correction started for point " + std::to_string(p.x) + "/" + std::to_string(p.y), 0);
-	// Get Possible PlayerIds
+	// Get possible PlayerIds
 	std::vector<int> possibleIds = trackingModule.getHistoryPlayerIds();
 	int i = 1;
 	Logger::log("Press Escape to abort the correction.", 1);
@@ -236,14 +237,15 @@ int main(int argc, char** argv)
 		imshow("frameMic", frameMic);
 		clock.toc("Mic - Resizing and showing image: "); 
 
+		// Hand all the detected players over to the trackingModule
 		trackingModule.handleInput(frameId, detectedPlayersHud, detectedPlayersMar, detectedPlayersMic);
 		clock.toc("Handle Input for all frames (Tracking): ");
 
 		iterationClock.toc("************************* Sum of all works: ");
 		
 		//if (frameId > 200)
-		if (frameId > 500 && (frameId-1)%10 == 0)
-		//if ((frameId-1)%10 == 0)
+		//if (frameId > 500 && (frameId-1)%10 == 0)
+		if ((frameId-1)%30 == 0)
 		{
 			waitKey();
 		}

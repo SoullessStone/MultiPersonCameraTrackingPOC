@@ -1,19 +1,11 @@
 #include <TrackingModule.h>
 
-// TODO Verbesserungsideen
-//	- Besprechung mit Hudritsch bei Gopro-Übergabe. 
-//		o Voraussage über Position treffen und von dort ausgehen.
-//		o 2/3 näheste Punkte nehmen und Mittelwert als neue Position nehmen
-//		o Die 2/3 nähesten Punkte löschen?
-//	- Pro Kamera: Ausschluss ungenauer Bereiche
-
-
-
-// Temporär Zurückgestellt:
+// Verworfen/Zurückgestellt:
 //	- Nummernerkennung schlecht. Optionen? Unzureichende Optionen: Siehe Week 0 im Excel, SIFT evtl. noch weiter verbessern?
 //		o Erkennung sehr gut, wenn man weiss, dass eine Nummer sichtbar ist (siehe Testtool Sift). Grosse Fehlerrate, wenn keine Nummer sichtbar
 //		o Wenn Nummernerkennung besser: Logik einbauen zum ändern der History
 //	- Ideale Zuteilung von history-Spielern und input herausfinden (globales minimieren von distanz, schwarz/rot trennen)
+//	- Pro Kamera: Ausschluss ungenauer Bereiche
 
 //Done:
 //	- Evtl. weniger mergen/ mehr Input zulassen.
@@ -22,6 +14,10 @@
 //	- 6 Spielerpunkte initial setzen vs Neuerfassen/Löschen von Spielern ausprobieren
 //		- Die neuen Aufnahmen haben nur 6 Spieler. Diese sind auch, mit 1-3s Unterbrüchen, immer sichtbar. Löschen ist also nicht nötig.
 //	- Manuelle Korrekturmöglichkeit einführen?
+//	- Besprechung mit Hudritsch bei Gopro-Übergabe. 
+//		o Voraussage über Position treffen und von dort ausgehen.
+//		o 2/3 näheste Punkte nehmen und Mittelwert als neue Position nehmen
+//		o Die 2/3 nähesten Punkte löschen?
 
 
 // Erkenntnisse
@@ -37,7 +33,12 @@ TrackingModule::TrackingModule()
 	initBasetruth();
 }
 
-void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
+void TrackingModule::handleInput(
+	int frameId,  					// The ID of the frame
+	std::vector<RecognizedPlayer> inputHud, 	// All players recognized by the first camera (cameraHud)
+	std::vector<RecognizedPlayer> inputMar, 	// All players recognized by the second camera (cameraMar)
+	std::vector<RecognizedPlayer> inputMic		// All players recognized by the third camera (cameraMic)
+)
 {
 	std::vector<RecognizedPlayer> curFrameInput;
 	// Initially, we trust inputHud, the most central camera. In our showcase-video, we get the correct 3 players. When wanting to do it for every video, we need some kind of initialization-construct to be added. But for the tracking product created now, I decided to leave it out.
@@ -122,7 +123,15 @@ void TrackingModule::handleInput(int frameId, std::vector<RecognizedPlayer> inpu
 	printHistory();
 }
 
-void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput, std::vector<RecognizedPlayer> &newHistoryInput, RecognizedPlayer histPlayer, std::vector<PointPair> &notChangedPlayersToDraw, std::vector<PointPair> &redPlayersToDraw, std::vector<PointPair> &blackPlayersToDraw, std::vector<PointPair> &playerMovement) {
+void TrackingModule::createHistory(
+	std::vector<RecognizedPlayer> &curFrameInput,		// All the detected Players for the current frame
+	std::vector<RecognizedPlayer> &newHistoryInput,		// The result, refound players
+	RecognizedPlayer histPlayer,				// HistoryPlayer to search for in curFrameInput
+	std::vector<PointPair> &notChangedPlayersToDraw,	// Debug: For the output image
+	std::vector<PointPair> &redPlayersToDraw,		// Debug: For the output image
+	std::vector<PointPair> &blackPlayersToDraw,		// Debug: For the output image
+	std::vector<PointPair> &playerMovement			// Debug: For the output image
+) {
 	
 	bool hasMatched = false;
 	RecognizedPlayer nearestPlayer;
@@ -139,11 +148,14 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 		if (it != lastUpdatedPlayer.end())
 			multiplicator = it->second;
 		if (isPossiblySamePlayer(histPlayer, *curFramePlayer, 200 + multiplicator * 70)) {
+			// Hopefully the correct player we searched for!
+
 			// Flag to be used later
 			hasMatched = true;
 			
 			//Logger::log("0000000000000000000000000000 MATCHED ";
 			
+			// We do not want the first hit, we want the best one
 			int distance = getDistance(histPlayer, *curFramePlayer);
 			if (distance < nearestPlayerDistance) {
 				nearestPlayerDistance = distance;
@@ -170,6 +182,7 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 				// Histplayer was not found in new input. We fill the gap temporarly
 				newHistoryInput.push_back(histPlayer);
 			} else {
+				// We could add a logic to remove the histplayer from our memory, but I chose not to, because in this POC, the number of players is fixed.
 				newHistoryInput.push_back(histPlayer);
 			}
 		}
@@ -188,7 +201,7 @@ void TrackingModule::createHistory(std::vector<RecognizedPlayer> &curFrameInput,
 		player.setCamerasPlayerId(histPlayer.getCamerasPlayerId());
 		player.setPositionInModel(Point(nearestPlayer.getPositionInModel().x, nearestPlayer.getPositionInModel().y), true);
 		player.setIsRed(nearestPlayer.getIsRed(), true);
-
+		// Also update the history (yellow line in the image "Tracking")
 		std::vector<PointPair> positionHistory = histPlayer.positionHistory;
 		PointPair newPP(-1, histPlayer.getPositionInModel().x,histPlayer.getPositionInModel().y, nearestPlayer.getPositionInModel().x, nearestPlayer.getPositionInModel().y);
 		positionHistory.insert(positionHistory.begin(), newPP);
@@ -239,6 +252,7 @@ std::vector<RecognizedPlayer> TrackingModule::getFullInput(std::vector<Recognize
 	std::vector<PointPair> blackPlayersToDraw;
 
 	for (RecognizedPlayer& rp : inputMic) {
+		// Handle cameraMic. We add 1000 to the Id to be able to distinguish between the players for debugging-reasons
 		RecognizedPlayer curPlayer;
 		curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId() + 1000);
 		curPlayer.setIsRed(rp.getIsRed(), true);
@@ -255,6 +269,7 @@ std::vector<RecognizedPlayer> TrackingModule::getFullInput(std::vector<Recognize
 	}
 
 	for (RecognizedPlayer& rp : inputHud) {
+		// Handle cameraMic. We add 2000 to the Id to be able to distinguish between the players for debugging-reasons
 		RecognizedPlayer curPlayer;
 		curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId() + 2000);
 		curPlayer.setIsRed(rp.getIsRed(), true);
@@ -271,6 +286,7 @@ std::vector<RecognizedPlayer> TrackingModule::getFullInput(std::vector<Recognize
 	}
 
 	for (RecognizedPlayer& rp : inputMar) {
+		// Handle cameraMic. We add 3000 to the Id to be able to distinguish between the players for debugging-reasons
 		RecognizedPlayer curPlayer;
 		curPlayer.setCamerasPlayerId(rp.getCamerasPlayerId() + 3000);
 		curPlayer.setIsRed(rp.getIsRed(), true);
@@ -293,6 +309,7 @@ std::vector<RecognizedPlayer> TrackingModule::getFullInput(std::vector<Recognize
 	return inputPlayers;
 }
 
+// Method to print the History. More of a debug feature
 void TrackingModule::printHistory()
 {
 	std::map<int, std::vector<RecognizedPlayer>>::iterator it = history.begin();
@@ -313,6 +330,7 @@ void TrackingModule::printHistory()
 	}
 }
 
+// Delivers all the HistoryPlayerIds
 std::vector<int> TrackingModule::getHistoryPlayerIds() {
 	std::vector<int> result;
 	std::map<int, std::vector<RecognizedPlayer>>::iterator it = history.begin();
@@ -327,11 +345,15 @@ std::vector<int> TrackingModule::getHistoryPlayerIds() {
 	return result;
 }
 
+// Method to apply a correction to history
 void TrackingModule::applyCorrection(int playerId, int frameId, Point newPosition) {
+	// Find the historyPlayerList for a specific frame
 	if(history.find(frameId) != history.end())
 	{
+		// Loop over the List
 		for (RecognizedPlayer& histPlayer : history.find(frameId)->second) {
 			if (histPlayer.getCamerasPlayerId() == playerId) {
+				// If we found the player we want to change, we do it.
 				histPlayer.setPositionInModel(newPosition, true);
 				Logger::log("Applied correction: " + std::to_string(playerId) + ", " + std::to_string(frameId), 1);
 			}
@@ -341,6 +363,7 @@ void TrackingModule::applyCorrection(int playerId, int frameId, Point newPositio
 	}
 }
 
+// As seen here: https://docs.opencv.org/3.4.0/d5/d57/videowriter_basic_8cpp-example.html
 void TrackingModule::createVideo() {
 	Size size = trackingResult.at(0).size();
 
@@ -360,6 +383,7 @@ void TrackingModule::createVideo() {
 	cout << "Finished writing" << endl;
 }
 
+// Compares two players and tells, if it cound be the same
 bool TrackingModule::isPossiblySamePlayer(RecognizedPlayer a, RecognizedPlayer b, int threshold)
 {
 	int distance = getDistance(a, b);
@@ -372,6 +396,7 @@ bool TrackingModule::isPossiblySamePlayer(RecognizedPlayer a, RecognizedPlayer b
 	return false;
 }
 
+// Return the distance between two players
 int TrackingModule::getDistance(RecognizedPlayer a, RecognizedPlayer b)
 {
 	int diffX = a.getPositionInModel().x - b.getPositionInModel().x;
@@ -385,6 +410,7 @@ int TrackingModule::getDistance(RecognizedPlayer a, RecognizedPlayer b)
 
 std::vector<RecognizedPlayer> TrackingModule::getMergedInput(std::vector<RecognizedPlayer> inputHud, std::vector<RecognizedPlayer> inputMar, std::vector<RecognizedPlayer> inputMic)
 {
+	// Used to be more logic here. Now we just return the players inputHud.
 	return inputHud;
 }
 

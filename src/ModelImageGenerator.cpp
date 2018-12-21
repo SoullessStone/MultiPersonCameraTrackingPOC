@@ -11,7 +11,15 @@ Mat ModelImageGenerator::createFieldModel(std::string title, std::vector<PointPa
 	return createFieldModel(title, additionalPointsRed, additionalPointsGreen, additionalPointsBlack, additionalPointsYellow, emptyVector);
 }
 
-Mat ModelImageGenerator::createFieldModel(std::string title, std::vector<PointPair> additionalPointsRed, std::vector<PointPair> additionalPointsGreen, std::vector<PointPair> additionalPointsBlack, std::vector<PointPair> additionalPointsYellow, std::vector<PointPair> basetruth) {
+// Creates an image of the Model
+Mat ModelImageGenerator::createFieldModel(
+	std::string title, 					// Title of window
+	std::vector<PointPair> additionalPointsRed, 		// Some red Points
+	std::vector<PointPair> additionalPointsGreen, 		// Some green points
+	std::vector<PointPair> additionalPointsBlack, 		// Some black points
+	std::vector<PointPair> additionalPointsYellow, 		// Will be yellow lines
+	std::vector<PointPair> basetruth			// Will be drawn as groundtruth
+) {
 	Mat field(650,1250, CV_8UC3, Scalar(153,136,119));
 	// white field
 	int white_x = 141;
@@ -51,8 +59,8 @@ Mat ModelImageGenerator::createFieldModel(std::string title, std::vector<PointPa
 	line(field, yellow_topright, yellow_bottomright, yellow_color, 2);
 	line(field, yellow_bottomleft, yellow_bottomright, yellow_color, 2);
 
-	// Distance-Reference
-	line(field, Point(50, 20), Point(150, 20), yellow_color, 2);
+	// Distance-Reference, shows 2m
+	//line(field, Point(50, 20), Point(150, 20), yellow_color, 2);
 
 	for(PointPair& pp : additionalPointsRed) {
 		circle(field, Point(pp.p2.x / 2, pp.p2.y / 2), 8, Scalar(0, 0, 255));
