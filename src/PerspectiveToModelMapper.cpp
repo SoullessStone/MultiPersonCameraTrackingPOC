@@ -168,6 +168,7 @@ bool PerspectiveToModelMapper::isPointInTriangle(Point pt, Point v1, Point v2, P
 }
 
 // Thanks to: https://gist.github.com/m1el/53582d6bc952c5bbbec6bf36947400b
+// and Real-Time Collision Detection by Christer Ericson -> https://books.google.ch/books?id=4wTNBQAAQBAJ&pg=PA47&lpg=PA47&dq=barycentric(Point+p,+Point+a,+Point+b,+Point+c,+float+%26u,+float+%26v,+float+%26w)&source=bl&ots=Wkbrnlv5nV&sig=B9z84o0BxQH-EFp7bw0GJ0tRV3A&hl=de&sa=X&ved=2ahUKEwjL4oz_2rrfAhWLGCwKHZ02AzgQ6AEwAHoECAkQAQ#v=onepage&q=barycentric(Point%20p%2C%20Point%20a%2C%20Point%20b%2C%20Point%20c%2C%20float%20%26u%2C%20float%20%26v%2C%20float%20%26w)&f=false
 void PerspectiveToModelMapper::barycentric(Point p, Point a, Point b, Point c, float &u, float &v, float &w)
 {
 	int v0[] = { b.x-a.x, b.y-a.y };
@@ -179,6 +180,7 @@ void PerspectiveToModelMapper::barycentric(Point p, Point a, Point b, Point c, f
 	float d11 = inner_product(v1, v1 + array_size, v1, 0);
 	float d20 = inner_product(v2, v2 + array_size, v0, 0);
 	float d21 = inner_product(v2, v2 + array_size, v1, 0);
+	// Cramer Rule. This is the lower det
 	float denom = d00 * d11 - d01 * d01;
 	v = (d11 * d20 - d01 * d21) / denom;
 	w = (d00 * d21 - d01 * d20) / denom;
