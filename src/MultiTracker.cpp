@@ -174,6 +174,12 @@ int main(int argc, char** argv)
 	Clock iterationClock;
 	Clock clock;
 	overallClock.tic();
+
+	// For error analysis
+	bool phase1Done = false;
+	bool phase2Done = false;
+	bool phase3Done = false;
+	bool phase4Done = false;
 	while (true == true)
 	{
 		iterationClock.tic();
@@ -212,6 +218,10 @@ int main(int argc, char** argv)
 		}
 		clock.toc("Load all frames: ");
 
+		// For Error-Testing
+		//if ((frameId-1)%80 != 0)
+		//	continue;
+
 		// Detect players for the three views
 		outs = playerExtractor.getOuts(frameHud);
 		clock.toc("Hud - Neuronal Network: ");
@@ -242,17 +252,38 @@ int main(int argc, char** argv)
 		clock.toc("Handle Input for all frames (Tracking): ");
 
 		iterationClock.toc("************************* Sum of all works: ");
-		
-		//if (frameId > 200)
-		//if (frameId > 500 && (frameId-1)%10 == 0)
-		if ((frameId-1)%30 == 0)
-		{
-			waitKey();
+
+		//if ((frameId-1)%10 == 0)
+		if (!phase1Done && frameId > 500)
+		{	
+			int key = waitKey();
+			if (key == 27)
+				phase1Done = true;
 		}
-		if (frameId > 880 && (frameId-1)%10 == 0)
-		{
-			trackingModule.createVideo();
+		if (!phase2Done && frameId > 630)
+		{	
+			int key = waitKey();
+			if (key == 27)
+				phase2Done = true;
 		}
+		if (!phase3Done && frameId > 730)
+		{	
+			int key = waitKey();
+			if (key == 27)
+				phase3Done = true;
+		}
+		if (!phase4Done && frameId > 830)
+		{	
+			int key = waitKey();
+			if (key == 27)
+				phase4Done = true;
+		}
+
+
+		//if (frameId > 880 && (frameId-1)%10 == 0)
+		//{
+		//	trackingModule.createVideo();
+		//}
 
 	}
 	return 0;
