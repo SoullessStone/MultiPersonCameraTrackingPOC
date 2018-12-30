@@ -182,6 +182,8 @@ void PerspectiveToModelMapper::barycentric(Point p, Point a, Point b, Point c, f
 	float d21 = inner_product(v2, v2 + array_size, v1, 0);
 	// Cramer Rule. This is the lower det
 	float denom = d00 * d11 - d01 * d01;
+	// Should be v = (d11 * d20 - d10 * d21) / denom;
+	// But since the inner_product is symmetric, d01 will do and is already calculated
 	v = (d11 * d20 - d01 * d21) / denom;
 	w = (d00 * d21 - d01 * d20) / denom;
 	u = 1.0f - v - w;

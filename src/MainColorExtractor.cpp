@@ -8,6 +8,7 @@ using namespace std;
 using namespace cv;
 
 // TODO: Eleganter lösen (frei wählbare Farben für beide Teams, count und vergleichen, evtl hsv-distance: http://answers.opencv.org/question/127885/how-can-i-best-compare-two-bgr-colors-to-determine-how-similardifferent-they-are/)
+// Thanks to: http://answers.opencv.org/question/201692/detecting-laser-dots-and-get-the-coordinates/
 int MainColorExtractor::getPlayerColor(int, void*, Mat& playerImage, bool normalFrame)
 {
 	// Convert input image to HSV
