@@ -148,6 +148,7 @@ PointPair PerspectiveToModelMapper::findPointPairById(int id, std::vector<PointP
 // Thanks to: https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle
 float PerspectiveToModelMapper::sign(Point p1, Point p2, Point p3)
 {
+	// Mathematical explanation: https://math.stackexchange.com/questions/274712/calculate-on-which-side-of-a-straight-line-is-a-given-point-located
 	return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
 }
 
