@@ -253,6 +253,13 @@ int main(int argc, char** argv)
 
 		iterationClock.toc("************************* Sum of all works: ");
 
+		/*
+		// Debug: Create output for demo video
+		imwrite("../resources/tools/videocreator/input/" + std::to_string(frameId) + "_frameHud.jpg", frameHud);
+		imwrite("../resources/tools/videocreator/input/" + std::to_string(frameId) + "_frameMar.jpg", frameMar);
+		imwrite("../resources/tools/videocreator/input/" + std::to_string(frameId) + "_frameMic.jpg", frameMic);
+		*/
+
 		//if ((frameId-1)%10 == 0)
 		if (!phase1Done && frameId > 500)
 		{	

@@ -114,8 +114,16 @@ void TrackingModule::handleInput(
 	if ((frameId - 1) % 10 == 0) {
 		Mat fieldModel = ModelImageGenerator::createFieldModel("Tracking", redPlayersToDraw, playerMovement, blackPlayersToDraw, notChangedPlayersToDraw, basetruth.find(frameId)->second);
 		//trackingResult.push_back(fieldModel);
+		/*
+		// Debug: Create output for demo video
+		imwrite("../resources/tools/videocreator/input/" + std::to_string(frameId) + "_tracking.jpg", fieldModel);
+		*/
 	} else {
 		Mat fieldModel = ModelImageGenerator::createFieldModel("Tracking", redPlayersToDraw, playerMovement, blackPlayersToDraw, notChangedPlayersToDraw);
+		/*
+		// Debug: Create output for demo video
+		imwrite("../resources/tools/videocreator/input/" + std::to_string(frameId) + "_tracking.jpg", fieldModel);
+		*/
 		//trackingResult.push_back(fieldModel);
 	}
 
@@ -203,6 +211,13 @@ void TrackingModule::createHistory(
 		player.setIsRed(nearestPlayer.getIsRed(), true);
 		// Also update the history (yellow line in the image "Tracking")
 		std::vector<PointPair> positionHistory = histPlayer.positionHistory;
+		/*
+		// Debug: Set number for PP-ID, so we can paint in other color.
+		int color = -1;
+		if (nearestPlayer.getIsRed())
+			color = -2;
+		PointPair newPP(color, histPlayer.getPositionInModel().x,histPlayer.getPositionInModel().y, nearestPlayer.getPositionInModel().x, nearestPlayer.getPositionInModel().y);
+		*/
 		PointPair newPP(-1, histPlayer.getPositionInModel().x,histPlayer.getPositionInModel().y, nearestPlayer.getPositionInModel().x, nearestPlayer.getPositionInModel().y);
 		positionHistory.insert(positionHistory.begin(), newPP);
 		player.positionHistory = positionHistory;

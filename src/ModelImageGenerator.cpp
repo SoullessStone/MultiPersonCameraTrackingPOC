@@ -68,6 +68,13 @@ Mat ModelImageGenerator::createFieldModel(
 	}
 
 	for(PointPair& pp : additionalPointsGreen) {
+		/* 
+		// DEBUG: For Image-Exporting
+		if (pp.id == -2)
+			line(field, Point(pp.p1.x/2,pp.p1.y/2), Point(pp.p2.x/2,pp.p2.y/2), Scalar (0,0,255), 1);
+		else
+			line(field, Point(pp.p1.x/2,pp.p1.y/2), Point(pp.p2.x/2,pp.p2.y/2), yellow_color, 1);
+		*/
 		line(field, Point(pp.p1.x/2,pp.p1.y/2), Point(pp.p2.x/2,pp.p2.y/2), yellow_color, 1);
 	}
 
