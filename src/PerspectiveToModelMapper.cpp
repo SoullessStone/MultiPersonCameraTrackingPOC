@@ -152,11 +152,13 @@ float PerspectiveToModelMapper::sign(Point p1, Point p2, Point p3)
 }
 
 // Thanks to: https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle
+// Mathematical explanation: https://math.stackexchange.com/questions/51326/determining-if-an-arbitrary-point-lies-inside-a-triangle-defined-by-three-points
 bool PerspectiveToModelMapper::isPointInTriangle(Point pt, Point v1, Point v2, Point v3)
 {
 	float d1, d2, d3;
 	bool has_neg, has_pos;
 
+	// Check on which side of the line pt lies
 	d1 = sign(pt, v1, v2);
 	d2 = sign(pt, v2, v3);
 	d3 = sign(pt, v3, v1);
@@ -164,6 +166,8 @@ bool PerspectiveToModelMapper::isPointInTriangle(Point pt, Point v1, Point v2, P
 	has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
 	has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
 
+	// Returns true iff all d-values are less than zero or all d values are more than zero
+	// This is the case, iff the point is inside v1, v2 and v3
 	return !(has_neg && has_pos);
 }
 
