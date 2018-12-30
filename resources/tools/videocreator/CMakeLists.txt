@@ -1,0 +1,7 @@
+set (CMAKE_CXX_STANDARD 11)
+cmake_minimum_required(VERSION 2.8)
+project( VideoCreator )
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( VideoCreator VideoCreator.cpp )
+target_link_libraries( VideoCreator ${OpenCV_LIBS} )
