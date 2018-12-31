@@ -34,20 +34,20 @@ int MainColorExtractor::getPlayerColor(int, void*, Mat& playerImage, bool normal
 		cv::Mat yellow;
 		cv::inRange(hsv_image, cv::Scalar(20, 100, 100), cv::Scalar(30, 255, 255), yellow);
 		int countC = countNonZero(yellow);
-		cout << "------------------------ yellow count: "<<countC << std::endl;
-		cout << "------------------------ red count: "<<countA + countB << std::endl;
+		//cout << "------------------------ yellow count: "<<countC << std::endl;
+		//cout << "------------------------ red count: "<<countA + countB << std::endl;
 		int result = 1;
 		if (countA+countB < countC) {
-			cout << "YELLOW - " << std::to_string(countC)<< std::endl;
+			//cout << "YELLOW - " << std::to_string(countC)<< std::endl;
 			result = 0;
 		}
 		else {
-			cout << "RED - "<< std::to_string(countA+countB)<<std::endl;
+			//cout << "RED - "<< std::to_string(countA+countB)<<std::endl;
 		}
-		if (percent > 0.025)
-			cout << "RED (nach alt) - "<< percent<<std::endl;
-		else
-			cout << "YELLOW (nach alt) - "<< percent<<std::endl;
+		//if (percent > 0.025)
+			//cout << "RED (nach alt) - "<< percent<<std::endl;
+		//else
+			//cout << "YELLOW (nach alt) - "<< percent<<std::endl;
 		//imshow("player", playerImage);
 		//waitKey();
 		return result;

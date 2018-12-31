@@ -181,7 +181,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(
 						Point bottomOfPlayer(centerX, bottom);
 						currentPlayer.setPositionInPerspective(bottomOfPlayer);
 
-						Logger::log("-------------- Player #" + std::to_string(playerNumber), 1);
+						Logger::log("-------------- Player #" + std::to_string(playerNumber), 0);
 						// Find the three nearest PointPairs in perspective
 						std::array<PointPair, 3> nearestPoints = perspectiveToModelMapper.findNearestThreePointsInModelSpace(bottomOfPlayer, referencePoints);
 						nearestPoints[0].print();

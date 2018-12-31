@@ -220,6 +220,14 @@ void TrackingModule::createHistory(
 		*/
 		PointPair newPP(-1, histPlayer.getPositionInModel().x,histPlayer.getPositionInModel().y, nearestPlayer.getPositionInModel().x, nearestPlayer.getPositionInModel().y);
 		positionHistory.insert(positionHistory.begin(), newPP);
+		/*
+		// Debug: Create distance output for videocreator
+		int distance = sqrt(
+					pow((double) (histPlayer.getPositionInModel().x - nearestPlayer.getPositionInModel().x), 2.0)
+					+ pow((double) (histPlayer.getPositionInModel().y - nearestPlayer.getPositionInModel().y), 2.0)
+				);
+		cout << "DISTANCE-distances" << histPlayer.getCamerasPlayerId() << ".insert(std::make_pair(" << frameId << ", "<< distance <<"));" << endl;
+		*/
 		player.positionHistory = positionHistory;
 
 		newHistoryInput.push_back(player);
