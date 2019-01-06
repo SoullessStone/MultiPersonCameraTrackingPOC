@@ -174,7 +174,7 @@ std::vector<RecognizedPlayer> PlayerExtractor::extract(
 						}
 
 						currentPlayer.setCamerasPlayerId(playerNumber);
-						//imwrite("players/" + std::to_string(counterForExport) + "_" + std::to_string(playerNumber) + ".jpg", player);
+						//imwrite("players/" + std::to_string(counterForExport+5000) + "_" + std::to_string(playerNumber) + ".jpg", player);
 						counterForExport++;
 
 						// Find the bottom part of the player

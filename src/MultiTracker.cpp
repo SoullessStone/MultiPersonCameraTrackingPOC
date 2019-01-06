@@ -221,6 +221,10 @@ int main(int argc, char** argv)
 		// For Error-Testing
 		//if ((frameId-1)%80 != 0)
 		//	continue;
+		/*if (frameId > 700 && (frameId-1)%15 == 0)
+			cout << "export" << endl;
+		else
+			continue;*/
 
 		// Detect players for the three views
 		outs = playerExtractor.getOuts(frameHud);

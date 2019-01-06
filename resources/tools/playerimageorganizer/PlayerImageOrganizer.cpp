@@ -38,22 +38,22 @@ int main( int argc, char** argv )
 		string folder = "";
 		if (key == 109) { // m
 			cout << "Michel" << endl;
-			folder = "dataset/michel/";
+			folder = "dataset_validation/michel/";
 		} else if (key == 97) { // a
 			cout << "Aendu" << endl;
-			folder = "dataset/aendu/";
+			folder = "dataset_validation/aendu/";
 		} else if (key == 108) { // l
 			cout << "Lucas" << endl;
-			folder = "dataset/lucas/";
+			folder = "dataset_validation/lucas/";
 		} else if (key == 105) { // i
 			cout << "Ishaqh" << endl;
-			folder = "dataset/ishaqh/";
+			folder = "dataset_validation/ishaqh/";
 		} else if (key == 107) { // k
 			cout << "Kevin" << endl;
-			folder = "dataset/kevin/";
+			folder = "dataset_validation/kevin/";
 		} else if (key == 100) { // d
 			cout << "Daevu" << endl;
-			folder = "dataset/daevu/";
+			folder = "dataset_validation/daevu/";
 		} else { // space or invalid
 			cout << "Skipped" << endl;
 			folder = "filtered/";
@@ -72,6 +72,150 @@ int main( int argc, char** argv )
 	}
 }
 
+void initImages() {
+	images.push_back("5028_1.jpg");
+	images.push_back("5029_102.jpg");
+	images.push_back("5030_3.jpg");
+	images.push_back("5031_4.jpg");
+	images.push_back("5032_1.jpg");
+	images.push_back("5033_102.jpg");
+	images.push_back("5034_3.jpg");
+	images.push_back("5035_4.jpg");
+	images.push_back("5036_105.jpg");
+	images.push_back("5037_106.jpg");
+	images.push_back("5038_7.jpg");
+	images.push_back("5039_108.jpg");
+	images.push_back("5040_101.jpg");
+	images.push_back("5041_2.jpg");
+	images.push_back("5042_103.jpg");
+	images.push_back("5043_104.jpg");
+	images.push_back("5044_105.jpg");
+	images.push_back("5045_1.jpg");
+	images.push_back("5046_2.jpg");
+	images.push_back("5047_3.jpg");
+	images.push_back("5048_104.jpg");
+	images.push_back("5049_5.jpg");
+	images.push_back("5050_106.jpg");
+	images.push_back("5051_1.jpg");
+	images.push_back("5052_2.jpg");
+	images.push_back("5053_103.jpg");
+	images.push_back("5054_4.jpg");
+	images.push_back("5055_105.jpg");
+	images.push_back("5056_106.jpg");
+	images.push_back("5057_7.jpg");
+	images.push_back("5058_101.jpg");
+	images.push_back("5059_2.jpg");
+	images.push_back("5060_103.jpg");
+	images.push_back("5061_1.jpg");
+	images.push_back("5062_2.jpg");
+	images.push_back("5063_3.jpg");
+	images.push_back("5064_104.jpg");
+	images.push_back("5065_105.jpg");
+	images.push_back("5066_6.jpg");
+	images.push_back("5067_7.jpg");
+	images.push_back("5068_101.jpg");
+	images.push_back("5069_102.jpg");
+	images.push_back("5070_3.jpg");
+	images.push_back("5071_4.jpg");
+	images.push_back("5072_105.jpg");
+	images.push_back("5073_6.jpg");
+	images.push_back("5074_107.jpg");
+	images.push_back("5075_1.jpg");
+	images.push_back("5076_2.jpg");
+	images.push_back("5077_103.jpg");
+	images.push_back("5078_4.jpg");
+	images.push_back("5079_105.jpg");
+	images.push_back("5080_106.jpg");
+	images.push_back("5081_7.jpg");
+	images.push_back("5082_8.jpg");
+	images.push_back("5083_1.jpg");
+	images.push_back("5084_102.jpg");
+	images.push_back("5085_3.jpg");
+	images.push_back("5086_4.jpg");
+	images.push_back("5087_105.jpg");
+	images.push_back("5088_101.jpg");
+	images.push_back("5089_102.jpg");
+	images.push_back("5090_3.jpg");
+	images.push_back("5091_4.jpg");
+	images.push_back("5092_105.jpg");
+	images.push_back("5093_106.jpg");
+	images.push_back("5094_107.jpg");
+	images.push_back("5095_108.jpg");
+	images.push_back("5096_1.jpg");
+	images.push_back("5097_102.jpg");
+	images.push_back("5098_101.jpg");
+	images.push_back("5099_2.jpg");
+	images.push_back("5101_4.jpg");
+	images.push_back("5102_105.jpg");
+	images.push_back("5103_106.jpg");
+	images.push_back("5104_7.jpg");
+	images.push_back("5105_101.jpg");
+	images.push_back("5106_102.jpg");
+	images.push_back("5107_103.jpg");
+	images.push_back("5108_4.jpg");
+	images.push_back("5109_101.jpg");
+	images.push_back("5110_102.jpg");
+	images.push_back("5111_1.jpg");
+	images.push_back("5112_2.jpg");
+	images.push_back("5113_103.jpg");
+	images.push_back("5114_104.jpg");
+	images.push_back("5115_5.jpg");
+	images.push_back("5116_1.jpg");
+	images.push_back("5117_102.jpg");
+	images.push_back("5118_103.jpg");
+	images.push_back("5119_4.jpg");
+	images.push_back("5120_105.jpg");
+	images.push_back("5121_101.jpg");
+	images.push_back("5122_102.jpg");
+	images.push_back("5123_103.jpg");
+	images.push_back("5124_104.jpg");
+	images.push_back("5125_1.jpg");
+	images.push_back("5126_2.jpg");
+	images.push_back("5127_3.jpg");
+	images.push_back("5128_104.jpg");
+	images.push_back("5129_101.jpg");
+	images.push_back("5130_102.jpg");
+	images.push_back("5131_103.jpg");
+	images.push_back("5132_4.jpg");
+	images.push_back("5133_5.jpg");
+	images.push_back("5134_106.jpg");
+	images.push_back("5135_101.jpg");
+	images.push_back("5136_102.jpg");
+	images.push_back("5137_103.jpg");
+	images.push_back("5138_104.jpg");
+	images.push_back("5139_1.jpg");
+	images.push_back("5140_2.jpg");
+	images.push_back("5141_3.jpg");
+	images.push_back("5142_104.jpg");
+	images.push_back("5143_101.jpg");
+	images.push_back("5144_102.jpg");
+	images.push_back("5145_3.jpg");
+	images.push_back("5146_4.jpg");
+	images.push_back("5147_5.jpg");
+	images.push_back("5148_106.jpg");
+	images.push_back("5149_101.jpg");
+	images.push_back("5150_102.jpg");
+	images.push_back("5151_103.jpg");
+	images.push_back("5152_104.jpg");
+	images.push_back("5153_5.jpg");
+	images.push_back("5154_106.jpg");
+	images.push_back("5155_1.jpg");
+	images.push_back("5156_2.jpg");
+	images.push_back("5157_101.jpg");
+	images.push_back("5158_102.jpg");
+	images.push_back("5159_3.jpg");
+	images.push_back("5160_4.jpg");
+	images.push_back("5161_105.jpg");
+	images.push_back("5162_101.jpg");
+	images.push_back("5163_102.jpg");
+	images.push_back("5164_3.jpg");
+	images.push_back("5165_4.jpg");
+	images.push_back("5166_1.jpg");
+
+}
+
+/*
+// Jede Sekunde die Bilder nehmen
 void initImages() {
 	images.push_back("0_1.jpg");
 	images.push_back("1000_1.jpg");
@@ -1390,7 +1534,6 @@ void initImages() {
 
 }
 
-/*
 void initImagesOLD() {
 	images.push_back("0_1.jpg");
 	images.push_back("1_102.jpg");
